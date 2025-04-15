@@ -1,16 +1,13 @@
 <template>
   <div class="card-view">
-    <component
-      v-for="(card, index) in props.cardsprops"
-      :key="index"
-      :is="props.myCard"
-      v-bind="cardsprops[index]"
-      @click="handleclick(cardsprops[index])"
-    />
-    <div class="add-card" >
-        <el-button type="primary" circle style="font-size: 20px;" @click="backpage"><</el-button>
-        <el-button type="primary" circle style="font-size: 20px;" @click="nextpage">></el-button>
+    <component v-for="(card, index) in props.cardsprops" :key="index" :is="props.myCard" v-bind="cardsprops[index]"
+      @click="handleclick(cardsprops[index])" />
+    <div class="add-card">
+      <el-button type="primary" circle style="font-size: 20px;" @click="backpage">
+        {{ "<" }} </el-button>
+          <el-button type="primary" circle style="font-size: 20px;" @click="nextpage">></el-button>
     </div>
+
   </div>
 </template>
 
@@ -56,6 +53,7 @@ const handleclick = (item) => {
   row-gap: 1%;
   column-gap: 4%;
 }
+
 .add-card {
   width: 100%;
   display: flex;
