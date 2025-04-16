@@ -1,14 +1,36 @@
 <script setup>
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 import LogIn from '@/components/LogIn.vue';
-import { reactive } from 'vue';
+import { reactive, onMounted } from 'vue';
 import RegiSter from '@/components/RegiSter.vue';
+// import {useUserStore} from '@/stores/user'
 const data = reactive({
   isShow:'login'
 })
 const handleT = (mess) =>{
     data.isShow = mess
 }
+
+// const router = useRouter();
+
+// const userstor = useUserStore()
+// onMounted(()=>{
+//   console.log('okkk', userstor.userInfo)
+//   if(userstor.userInfo.role === 0){
+//       router.push({name:'patient'});
+//       return
+//     }
+//     if(userstor.userInfo.role === 1){
+//       router.push({name:'doctor'});
+//       return
+//     }
+//     if(userstor.userInfo.role === 2){
+//       router.push({name:'admin'});
+//       return
+//     }
+// })
+
+
 
 </script>
 
@@ -32,8 +54,8 @@ const handleT = (mess) =>{
   height: 100vh;
 }
 .login{
-  width: 500px;
-  height: 400px;
+  width: 600px;
+  height: 450px;
   padding:1rem;
   background: vars.$card-bg;
   border-radius: 1rem;
