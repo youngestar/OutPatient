@@ -2,10 +2,12 @@
 import { DoAxios, DoAxiosWithErro } from '@/api';
 import { reactive, ref , defineEmits} from 'vue'
 import { ElMessage } from 'element-plus';
+import axios from 'axios';
 //   import { FormInstance, FormRules } from 'element-plus' // 不需要类型导入
 
 const ruleFormRef = ref('')
 const isfetching = ref(false);
+const isdetailed = ref(true);
 
 const sendButton = reactive({
   value:"发送请求",
@@ -16,9 +18,15 @@ const sendButton = reactive({
 const ruleForm = reactive({
   pass: '',
   checkPass: '',
-  name:'',
+  username:'',
   email:'',
-  checkcode:''
+  checkcode:'',
+  phone:'',
+  idCard:'',
+  name:'',
+  address:'',
+  gender:'',
+  region:''
 })
 const emit = defineEmits(["turnLoR"])
 
@@ -27,12 +35,9 @@ const handleturn = () => {
 }
 
 const handleSend = async () => {
-  const fromData = new FormData();
   sendButton.disable = true;
   try{
-    fromData.append('to',ruleForm.email)
-    const response = await DoAxios('/api/users/email','post',fromData,false);
-    console.log(response)
+    await axios(`/api/auth/sendEmail?email=${ruleForm.email}`);
     ElMessage({
       message:'发送成功',
       type:'success'
@@ -57,14 +62,14 @@ const handleSend = async () => {
   }
 } 
 
-const checkName = (rule,value,callback) => {
+const checkUserName = (rule,value,callback) => {
   if(!value) {
    return callback(new Error("请输入昵称"))
   }
-  DoAxios('/api/users/IsExists','get',{
+  DoAxios('/api/auth/IsExists','get',{
     type:'username',
     value
-  }).then(()=> {
+  },false).then(()=> {
     callback();
   }).catch(rject => {
     callback(rject);
@@ -85,7 +90,7 @@ const checkEmail = (rule, value, callback) => {
   }
 
   // 异步请求，检查邮箱是否已注册
-  DoAxios('/api/users/IsExists', 'get', {
+  DoAxios('/api/auth/IsExists', 'get', {
     type: 'email',
     value
   })
@@ -108,10 +113,70 @@ const checkCode = (rule,value,callback) => {
   callback();
 }
 
+const checkPhone = (rule,value,callback) => {
+  const reg = /^1[23456789]\d{10}$/;
+  if(value === '') {
+    return callback(new Error("请输入手机号"))
+  }
+  if(!reg.test(value)) {
+    return callback(new Error("请输入正确的手机号"))
+  }
+  callback();
+}
+
+const checkIDcard = (rule,value,callback) => {
+  const reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+  if(value === '') {
+    return callback(new Error("请输入身份证号"))
+  }
+  if(!reg.test(value)) {
+    return callback(new Error("请输入正确的身份证号"))
+  }
+  callback();
+}
+
+const checkName = (rule,value,callback) => {
+  if(value === '') {
+    return callback(new Error("请输入姓名"))
+  }
+  callback();
+}
+
+const checkAddress = (rule,value,callback) => {
+  if(value === '') {
+    return callback(new Error("请输入地址"))
+  }
+  callback();
+}
+
+const checkGender = (rule,value,callback) => {
+  if(value === '') {
+    return callback(new Error("请选择性别"))
+  }
+  callback();
+}
+
+const checkRegion = (rule,value,callback) => {
+  if(value === '') {
+    return callback(new Error("请选择地区"))
+  }
+  callback();
+}
+
+const checkAge = (rule,value,callback) => {
+  if(value === '') {
+    return callback(new Error("请输入年龄"))
+  }
+  if(value > 200 && value < 0) {
+    return callback(new Error("请输入正确的"))
+  }
+  callback();
+}
+
 const validatePass = (rule, value, callback) => {
   const reg = /^(?=.*[a-zA-Z])(?=.*[\d])[a-zA-Z\d]{6,10}$/;
   if (value === '') {
-    return callback(new Error('Please input the password'));
+    return callback(new Error('请输入密码'));
   }
   if (!reg.test(value)) {
     return callback(new Error("密码是至少各包含一个数字和英文的8位字符串"));
@@ -125,9 +190,9 @@ const validatePass = (rule, value, callback) => {
 
 const validatePass2 = (rule, value, callback) => {
   if (value === '') {
-    callback(new Error('Please input the password again'))
+    callback(new Error('请再次输入密码'))
   } else if (value !== ruleForm.pass) {
-    callback(new Error("Two inputs don't match!"))
+    callback(new Error("两次输入密码不一致!"))
   } else {
     callback()
   }
@@ -138,13 +203,19 @@ const validatePass2 = (rule, value, callback) => {
 const rules = reactive({
   pass: [{ validator: validatePass, trigger: 'change' }],
   checkPass: [{ validator: validatePass2, trigger: 'change' }],
-  name: [{validator: checkName, trigger:"blur"}],
+  username: [{validator: checkUserName, trigger:"blur"}],
   email:[{validator:checkEmail,trigger:"blur"}],
-  checkcode:[{validator:checkCode,trigger:'change'}]
+  checkcode:[{validator:checkCode,trigger:'change'}],
+  phone:[{validator:checkPhone,trigger:'change'}],
+  idCard:[{validator:checkIDcard,trigger:'change'}],
+  name:[{validator:checkName,trigger:'change'}],
+  address:[{validator:checkAddress,trigger:'change'}],
+  gender:[{validator:checkGender,trigger:'change'}],
+  region:[{validator:checkRegion,trigger:'change'}],
+  age:[{validator:checkAge,trigger:'change'}]
 })
 
 const submitForm = () => {
-  console.log("tiger")
   const formEl = ruleFormRef.value;
   if (!formEl) {
     console.log("undefind is err");
@@ -152,13 +223,22 @@ const submitForm = () => {
   }
   formEl.validate(async(valid) => {
     if (valid) {
-      const formdata = new FormData();
-      formdata.append('logName',ruleForm.name)
-      formdata.append('password',ruleForm.pass)
-      formdata.append('email',ruleForm.email)
-      formdata.append('checkCode',ruleForm.checkcode)
+      const formdata = {
+        username:ruleForm.username,
+        password:ruleForm.pass,
+        email:ruleForm.email,
+        verifyCode:ruleForm.checkcode,
+        phone:ruleForm.phone,
+        idCard:ruleForm.idCard,
+        name:ruleForm.name,
+        address:ruleForm.address,
+        gender:ruleForm.gender,
+        region:ruleForm.region,
+        age:ruleForm.age
+      }
       isfetching.value = true
-      await DoAxiosWithErro('/api/users/register','post',formdata,false).finally(()=> {
+      console.log(formdata);
+      await DoAxiosWithErro('/api/auth/register','post',formdata,false).finally(()=> {
         isfetching.value = false
       });
       ElMessage({
@@ -172,6 +252,7 @@ const submitForm = () => {
 
 const resetForm = (formEl) => {
   if (!formEl) return
+  isdetailed.value = true;
   formEl.resetFields()
 }
 
@@ -182,7 +263,6 @@ const sendMessage = async () => {
   const validationPromises = validateList.map(item => {
     return new Promise((resolve, reject) => {
       formEl.validateField(item, (validata) => {
-        console.log(validata); // 打印验证结果
         if (validata) {
           resolve(true);
         } else {
@@ -212,13 +292,45 @@ const sendMessage = async () => {
       label-width="auto"
       class="demo-ruleForm"
     >
-      <el-form-item label="昵称" prop="name">
+      <el-form-item v-show="!isdetailed" label="姓名" prop="name">
         <el-input v-model="ruleForm.name" autocomplete="off" />
       </el-form-item>
-      <el-form-item label="密码" prop="pass">
+      <el-form-item v-show="!isdetailed" label="年龄" prop="age">
+        <el-input-number v-model="ruleForm.age" :min="0" :max="150" />
+      </el-form-item>
+      <el-form-item v-show="!isdetailed" label="身份证号" prop="idCard">
+        <el-input v-model="ruleForm.idCard" autocomplete="off" />
+      </el-form-item>
+      <el-form-item v-show="!isdetailed" label="地区" prop="region">
+        <el-input v-model="ruleForm.region" autocomplete="off" />
+      </el-form-item>
+      <el-form-item v-show="!isdetailed" label="详细地址" prop="address">
+        <el-input v-model="ruleForm.address" autocomplete="off" />
+      </el-form-item>
+      <el-form-item v-show="!isdetailed" label="邮箱" prop="email">
+        <el-input v-model="ruleForm.email" autocomplete="off" />
+      </el-form-item>
+      <el-form-item v-show="!isdetailed" class="checkcode" label="验证码" prop="checkcode">
+        <el-input class="code"  v-model="ruleForm.checkcode" autocomplete="off" />
+        <el-button class="but" @click="sendMessage" :disabled="sendButton.disable">
+          <span v-show="sendButton.disable && sendButton.refresh">{{ sendButton.refresh }}秒后</span>
+          {{ sendButton.value }}
+        </el-button>
+      </el-form-item>
+      <el-form-item v-show="isdetailed" label="昵称" prop="username">
+        <el-input v-model="ruleForm.username" autocomplete="off" />
+      </el-form-item>
+      <el-form-item v-show="isdetailed" label="性别" prop="gender">
+        <el-radio-group v-model="ruleForm.gender">
+          <el-radio label=1>男</el-radio>
+          <el-radio label=2>女</el-radio>
+          <el-radio label=0>未知</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item v-show="isdetailed" label="密码" prop="pass">
         <el-input v-model="ruleForm.pass" type="password" show-password autocomplete="off" />
       </el-form-item>
-      <el-form-item label="密码确认" prop="checkPass">
+      <el-form-item v-show="isdetailed" label="密码确认" prop="checkPass">
         <el-input
           v-model="ruleForm.checkPass"
           type="password"
@@ -226,20 +338,14 @@ const sendMessage = async () => {
           autocomplete="off"
         />
       </el-form-item>
-      <el-form-item label="邮箱" prop="email">
-        <el-input v-model="ruleForm.email" autocomplete="off" />
+      <el-form-item v-show="isdetailed" label="手机号" prop="phone">
+        <el-input v-model="ruleForm.phone" autocomplete="off" />
       </el-form-item>
-      <el-form-item class="checkcode" label="验证码" prop="checkcode">
-        <el-input class="code"  v-model="ruleForm.checkcode" autocomplete="off" />
-        <el-button class="but" @click="sendMessage" :disabled="sendButton.disable">
-          <span v-show="sendButton.disable && sendButton.refresh">{{ sendButton.refresh }}秒后</span>
-          {{ sendButton.value }}
-        </el-button>
-      </el-form-item>
-      <el-form-item class="sub">
-        <el-button type="primary" @click="submitForm" :disabled="isfetching">
+      <el-form-item  class="sub">
+        <el-button v-if="!isdetailed" type="primary" @click="submitForm" :disabled="isfetching">
           注册
         </el-button>
+        <el-button v-if="isdetailed" type="primary" @click="isdetailed = !isdetailed">完成</el-button>
         <el-button @click="resetForm(ruleFormRef)">重置</el-button>
       </el-form-item>
     </el-form>

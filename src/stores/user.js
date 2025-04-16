@@ -14,27 +14,18 @@ export const useUserStore =  defineStore('user',{
       // 3. 定义 actions
       actions: {
         async login(userData) {
-              const Info = {};
-
-              // this is text, only view
-              Info.username = 'Nad Am'
-              Info.avatar = 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png';
-
-              // this is dev
-
-              // const data = await DoAxiosWithErro('/api/users/login','post',userData,false);
-              // this.userToken = data.data.saTokenInfo.tokenValue;
-              // Info.username = data.data.username;
-              // localStorage.setItem('userToken', this.userToken);
-              // const formdata = new FormData();
-              // formdata.append('isChange',false);
-              // formdata.append('avatar','');
-              // const respon = await DoAxiosWithErro('/api/users/avatar','post',formdata,true);
-              // Info.avatar = respon.data;
-              this.userInfo = Info;
-              const infoJSON = JSON.stringify(Info);
-              localStorage.setItem('useInfo',infoJSON);
-              // console.log(infoJSON,'and',localStorage.getItem('useInfo'));
+              let Info = {};
+              await DoAxiosWithErro('/api/auth/login','post',userData,false).then(data => {
+                Info = data.data;
+                this.userToken = data.data.token;
+                localStorage.setItem('userToken', this.userToken);
+                this.userInfo = Info;
+                const infoJSON = JSON.stringify(Info);
+                localStorage.setItem('useInfo',infoJSON);
+                this.isLoggedIn = true; 
+              }
+              );
+              
         },
         async logout() {
           this.userInfo = null;

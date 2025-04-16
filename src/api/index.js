@@ -3,7 +3,7 @@ import { ElMessage } from "element-plus";
 import { useUserStore } from "@/stores/user";
 
 const myApi = axios.create({
-    baseURL: 'http://127.0.0.1:5173',
+    baseURL: 'http://localhost:5173',
     timeout: 20000,
 });
 
@@ -15,7 +15,7 @@ myApi.interceptors.response.use(
         }
         const status = error.response?.status;
         const message = error.response?.data?.message || "系统出错，请尝试重新登录";
-        // ElMessage.error(`[${status}] ${message}`);
+        ElMessage.error(`[${status}] ${message}`);
         return Promise.reject(`${status + message}`);
     }
 );
@@ -37,7 +37,7 @@ export const DoAxios = async (path, method, requestInfo, withToken,haveBody = fa
         };
     }
 
-    if (['get', 'delete'].includes(method) && !haveBody) {
+    if (['get', 'delete'].includes(method) && !haveBody && requestInfo) {
         requestConfig['params'] = requestInfo;
     } else {
         requestConfig['data'] = requestInfo;
@@ -52,7 +52,7 @@ export const DoAxios = async (path, method, requestInfo, withToken,haveBody = fa
     }
 
     const data = resp.data;
-    if (!data.success) {
+    if (data.code !== 200) {
         throw data.errorMsg || '未知错误';
     }
 

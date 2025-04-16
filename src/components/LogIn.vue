@@ -22,10 +22,24 @@ const handelturn = () => {
 const handleLogin = async () => {
   if(logining.value) return;
   try{
-    const userInfo = {account:form.name,password:form.password};
+    const userInfo = {
+      account:form.name,
+      password:form.password
+    };
     logining.value = true;
     await userstor.login(userInfo);
-    router.push('/home')
+    if(userstor.isLoggedIn && userstor.userInfo.role === 0){
+      router.push({name:'patient'});
+      return
+    }
+    if(userstor.isLoggedIn && userstor.userInfo.role === 1){
+      router.push({name:'doctor'});
+      return
+    }
+    if(userstor.isLoggedIn && userstor.userInfo.role === 2){
+      router.push({name:'admin'});
+      return
+    }
   }  finally {
     logining.value = false;
   }
