@@ -11,7 +11,7 @@
 </script>
 
 <style lang="scss" scoped>
-.ap-top{
+.ap-top {
   height: 2rem;
   width: 100px;
   margin: 1rem;

@@ -5,8 +5,8 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 import * as echarts from 'echarts/core';
-import { GridComponent, GridComponentOption } from 'echarts/components';
-import { LineChart, LineSeriesOption } from 'echarts/charts';
+import { GridComponent, type GridComponentOption } from 'echarts/components';
+import { LineChart, type LineSeriesOption } from 'echarts/charts';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 

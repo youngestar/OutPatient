@@ -18,6 +18,23 @@ const router = createRouter({
           path: "",
           name: "medicalAp",
           component: () => import("../views/patient/MedicalAp.vue"),
+          children: [
+            {
+              path: "",
+              name: "department",
+              component: () => import("@/components/Registrations/DepartmentCard.vue"),
+            },
+            {
+              path: ":department/:clinic",
+              name: "clinic",
+              component: () => import("@/components/Registrations/ClinicCard.vue"),
+            },
+            {
+              path: ":department/:clinic/:doctor",
+              name: "doctor",
+              component: () => import("@/components/Registrations/Doctor.vue"),
+            },
+          ],
         },
         {
           path: "chat",

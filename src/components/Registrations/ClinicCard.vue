@@ -1,19 +1,15 @@
 <template>
-  <div class="medical-ap">
-    <ApTop></ApTop>
-    <div style="flex: 1;">
-      <RouterView></RouterView>
-    </div>
+  <div>
+    2132121312
   </div>
 </template>
 
 <script lang="ts" setup>
-import ApTop from '@/components/ApTop.vue'
-import { RouterView } from 'vue-router'
 import DepartCard from '@/components/DepartCard.vue'
-import DoctorCard from '@/components/DoctorCard.vue'
 import CardView from '@/views/CardView.vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter();
 const departs = [
   {
     name: '内科',
@@ -57,8 +53,13 @@ const departs = [
   },
 ]
 
-const handleclick = (item) => {
-  console.log(item);
+const handleclick = (clinicName: string) => {
+  router.push({
+    name: "clinic",
+    params: {
+      clinic: clinicName,
+    }
+  })
 }
 </script>
 
