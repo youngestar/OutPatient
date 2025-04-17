@@ -29,7 +29,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { DoAxiosWithErro } from '@/api/index';
+import { DoAxios } from '@/api/index';
 import { useUserStore } from "@/stores/user";
 
 const messages = ref([
@@ -47,7 +47,7 @@ const newMessage = ref('');
 const chatMessages = ref<HTMLElement | null>(null);
 const sessionId = ref<number | null>(null);
 
-const sendMessage = () => {
+const sendMessage = async () => {
   if (newMessage.value.trim() === '') return;
 
   // 添加用户消息
@@ -57,33 +57,17 @@ const sendMessage = () => {
     avatar: '/src/assets//me.png',
   });
 
+
+
   // 清空输入框
   newMessage.value = '';
+
 
   // 滚动到底部
   scrollToBottom();
 
-  // 模拟AI回复
-  setTimeout(() => {
-    const aiResponses = [
-      '我明白了，你想要了解什么？',
-      '好的，我正在处理你的请求。',
-      '请提供更多信息，我会尽力帮助你。',
-      '看起来你有一个很好的问题！',
-      '我正在思考如何最好地回答你的问题。',
-    ];
 
-    // 随机选择一个AI回复
-    const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
-
-    messages.value.push({
-      sender: 'ai',
-      text: randomResponse,
-      avatar: '/src/assets/AIavator.png',
-    });
-
-    scrollToBottom();
-  }, 1000);
+  
 };
 
 const scrollToBottom = () => {
@@ -92,14 +76,17 @@ const scrollToBottom = () => {
   }
 };
 
-onMounted(() => {
-  DoAxiosWithErro('/api/appointment/ai-consult/connect','post',{
+onMounted(async () => {
+  console.log('ok')
+  DoAxios('/api/appointment/ai-consult/connect','get',{
     sessionId:sessionId.value,
     appointmentId:388,
     patientId: userStore.userInfo.patientId as number | null,
-  },true).then((res)=>{
+  },true).then((res: Promise<any>)=>{
     console.log(res)
-  });
+  })
+
+
   scrollToBottom();
 });
 </script>
