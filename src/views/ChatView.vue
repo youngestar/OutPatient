@@ -29,6 +29,8 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
+import { DoAxiosWithErro } from '@/api/index';
+import { useUserStore } from "@/stores/user";
 
 const messages = ref([
   {
@@ -38,9 +40,12 @@ const messages = ref([
   },
 ]);
 
+const userStore = useUserStore();
+
 const newMessage = ref('');
 
 const chatMessages = ref<HTMLElement | null>(null);
+const sessionId = ref<number | null>(null);
 
 const sendMessage = () => {
   if (newMessage.value.trim() === '') return;
@@ -88,6 +93,13 @@ const scrollToBottom = () => {
 };
 
 onMounted(() => {
+  DoAxiosWithErro('/api/appointment/ai-consult/connect','post',{
+    sessionId:sessionId.value,
+    appointmentId:388,
+    patientId: userStore.userInfo.patientId as number | null,
+  },true).then((res)=>{
+    console.log(res)
+  });
   scrollToBottom();
 });
 </script>
