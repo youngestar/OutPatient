@@ -31,6 +31,7 @@
 import { ref, onMounted } from 'vue';
 import { DoAxios } from '@/api/index';
 import { useUserStore } from "@/stores/user";
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 const messages = ref([
   {
@@ -51,21 +52,51 @@ const sendMessage = async () => {
   if (newMessage.value.trim() === '') return;
 
   // 添加用户消息
-  messages.value.push({
+
+  const userMessae = {
     sender: 'user',
     text: newMessage.value,
-    avatar: '/src/assets//me.png',
-  });
+    avatar: '/src/assets/me.png',
+  }
+
+  messages.value.push(userMessae);
 
 
 
-  // 清空输入框
-  newMessage.value = '';
 
 
   // 滚动到底部
   scrollToBottom();
 
+
+
+  fetchEventSource('/api/appointment/ai-consult/send', {
+    method: 'POST',
+    headers: {
+    'Content-Type': 'application/json',
+     'sa-token-authorization':userStore.userToken
+    },
+    body: JSON.stringify({
+      sessionId: sessionId.value,
+      patientId: userStore.userInfo.userId as number,
+      question: newMessage.value,
+      appointmentId: 388
+    }),
+    onmessage(ev) {
+    console.log(ev.data);
+    },
+    onopen(response) {
+    // 连接建立时的回调
+      console.log('连接已建立',response);
+    },
+    onerror(err) {
+    // 连接出现异常时的回调
+    throw err; // 抛出错误以停止操作
+    }
+  });
+
+  // 清空输入框
+  newMessage.value = '';
 
   
 };
@@ -78,13 +109,16 @@ const scrollToBottom = () => {
 
 onMounted(async () => {
   console.log('ok')
-  DoAxios('/api/appointment/ai-consult/connect','get',{
-    sessionId:sessionId.value,
-    appointmentId:388,
-    patientId: userStore.userInfo.patientId as number | null,
-  },true).then((res: Promise<any>)=>{
-    console.log(res)
-  })
+  fetchEventSource('/api/appointment/ai-consult/connect?appointmentId=388&patientId=3', {
+  headers: {
+    'sa-token-authorization':userStore.userToken
+  },
+  onmessage(event) {
+    const data = JSON.parse(event.data);
+    sessionId.value = data.data.sessionId;
+    console.log(sessionId.value);
+  }
+});
 
 
   scrollToBottom();
