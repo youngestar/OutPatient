@@ -25,14 +25,14 @@ const router = createRouter({
               component: () => import("@/components/Registrations/DepartmentCard.vue"),
             },
             {
-              path: ":department/:clinic",
+              path: ":department",
               name: "clinic",
               component: () => import("@/components/Registrations/ClinicCard.vue"),
             },
             {
-              path: ":department/:clinic/:doctor",
-              name: "doctor",
-              component: () => import("@/components/Registrations/Doctor.vue"),
+              path: ":department/:clinic",
+              name: "clinicDoctor",
+              component: () => import("@/components/Registrations/DoctorCard.vue"),
             },
           ],
         },

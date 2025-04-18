@@ -1,11 +1,11 @@
 <template>
   <div>
-    <CardView :cardsprops="clinic" :myCard="DepartCard" @handleclick="handleclick('1', '2')"></CardView>
+    <DoctorCard></DoctorCard>
   </div>
 </template>
 
 <script lang="ts" setup>
-import DepartCard from '@/components/DepartCard.vue'
+import DoctorCard from '../DoctorCard.vue';
 import CardView from '@/views/CardView.vue'
 import { useRouter } from 'vue-router'
 
@@ -23,7 +23,7 @@ const clinic = [
 
 const handleclick = (departmentName: string, clinicName: string) => {
   router.push({
-    name: "clinicDoctor",
+    name: "clinic",
     params: {
       department: departmentName,
       clinic: clinicName,

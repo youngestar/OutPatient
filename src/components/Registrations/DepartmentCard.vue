@@ -1,5 +1,5 @@
 <template>
-  <CardView @handleclick="handleclick('1', '2')" style="text-align: center;" :cardsprops="departs" :myCard="DepartCard">
+  <CardView @handleclick="handleclick('1')" style="text-align: center;" :cardsprops="departs" :myCard="DepartCard">
   </CardView>
 </template>
 
@@ -52,12 +52,11 @@ const departs = [
   },
 ]
 
-const handleclick = (departmentName: string, clinicName: string) => {
+const handleclick = (departmentName: string) => {
   router.push({
     name: "clinic",
     params: {
       department: departmentName,
-      clinic: clinicName,
     }
   })
 }

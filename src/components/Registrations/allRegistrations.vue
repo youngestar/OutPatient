@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElScrollbar } from 'element-plus';
-import RegistrationCard from '../RegistrationCard.vue';
+import RegistrationCard from './RegistrationCard.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -16,7 +16,7 @@ const goToDetail = (id: string) => {
 
 <template>
   <el-scrollbar>
-    <RegistrationCard @click="goToDetail(1)"></RegistrationCard>
+    <RegistrationCard @click="goToDetail('1')"></RegistrationCard>
   </el-scrollbar>
 </template>
 
