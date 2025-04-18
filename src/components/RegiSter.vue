@@ -275,6 +275,7 @@ const sendMessage = async () => {
   });
 
   Promise.all(validationPromises).then(() => {
+    
     handleSend();  // 验证通过后发送消息
   })
 };

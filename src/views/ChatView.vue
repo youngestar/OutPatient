@@ -10,7 +10,10 @@
         </div>
         <div class="message-content">
           <div class="message-sender">{{ message.sender === 'user' ? '你' : 'AI助手' }}</div>
-          <div class="message-text">{{ message.text }}</div>
+          <div class="message-text">
+            {{ message.text }}
+            <div class="loading" v-if="message.sender === 'ai' && isLoading && index === messages.length - 1"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -22,18 +25,19 @@
         class="textarea-field"
         rows="3"
       ></textarea>
-      <button @click="sendMessage" class="send-button">发送</button>
+      <button :disabled="isLoading" @click="sendMessage" class="send-button">发送</button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted, reactive } from 'vue';
 import { DoAxios } from '@/api/index';
 import { useUserStore } from "@/stores/user";
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { ElMessage } from 'element-plus';
 
-const messages = ref([
+const messages = reactive([
   {
     sender: 'ai',
     text: '你好！有什么我可以帮助你的吗？',
@@ -42,16 +46,15 @@ const messages = ref([
 ]);
 
 const userStore = useUserStore();
-
+const isLoading = ref<boolean>(false);
 const newMessage = ref('');
 
 const chatMessages = ref<HTMLElement | null>(null);
-const sessionId = ref<number | null>(null);
+const sessionId = ref<string | null>(null);
+const fetchsource = ref<AbortController | null>(new AbortController());
 
 const sendMessage = async () => {
   if (newMessage.value.trim() === '') return;
-
-  // 添加用户消息
 
   const userMessae = {
     sender: 'user',
@@ -59,31 +62,76 @@ const sendMessage = async () => {
     avatar: '/src/assets/me.png',
   }
 
-  messages.value.push(userMessae);
+  messages.push(userMessae);
 
-
-
-
-
-  // 滚动到底部
   scrollToBottom();
 
+  DoAxios('/api/appointment/ai-consult/send','post',{
+    patientId: userStore.userInfo.userId as number,
+    question: newMessage.value,
+    appointmentId: 1,
+    sessionId: sessionId.value
+  },true).then(()=> {
+    // 清空输入框
+    newMessage.value = '';
+    isLoading.value = true;
+    messages.push({
+      sender: 'ai',
+      text: newMessage.value,
+      avatar: '/src/assets/AIavator.png',
+    })
+  }).catch(() => {
+    ElMessage({
+      message: '发送失败',
+      type: 'error',
+    })
+  })
+};
 
+const scrollToBottom = () => {
+  if (chatMessages.value) {
+    chatMessages.value.scrollTop = chatMessages.value.scrollHeight;
+  }
+};
 
-  fetchEventSource('/api/appointment/ai-consult/send', {
+const handleStreamMessage = (value: string) => {
+  if(messages[messages.length - 1].sender === 'user'){
+    messages.push({
+      sender: 'ai',
+      text: newMessage.value,
+      avatar: '/src/assets/AIavator.png',
+    })
+    return
+  }
+  messages[messages.length - 1].text = messages[messages.length - 1].text + value;
+}
+
+onMounted(async () => {
+  fetchEventSource('/api//appointment/ai-consult/connect', {
     method: 'POST',
     headers: {
-    'Content-Type': 'application/json',
+     'Content-Type': 'application/json',
      'sa-token-authorization':userStore.userToken
     },
     body: JSON.stringify({
-      sessionId: sessionId.value,
       patientId: userStore.userInfo.userId as number,
       question: newMessage.value,
-      appointmentId: 388
+      appointmentId: 1
     }),
+    signal: fetchsource.value?.signal,
     onmessage(ev) {
-    console.log(ev.data);
+      const data = JSON.parse(ev.data);
+      if(data.content === "连接已建立"){
+        sessionId.value = data.sessionId;
+        return
+      }
+      if(data.event === "message") {
+        handleStreamMessage(data.content)
+      }
+      if(data.event === "complete") {
+        isLoading.value = false;
+        return
+      }
     },
     onopen(response) {
     // 连接建立时的回调
@@ -94,35 +142,15 @@ const sendMessage = async () => {
     throw err; // 抛出错误以停止操作
     }
   });
-
-  // 清空输入框
-  newMessage.value = '';
-
   
-};
-
-const scrollToBottom = () => {
-  if (chatMessages.value) {
-    chatMessages.value.scrollTop = chatMessages.value.scrollHeight;
-  }
-};
-
-onMounted(async () => {
-  console.log('ok')
-  fetchEventSource('/api/appointment/ai-consult/connect?appointmentId=388&patientId=3', {
-  headers: {
-    'sa-token-authorization':userStore.userToken
-  },
-  onmessage(event) {
-    const data = JSON.parse(event.data);
-    sessionId.value = data.data.sessionId;
-    console.log(sessionId.value);
-  }
 });
 
 
-  scrollToBottom();
-});
+onUnmounted(() => {
+  if(fetchsource.value){
+    fetchsource.value.abort();
+  }
+})
 </script>
 
 <style scoped>
@@ -166,6 +194,21 @@ onMounted(async () => {
 
 .message.user .message-avatar {
   order: 2;
+}
+
+.loading {
+  border: 4px solid #f3f3f3; /* Light grey */
+  border-top: 4px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 2s linear infinite;
+  margin-top: 5px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .message-avatar {

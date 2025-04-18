@@ -16,7 +16,7 @@
 
 <script lang="ts" setup>
 import CbOpCard from '@/components/CbOpCard.vue';
-import DepartmentCard from '@/components/DepartmentCard.vue';
+import DepartmentCard from '@/components/DepartCard.vue';
 import component from 'element-plus/es/components/tree-select/src/tree-select-option.mjs';
 import { defineProps, defineEmits } from 'vue';
 
