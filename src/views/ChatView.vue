@@ -29,6 +29,9 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
+import { DoAxios } from '@/api/index';
+import { useUserStore } from "@/stores/user";
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 const messages = ref([
   {
@@ -38,47 +41,64 @@ const messages = ref([
   },
 ]);
 
+const userStore = useUserStore();
+
 const newMessage = ref('');
 
 const chatMessages = ref<HTMLElement | null>(null);
+const sessionId = ref<number | null>(null);
 
-const sendMessage = () => {
+const sendMessage = async () => {
   if (newMessage.value.trim() === '') return;
 
   // 添加用户消息
-  messages.value.push({
+
+  const userMessae = {
     sender: 'user',
     text: newMessage.value,
-    avatar: '/src/assets//me.png',
+    avatar: '/src/assets/me.png',
+  }
+
+  messages.value.push(userMessae);
+
+
+
+
+
+  // 滚动到底部
+  scrollToBottom();
+
+
+
+  fetchEventSource('/api/appointment/ai-consult/send', {
+    method: 'POST',
+    headers: {
+    'Content-Type': 'application/json',
+     'sa-token-authorization':userStore.userToken
+    },
+    body: JSON.stringify({
+      sessionId: sessionId.value,
+      patientId: userStore.userInfo.userId as number,
+      question: newMessage.value,
+      appointmentId: 388
+    }),
+    onmessage(ev) {
+    console.log(ev.data);
+    },
+    onopen(response) {
+    // 连接建立时的回调
+      console.log('连接已建立',response);
+    },
+    onerror(err) {
+    // 连接出现异常时的回调
+    throw err; // 抛出错误以停止操作
+    }
   });
 
   // 清空输入框
   newMessage.value = '';
 
-  // 滚动到底部
-  scrollToBottom();
-
-  // 模拟AI回复
-  setTimeout(() => {
-    const aiResponses = [
-      '我明白了，你想要了解什么？',
-      '好的，我正在处理你的请求。',
-      '请提供更多信息，我会尽力帮助你。',
-      '看起来你有一个很好的问题！',
-      '我正在思考如何最好地回答你的问题。',
-    ];
-
-    // 随机选择一个AI回复
-    const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
-
-    messages.value.push({
-      sender: 'ai',
-      text: randomResponse,
-      avatar: '/src/assets/AIavator.png',
-    });
-
-    scrollToBottom();
-  }, 1000);
+  
 };
 
 const scrollToBottom = () => {
@@ -87,7 +107,20 @@ const scrollToBottom = () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  console.log('ok')
+  fetchEventSource('/api/appointment/ai-consult/connect?appointmentId=388&patientId=3', {
+  headers: {
+    'sa-token-authorization':userStore.userToken
+  },
+  onmessage(event) {
+    const data = JSON.parse(event.data);
+    sessionId.value = data.data.sessionId;
+    console.log(sessionId.value);
+  }
+});
+
+
   scrollToBottom();
 });
 </script>
