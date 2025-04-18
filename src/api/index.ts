@@ -19,7 +19,6 @@ myApi.interceptors.response.use(
   },
   (error) => {
     // 请求超时处理
-    console.log(error)
     if (error.code === "ECONNABORTED" && error.message?.includes("timeout")) {
       return Promise.reject("请求超时，请稍后重试");
     }
@@ -56,7 +55,6 @@ export const DoAxios = async (
     if (!token) {
       throw new Error("Token 为空，请先登录");
     }
-
     requestConfig.headers = {
       "sa-token-authorization": token,
     };
@@ -72,7 +70,10 @@ export const DoAxios = async (
   // 请求并返回数据
   try {
     const resp = await myApi(requestConfig);
-    return resp.data;
+    if( resp.data.code === 200) {
+      return resp.data.data;
+    }
+    throw new Error(resp.data.message);
   } catch (error: any) {
     throw new Error(error?.message || "未知错误");
   }
