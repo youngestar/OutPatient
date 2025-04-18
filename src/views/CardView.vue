@@ -1,22 +1,23 @@
 <template>
   <div class="card-view">
-    <component
-      v-for="(card, index) in props.cardsprops"
-      :key="index"
-      :is="props.myCard"
-      v-bind="cardsprops[index]"
-      @click="handleclick(cardsprops[index])"
-    />
-    <div class="add-card" >
-        <el-button type="primary" circle style="font-size: 20px;" @click="backpage"><</el-button>
-        <el-button type="primary" circle style="font-size: 20px;" @click="nextpage">></el-button>
+    <component v-for="(card, index) in props.cardsprops" :key="index" :is="props.myCard" v-bind="cardsprops[index]"
+      @click="handleclick(cardsprops[index])" />
+    <div class="add-card">
+      <el-button type="primary" circle style="font-size: 20px;" @click="backpage">
+        {{ "<" }} </el-button>
+          <el-button type="primary" circle style="font-size: 20px;" @click="nextpage">></el-button>
     </div>
+
   </div>
 </template>
 
 <script lang="ts" setup>
 import CbOpCard from '@/components/CbOpCard.vue';
+<<<<<<< HEAD
 import DepartmentCard from '@/components/DepartCard.vue';
+=======
+// import DepartmentCard from '@/components/DepartmentCard.vue';
+>>>>>>> 8435528315191315a0f1374709e2c60c2704dcf7
 import component from 'element-plus/es/components/tree-select/src/tree-select-option.mjs';
 import { defineProps, defineEmits } from 'vue';
 
@@ -56,6 +57,7 @@ const handleclick = (item) => {
   row-gap: 1%;
   column-gap: 4%;
 }
+
 .add-card {
   width: 100%;
   display: flex;

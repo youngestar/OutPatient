@@ -1,29 +1,30 @@
 <template>
   <div id="card" class="light-shadow cardHover">
-    <h2>我的信息</h2>
-    <el-avatar :size="160" :src="'/src/assets/me.png'" style="float: left; margin: 0  50px 0 20px;"></el-avatar>
+    <h2>患者信息</h2>
     <div id="main-msg">
       <div class="left">
+        <p><span class="label">当前序号:</span><span class="detail">{{ num }}</span></p>
         <p><span class="label">姓名:</span><span class="detail">{{ name }}</span></p>
         <p><span class="label">性别:</span><span class="detail">{{ gender }}</span></p>
         <p><span class="label">年龄:</span><span class="detail">{{ age }}</span></p>
-        <p><span class="label">地区:</span><span class="detail">{{ id }}</span></p>
-        <p><span class="label">详细住址:</span><span class="detail">{{ id }}</span></p>
+        <p><span class="label">病历号:</span><span class="detail">{{ id }}</span></p>
       </div>
       <div class="right">
-        <p><span class="label">手机号:</span><span class="detail">{{ registerTime }}</span></p>
-        <p><span class="label">邮箱:</span><span class="detail">{{ department }}</span></p>
-        <p><span class="label">身份证号:</span><span class="detail">{{ clinicRoom }}</span></p>
+        <p><span class="label">挂号时间:</span><span class="detail">{{ registerTime }}</span></p>
+        <p><span class="label">科室名:</span><span class="detail">{{ department }}</span></p>
+        <p><span class="label">诊室名:</span><span class="detail">{{ clinicRoom }}</span></p>
+        <p><span class="label">当前状态:</span><el-tag class="detail" type="warning">{{ state }}</el-tag></p>
+        <p><span class="label">备注:</span><span class="detail">{{ note }}</span></p>
       </div>
     </div>
-    <!-- <p><span class="label">症状:</span><span class="detail">{{ description }}</span></p> -->
+    <p><span class="label">症状:</span><span class="detail">{{ description }}</span></p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { defineProps, ref } from 'vue';
 import { Clock, ShoppingCart, Delete } from '@element-plus/icons-vue';
-import { ElAvatar } from 'element-plus';
+import { ElTag, } from 'element-plus';
 const props = defineProps({
   num: {
     type: Number,
@@ -83,17 +84,19 @@ const props = defineProps({
 });
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 #card {
-  height: 95%;
-  width: 96.5%;
+  float: left;
+  min-height: 200px;
+  width: 42%;
+  margin: 10px 2%;
   min-width: 400px;
   padding: 20px;
-  background-color: vars.$card-bg-depart;
+  background: vars.$card-bg-depart;
   border-radius: 10px;
+  color: #303133;
 
   h2 {
-    font-size: 40px;
     border-bottom: 1px solid black;
     padding-bottom: 10px;
     margin-bottom: 10px;
@@ -109,17 +112,17 @@ const props = defineProps({
 
   p {
     display: flex;
-    font-size: 20px;
-    margin: 50px 0;
+    margin: 1px 0;
 
     .label {
-      max-width: 100px;
+      width: 70px;
       text-align: left;
     }
 
     .detail {
       font-weight: bold;
       margin-left: 20px;
+      color: #606266;
     }
   }
 }
