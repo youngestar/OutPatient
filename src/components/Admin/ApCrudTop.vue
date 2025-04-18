@@ -1,6 +1,7 @@
 <template>
   <div class="ap-top">
     <el-button type="primary" @click="backpage">上一级</el-button>
+    <el-button type="primary" @click="backpage">添加</el-button>
   </div>
 </template>
 

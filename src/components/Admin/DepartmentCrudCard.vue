@@ -54,7 +54,7 @@ const departs = [
 
 const handleclick = (departmentName: string) => {
   router.push({
-    name: "clinic",
+    name: "crudClinic",
     params: {
       department: departmentName,
     }

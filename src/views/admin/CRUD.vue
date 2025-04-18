@@ -1,65 +1,18 @@
 <template>
-  <CardView @handleclick="handleclick('1')" style="text-align: center;" :cardsprops="departs" :myCard="DepartCrudCard">
-  </CardView>
+  <el-scrollbar>
+    <div class="medical-ap">
+      <ApCrudTop></ApCrudTop>
+      <div style="flex: 1;">
+        <RouterView></RouterView>
+      </div>
+    </div>
+  </el-scrollbar>
 </template>
 
 <script lang="ts" setup>
-import DepartCrudCard from '@/components/Admin/DepartCrudCard.vue'
-import CardView from '@/views/CardView.vue'
-import { useRouter } from 'vue-router'
-
-const router = useRouter();
-const departs = [
-  {
-    name: '内科',
-    desc: '内科疾病诊断与治疗',
-  },
-  {
-    name: '外科',
-    desc: '外科疾病诊断与治疗',
-  },
-  {
-    name: '妇产科',
-    desc: '妇产科疾病诊断与治疗',
-  },
-  {
-    name: '儿科',
-    desc: '儿科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-]
-
-const handleclick = (departmentName: string) => {
-  router.push({
-    name: "clinic",
-    params: {
-      department: departmentName,
-    }
-  })
-}
+import ApCrudTop from '@/components/Admin/ApCrudTop.vue'
+import { RouterView } from 'vue-router'
+import { ElScrollbar } from 'element-plus';
 </script>
 
 <style lang="scss" scoped>

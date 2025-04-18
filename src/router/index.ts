@@ -101,6 +101,23 @@ const router = createRouter({
           path: "",
           name: "crud",
           component: () => import("../views/admin/CRUD.vue"),
+          children: [
+            {
+              path: "",
+              name: "crudDepartment",
+              component: () => import("@/components/Admin/DepartmentCrudCard.vue"),
+            },
+            {
+              path: ":department",
+              name: "crudClinic",
+              component: () => import("@/components/Admin/ClinicCrudCard.vue"),
+            },
+            {
+              path: ":department/:clinic",
+              name: "crudClinicDoctor",
+              component: () => import("@/components/Admin/DoctorCrudCard.vue"),
+            },
+          ],
         },
         {
           path: "shedule",

@@ -3,7 +3,10 @@
     <h3 class="department-title">{{ props.name }}</h3>
     <div class="department-content">
       <p>{{ props.desc }}</p>
-      131221312
+    </div>
+    <div id="btns">
+      <el-button type="primary" @click="$emit('click', props.name)">修改</el-button>
+      <el-button type="danger" @click="$emit('click', props.name)">删除</el-button>
     </div>
   </div>
 </template>
@@ -30,6 +33,7 @@ const props = defineProps({
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 16px;
+  margin: 5px;
   display: flex;
   flex-direction: column;
 }
