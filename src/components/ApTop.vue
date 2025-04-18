@@ -8,6 +8,10 @@
 
 <script lang="ts" setup>
 
+const backpage = () => {
+  console.log('backpage')
+}
+
 </script>
 
 <style lang="scss" scoped>

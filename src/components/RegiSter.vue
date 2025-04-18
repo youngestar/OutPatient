@@ -37,7 +37,9 @@ const handleturn = () => {
 const handleSend = async () => {
   sendButton.disable = true;
   try{
-    await axios(`/api/auth/sendEmail?email=${ruleForm.email}`);
+    await DoAxios(`/api/auth/email`,'get',{
+      email:ruleForm.email
+    },false);
     ElMessage({
       message:'发送成功',
       type:'success'
