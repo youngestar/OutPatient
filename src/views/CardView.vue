@@ -13,11 +13,7 @@
 
 <script lang="ts" setup>
 import CbOpCard from '@/components/CbOpCard.vue';
-<<<<<<< HEAD
 import DepartmentCard from '@/components/DepartCard.vue';
-=======
-// import DepartmentCard from '@/components/DepartmentCard.vue';
->>>>>>> 8435528315191315a0f1374709e2c60c2704dcf7
 import component from 'element-plus/es/components/tree-select/src/tree-select-option.mjs';
 import { defineProps, defineEmits } from 'vue';
 

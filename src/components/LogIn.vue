@@ -23,8 +23,8 @@ const handleLogin = async () => {
   if(logining.value) return;
   try{
     const userInfo = {
-      account:form.name,
-      password:form.password
+      account:form.name as string,
+      password:form.password as string
     };
     logining.value = true;
     await userstor.login(userInfo);

@@ -31,11 +31,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, reactive } from 'vue';
-import { DoAxios } from '@/api/index';
+import { ref, onMounted, onUnmounted, reactive, nextTick } from 'vue';
+import { DoAxios, DoAxiosWithErro } from '@/api/index';
 import { useUserStore } from "@/stores/user";
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { ElMessage } from 'element-plus';
+import { ElMessage,} from 'element-plus';
+
 
 const messages = reactive([
   {
@@ -54,7 +55,13 @@ const sessionId = ref<string | null>(null);
 const fetchsource = ref<AbortController | null>(new AbortController());
 
 const sendMessage = async () => {
-  if (newMessage.value.trim() === '') return;
+  if (newMessage.value.trim() === '') {
+    ElMessage({
+      message: '消息不能为空',
+      type: 'warning',
+    })
+    return
+  };
 
   const userMessae = {
     sender: 'user',
@@ -64,27 +71,34 @@ const sendMessage = async () => {
 
   messages.push(userMessae);
 
-  scrollToBottom();
-
+  isLoading.value = true;
   DoAxios('/api/appointment/ai-consult/send','post',{
-    patientId: userStore.userInfo.userId as number,
+    patientId: userStore.userInfo!.userId as number,
     question: newMessage.value,
     appointmentId: 1,
     sessionId: sessionId.value
   },true).then(()=> {
     // 清空输入框
     newMessage.value = '';
-    isLoading.value = true;
     messages.push({
       sender: 'ai',
       text: newMessage.value,
       avatar: '/src/assets/AIavator.png',
     })
-  }).catch(() => {
+
+    scrollToBottom();
+
     ElMessage({
-      message: '发送失败',
+      message: '发送成功',
+      type: 'success',
+    })
+  }).catch(() => {
+    isLoading.value = false;
+    ElMessage({
+      message: '发送失败，请重新发送',
       type: 'error',
     })
+    messages.pop();
   })
 };
 
@@ -104,17 +118,18 @@ const handleStreamMessage = (value: string) => {
     return
   }
   messages[messages.length - 1].text = messages[messages.length - 1].text + value;
+  scrollToBottom();
 }
 
 onMounted(async () => {
-  fetchEventSource('/api//appointment/ai-consult/connect', {
+  fetchEventSource('/api/appointment/ai-consult/connect', {
     method: 'POST',
     headers: {
      'Content-Type': 'application/json',
      'sa-token-authorization':userStore.userToken
     },
     body: JSON.stringify({
-      patientId: userStore.userInfo.userId as number,
+      patientId: userStore?.userInfo!.userId as number,
       question: newMessage.value,
       appointmentId: 1
     }),
@@ -123,6 +138,11 @@ onMounted(async () => {
       const data = JSON.parse(ev.data);
       if(data.content === "连接已建立"){
         sessionId.value = data.sessionId;
+        DoAxiosWithErro('/api/appointment/ai-consult/history','get',{
+          sessionId: data.sessionId
+        },true).then((res) => {
+          console.log(res);
+        })
         return
       }
       if(data.event === "message") {
@@ -135,11 +155,24 @@ onMounted(async () => {
     },
     onopen(response) {
     // 连接建立时的回调
-      console.log('连接已建立',response);
+     if(response.ok){
+      ElMessage({
+        message: '连接成功',
+        type: 'success',
+       })
+     } else{
+      ElMessage({
+        message: '连接失败',
+        type: 'error',
+       })
+     }
     },
     onerror(err) {
     // 连接出现异常时的回调
-    throw err; // 抛出错误以停止操作
+     ElMessage({
+      message: '连接失败',
+      type: 'error',
+     })
     }
   });
   
@@ -282,7 +315,9 @@ onUnmounted(() => {
   transition: background-color 0.3s;
 }
 
-.send-button:hover {
-  background-color: #3a5bd9;
+.send-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
+
 </style>
