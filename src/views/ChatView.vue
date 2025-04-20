@@ -121,68 +121,86 @@ const handleStreamMessage = (value: string) => {
   scrollToBottom();
 }
 
-onMounted(async () => {
+const initFetchES = () => {
   fetchEventSource('/api/appointment/ai-consult/connect', {
-    method: 'POST',
-    headers: {
-     'Content-Type': 'application/json',
-     'sa-token-authorization':userStore.userToken
-    },
-    body: JSON.stringify({
-      patientId: userStore?.userInfo!.userId as number,
-      question: newMessage.value,
-      appointmentId: 1
-    }),
-    signal: fetchsource.value?.signal,
-    onmessage(ev) {
-      const data = JSON.parse(ev.data);
-      if(data.content === "连接已建立"){
-        sessionId.value = data.sessionId;
-        DoAxiosWithErro('/api/appointment/ai-consult/history','get',{
-          sessionId: data.sessionId
-        },true).then((res) => {
-          console.log(res);
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      'sa-token-authorization':userStore.userToken
+      },
+      body: JSON.stringify({
+        patientId: userStore?.userInfo!.userId as number,
+        question: newMessage.value,
+        appointmentId: 1
+      }),
+      signal: fetchsource.value?.signal,
+      onmessage(ev) {
+        const data = JSON.parse(ev.data);
+        if(data.content === "连接已建立"){
+          sessionId.value = data.sessionId;
+          DoAxiosWithErro('/api/appointment/ai-consult/history','get',{
+            sessionId: data.sessionId
+          },true).then((res) => {
+            console.log(res);
+          })
+          return
+        }
+        if(data.event === "message") {
+          handleStreamMessage(data.content)
+        }
+        if(data.event === "complete") {
+          isLoading.value = false;
+          return
+        }
+      },
+      onopen(response) {
+      // 连接建立时的回调
+      if(response.ok){
+        ElMessage({
+          message: '连接成功',
+          type: 'success',
         })
-        return
+      } else{
+        ElMessage({
+          message: '连接失败',
+          type: 'error',
+        })
       }
-      if(data.event === "message") {
-        handleStreamMessage(data.content)
-      }
-      if(data.event === "complete") {
-        isLoading.value = false;
-        return
-      }
-    },
-    onopen(response) {
-    // 连接建立时的回调
-     if(response.ok){
-      ElMessage({
-        message: '连接成功',
-        type: 'success',
-       })
-     } else{
+      },
+      onerror(err) {
+      // 连接出现异常时的回调
       ElMessage({
         message: '连接失败',
         type: 'error',
-       })
-     }
-    },
-    onerror(err) {
-    // 连接出现异常时的回调
-     ElMessage({
-      message: '连接失败',
-      type: 'error',
-     })
+      })
+      }
+    });
+}
+
+const overAichat = (sessionId: string | null) => {
+  DoAxios(`/api/appointment/ai-consult/end?sessionId=${sessionId}`,'post',{},true).then(() => {
+    ElMessage({
+      message: '聊天记录保存成功',
+      type: 'success',
+    })
+    if(fetchsource.value){
+      fetchsource.value.abort();
     }
-  });
-  
+  }).catch(() =>{
+    ElMessage({
+      message: '聊天记录保存失败',
+      type: 'error',
+    })
+  })
+}
+
+onMounted(async () => {
+    initFetchES();
 });
 
 
 onUnmounted(() => {
-  if(fetchsource.value){
-    fetchsource.value.abort();
-  }
+  overAichat(sessionId.value);
 })
 </script>
 
