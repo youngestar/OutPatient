@@ -4,8 +4,10 @@
 </template>
 
 <script lang="ts" setup>
+import { getDepartmentRegistrations } from '@/api/patient/registrations';
 import DepartCard from '@/components/DepartCard.vue'
 import CardView from '@/views/CardView.vue'
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router'
 
 const router = useRouter();
@@ -60,6 +62,10 @@ const handleclick = (departmentName: string) => {
     }
   })
 }
+
+onMounted(() => {
+  getDepartmentRegistrations();
+})
 </script>
 
 <style lang="scss" scoped>
