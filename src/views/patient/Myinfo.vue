@@ -1,86 +1,52 @@
 <template>
   <div id="card" class="light-shadow cardHover">
     <h2>我的信息</h2>
-    <el-avatar :size="160" :src="'/src/assets/me.png'" style="float: left; margin: 0  50px 0 20px;"></el-avatar>
+    <el-avatar :size="160" :src="myInfo.avatar" style="float: left; margin: 0  50px 0 20px;"></el-avatar>
     <div id="main-msg">
       <div class="left">
-        <p><span class="label">姓名:</span><span class="detail">{{ name }}</span></p>
-        <p><span class="label">性别:</span><span class="detail">{{ gender }}</span></p>
-        <p><span class="label">年龄:</span><span class="detail">{{ age }}</span></p>
-        <p><span class="label">地区:</span><span class="detail">{{ id }}</span></p>
-        <p><span class="label">详细住址:</span><span class="detail">{{ id }}</span></p>
+        <p><span class="label">姓名:</span><span class="detail">{{ myInfo.name }}</span></p>
+        <p><span class="label">性别:</span><span class="detail">{{ myInfo.gender === 0
+          ? '未知'
+          : myInfo.gender === 1
+            ? '男'
+            : myInfo.gender === 2
+              ? '女'
+              : '错误'
+        }}</span></p>
+        <p><span class="label">年龄:</span><span class="detail">{{ myInfo.age }}</span></p>
+        <p><span class="label">地区:</span><span class="detail">{{ myInfo.region }}</span></p>
+        <p><span class="label">详细住址:</span><span class="detail">{{ myInfo.address }}</span></p>
       </div>
       <div class="right">
-        <p><span class="label">手机号:</span><span class="detail">{{ registerTime }}</span></p>
-        <p><span class="label">邮箱:</span><span class="detail">{{ department }}</span></p>
-        <p><span class="label">身份证号:</span><span class="detail">{{ clinicRoom }}</span></p>
+        <p><span class="label">手机号:</span><span class="detail">{{ myInfo.phone }}</span></p>
+        <p><span class="label">邮箱:</span><span class="detail">{{ myInfo.email }}</span></p>
+        <p><span class="label">身份证号:</span><span class="detail">{{ myInfo.IDCard }}</span></p>
       </div>
     </div>
-    <!-- <p><span class="label">症状:</span><span class="detail">{{ description }}</span></p> -->
+    <!-- <p><span class="label">症状:</span><span class="detail">{{ myInfo.description }}</span></p> -->
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref } from 'vue';
-import { Clock, ShoppingCart, Delete } from '@element-plus/icons-vue';
+import { defineProps, ref, onMounted, reactive } from 'vue';
+import { getUesrInfo } from '@/api/patient/myinfo';
 import { ElAvatar } from 'element-plus';
-const props = defineProps({
-  num: {
-    type: Number,
-    required: true,
-    default: 1,
-  },
-  name: {
-    type: String,
-    required: true,
-    default: '默认患者',
-  },
-  gender: {
-    type: String,
-    required: true,
-    default: '男',
-  },
-  age: {
-    type: Number,
-    required: true,
-    default: 18,
-  },
-  id: {
-    type: String,
-    required: true,
-    default: '001',
-  },
-  description: {
-    type: String,
-    required: true,
-    default: '请阐释症状,例:患者头部发热',
-  },
-  registerTime: {
-    type: String,
-    required: true,
-    default: '2025-05-01',
-  },
-  department: {
-    type: String,
-    required: true,
-    default: '内科',
-  },
-  clinicRoom: {
-    type: String,
-    required: true,
-    default: '门诊1',
-  },
-  state: {
-    type: String,
-    required: true,
-    default: "待执行",
-  },
-  note: {
-    type: String,
-    required: true,
-    default: "无",
-  },
-});
+const myInfo = reactive({
+  avatar: '/src/assets/me.png',
+  name: '默认患者',
+  gender: 1,
+  age: 18,
+  region: '默认地区',
+  address: '默认地址',
+  phone: '默认手机号',
+  email: '默认邮箱',
+  IDCard: '默认身份证号',
+})
+
+onMounted(async () => {
+  const getInfo: object = await getUesrInfo();
+  Object.assign(myInfo, getInfo);
+})
 </script>
 
 <style scoped lang="scss">

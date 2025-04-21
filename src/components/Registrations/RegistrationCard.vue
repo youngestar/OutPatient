@@ -23,7 +23,6 @@
 
 <script setup lang="ts">
 import { defineProps, ref } from 'vue';
-import { Clock, ShoppingCart, Delete } from '@element-plus/icons-vue';
 import { ElTag, } from 'element-plus';
 const props = defineProps({
   num: {
@@ -95,6 +94,7 @@ const props = defineProps({
   background: vars.$card-bg-depart;
   border-radius: 10px;
   color: #303133;
+  cursor: pointer;
 
   h2 {
     border-bottom: 1px solid black;
