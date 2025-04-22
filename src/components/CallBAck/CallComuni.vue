@@ -29,7 +29,10 @@
   
   <script lang="ts" setup>
   import { ref, onMounted } from 'vue';
-  
+  import { useUserStore } from '@/stores/user';
+  import SockJS from 'sockjs-client';
+  import { Client  } from '@stomp/stompjs';
+
   const messages = ref([
     {
       sender: 'doctor',
@@ -38,6 +41,7 @@
     },
   ]);
   
+  const userStore = useUserStore();
   const newMessage = ref('');
   const chatMessages = ref<HTMLElement | null>(null);
   
@@ -85,9 +89,32 @@
       chatMessages.value.scrollTop = chatMessages.value.scrollHeight;
     }
   };
+
   
   onMounted(() => {
     scrollToBottom();
+    const userId = userStore.userInfo!.userId;
+
+    const socket = new SockJS('/ws');
+
+    const stompClient = new Client({
+      webSocketFactory() {
+        return socket;
+      }
+    });
+
+    stompClient.onConnect = (frame) => {
+      console.log('Connected: ' + frame);
+      stompClient.subscribe('/queue/feedback/' + userId, (response) => {
+        const data = JSON.parse(response.body); // 假设返回的数据是一个对象
+        messages.value.push({
+          sender: 'doctor',
+          text: data.message,
+          avatar: '/src/assets/doctor.png',
+        });
+        scrollToBottom();
+      });
+    };
   });
   </script>
   
