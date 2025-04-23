@@ -6,6 +6,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import AutoImport from 'unplugin-auto-import/vite'
 import {ElementPlusResolver} from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
+import {globalPolyfill} from 'vite-plugin-global-polyfill';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -18,7 +19,8 @@ export default defineConfig({
     Components({
       resolvers: [ElementPlusResolver()],
       dts: 'src/components.d.ts'
-    })
+    }),
+    globalPolyfill()
   ],
   resolve: {
     alias: {
