@@ -21,6 +21,7 @@ onMounted(async () => {
   const userInfo = await getUesrInfo();
   const doctorId = userInfo?.userId;
   const getRegistrations = doctorGetRegistrations(doctorId);
+  console.log(getRegistrations)
   Object.assign(registrations, getRegistrations);
 })
 </script>

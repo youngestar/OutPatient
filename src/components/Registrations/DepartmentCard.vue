@@ -1,5 +1,6 @@
 <template>
-  <CardView @handleclick="handleclick('1')" style="text-align: center;" :cardsprops="departs" :myCard="DepartCard">
+  <CardView v-loading="loading" @handleclick="handleclick" style="text-align: center;" :cardsprops="departs"
+    :myCard="DepartCard">
   </CardView>
 </template>
 
@@ -7,64 +8,33 @@
 import { getDepartmentRegistrations } from '@/api/patient/registrations';
 import DepartCard from '@/components/DepartCard.vue'
 import CardView from '@/views/CardView.vue'
-import { onMounted } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router'
+import { type department } from '@/api/patient/registrations';
 
+const loading = ref(true);
 const router = useRouter();
-const departs = [
-  {
-    name: '内科',
-    desc: '内科疾病诊断与治疗',
-  },
-  {
-    name: '外科',
-    desc: '外科疾病诊断与治疗',
-  },
-  {
-    name: '妇产科',
-    desc: '妇产科疾病诊断与治疗',
-  },
-  {
-    name: '儿科',
-    desc: '儿科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-]
+const departs = reactive([
 
-const handleclick = (departmentName: string) => {
+]);
+
+const handleclick = (department: department) => {
   router.push({
     name: "clinic",
     params: {
-      department: departmentName,
+      department: department.name,
+    },
+    query: {
+      departmentName: department.name,
+      departmentId: department.id,
     }
   })
 }
 
-onMounted(() => {
-  getDepartmentRegistrations();
+onMounted(async () => {
+  const newDepartments = await getDepartmentRegistrations();
+  loading.value = false;
+  Object.assign(departs, newDepartments);
 })
 </script>
 

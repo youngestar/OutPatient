@@ -1,46 +1,41 @@
 <template>
-  <div>
-    <CardView :cardsprops="clinic" :myCard="DepartCard" @handleclick="handleclick('1', '2')"></CardView>
-  </div>
+  <CardView v-loading="loading" :cardsprops="clinics" :myCard="DepartCard" @handleclick="handleclick">
+  </CardView>
 </template>
 
 <script lang="ts" setup>
 import DepartCard from '@/components/DepartCard.vue'
 import CardView from '@/views/CardView.vue'
-import { useRouter } from 'vue-router'
+import { getClinicRegistrations, type clinic } from '@/api/patient/registrations';
+import { reactive, onMounted, ref } from 'vue';
+import { useRouter, useRoute } from 'vue-router'
 
+const loading = ref(true);
 const router = useRouter();
-const clinic = [
-  {
-    name: '门诊1',
-    desc: '在岗医生：张三',
-  },
-  {
-    name: '门诊2',
-    desc: '在岗医生：李四',
-  },
-]
+const route = useRoute();
+const clinics = reactive([
 
-const handleclick = (departmentName: string, clinicName: string) => {
+])
+
+const handleclick = (clinic: clinic) => {
   router.push({
     name: "clinicDoctor",
     params: {
-      department: departmentName,
-      clinic: clinicName,
+      department: route.query.departmentName as string,
+      clinic: clinic.name,
+    },
+    query: {
+      departmentId: route.query.departmentId,
+      clinicId: route.query.clinicId,
     }
   })
 }
 
-const props = defineProps({
-  myCard: {
-    type: Object,
-    required: true
-  },
-  cardsprops: {
-    type: Array,
-    required: true
-  },
-});
+onMounted(async () => {
+  const newClinics = await getClinicRegistrations(route.query.departmentId);
+  loading.value = false;
+  Object.assign(clinics, newClinics);
+})
 </script>
 
 <style lang="scss" scoped>
