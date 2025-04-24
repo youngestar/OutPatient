@@ -20,7 +20,8 @@ const goToDetail = (id: string) => {
 onMounted(async () => {
   const userInfo = await getUesrInfo();
   const doctorId = userInfo?.userId;
-  const getRegistrations = doctorGetRegistrations(doctorId);
+  console.log(doctorId)
+  const getRegistrations = await doctorGetRegistrations(doctorId);
   console.log(getRegistrations)
   Object.assign(registrations, getRegistrations);
 })

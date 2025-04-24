@@ -1,7 +1,7 @@
 <template>
   <div class="card-view">
-    <component v-for="(card, index) in props.cardsprops" :key="index" :is="props.myCard" v-bind="cardsprops[index]"
-      @click="handleclick(cardsprops[index])" />
+    <component v-for="(card, index) in props.cardsprops" :key="cardsprops[index]" :is="props.myCard"
+      v-bind="cardsprops[index]" @click="handleclick(cardsprops[index])" />
     <div class="add-card">
       <el-button type="primary" circle style="font-size: 20px;" @click="backpage">
         {{ "<" }} </el-button>

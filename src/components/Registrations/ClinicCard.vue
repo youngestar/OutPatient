@@ -26,7 +26,7 @@ const handleclick = (clinic: clinic) => {
     },
     query: {
       departmentId: route.query.departmentId,
-      clinicId: route.query.clinicId,
+      clinicId: clinic.id,
     }
   })
 }

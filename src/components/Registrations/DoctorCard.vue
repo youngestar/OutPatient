@@ -1,5 +1,5 @@
 <template>
-  <CardView v-loading="loading" :cardsprops="doctors" :myCard="DoctorCard" @handleclick="handleclick('1', '2')">
+  <CardView v-loading="loading" :cardsprops="doctors" :myCard="DoctorCard">
   </CardView>
 </template>
 
@@ -20,6 +20,7 @@ const doctors = reactive<doctor[]>([
 onMounted(async () => {
   const newDoctors = await getDoctorRegistrations(route.query.departmentId, route.query.clinicId);
   loading.value = false;
+  console.log(newDoctors);
   Object.assign(doctors, newDoctors);
 })
 </script>

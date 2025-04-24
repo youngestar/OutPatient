@@ -1,13 +1,13 @@
 import { DoAxiosWithErro } from "..";
 
 // 获取数据接口
-interface getDepartment {
+export interface getDepartment {
   deptId: number;
   deptName: string;
   isActive: number;
 }
 
-interface getClinic {
+export interface getClinic {
   clinicId: number;
   clinicName: string;
   isActive: number;
@@ -41,7 +41,7 @@ export interface doctor {
 // 加载页面函数
 export const getDepartmentRegistrations = async () => {
   try {
-    const res = await DoAxiosWithErro(`/api/appointment/departments`, "get", {}, true, false);
+    const res = await DoAxiosWithErro("/api/appointment/departments", "get", {}, true, false);
     const departmentsData = res.map((department: getDepartment) => {
       return {
         name: department.deptName,
@@ -58,7 +58,7 @@ export const getDepartmentRegistrations = async () => {
 export const getClinicRegistrations = async (departmentId: number) => {
   try {
     const res = await DoAxiosWithErro(
-      `/api/appointment/clinics`,
+      "/api/appointment/clinics",
       "get",
       { deptId: departmentId },
       true,
@@ -80,13 +80,66 @@ export const getClinicRegistrations = async (departmentId: number) => {
 export const getDoctorRegistrations = async (departmentId: number, clinicId: number) => {
   try {
     const res = await DoAxiosWithErro(
-      `/api/appointment/doctors`,
+      "/api/appointment/doctors",
       "get",
       { deptId: departmentId, clinicId: clinicId },
       true,
       false
     );
     return res;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+// 排班相关函数
+export const getDoctorSchedule = async (
+  deptId: number,
+  clinicId: number,
+  doctorId: number,
+  title: string
+) => {
+  try {
+    const res = await DoAxiosWithErro(
+      "/api/appointment/doctor-schedules",
+      "post",
+      { deptId, clinicId, doctorId, title, startDate: "2025-04-07", endDate: "2025-04-17" },
+      true,
+      true
+    );
+    console.log(res);
+    // return res;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+//挂号相关函数
+const createRegistrations = async (patientId: number, scheduleId: number, isRevisit = 0) => {
+  try {
+    const res = await DoAxiosWithErro(
+      "/api/appointment/create",
+      "post",
+      { patientId, scheduleId },
+      true,
+      true
+    );
+    console.log(res);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const cancelRegistrations = async (appointmentId: number, patientId: number) => {
+  try {
+    const res = await DoAxiosWithErro(
+      "/api/appointment/cancel",
+      "post",
+      { appointmentId, patientId },
+      true,
+      true
+    );
+    console.log(res);
   } catch (err) {
     console.error(err);
   }

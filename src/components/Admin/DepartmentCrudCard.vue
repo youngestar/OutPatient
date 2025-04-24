@@ -1,65 +1,40 @@
 <template>
-  <CardView @handleclick="handleclick('1')" style="text-align: center;" :cardsprops="departs" :myCard="DepartCrudCard">
+
+  <CardView v-loading="loading" @handleclick="handleclick" style="text-align: center; height: 100%; min-height: 72vh;"
+    :cardsprops="departs" :myCard="DepartCrudCard">
   </CardView>
 </template>
 
 <script lang="ts" setup>
+import { useHospitalStore } from '@/stores/hospitalData';
 import DepartCrudCard from '@/components/Admin/DepartCrudCard.vue'
 import CardView from '@/views/CardView.vue'
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router'
+import { type department } from '@/api/patient/registrations';
 
+const hospitalStore = useHospitalStore();
+const loading = ref(true);
 const router = useRouter();
-const departs = [
-  {
-    name: '内科',
-    desc: '内科疾病诊断与治疗',
-  },
-  {
-    name: '外科',
-    desc: '外科疾病诊断与治疗',
-  },
-  {
-    name: '妇产科',
-    desc: '妇产科疾病诊断与治疗',
-  },
-  {
-    name: '儿科',
-    desc: '儿科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-  {
-    name: '皮肤科',
-    desc: '皮肤科疾病诊断与治疗',
-  },
-]
+const departs = hospitalStore.departs;
 
-const handleclick = (departmentName: string) => {
+const handleclick = (department: department) => {
   router.push({
     name: "crudClinic",
     params: {
-      department: departmentName,
+      department: department.name,
+    },
+    query: {
+      departmentName: department.name,
+      departmentId: department.id,
     }
   })
 }
+
+onMounted(async () => {
+  await hospitalStore.getDepartments();
+  loading.value = false;
+})
 </script>
 
 <style lang="scss" scoped>

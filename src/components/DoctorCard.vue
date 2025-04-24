@@ -10,8 +10,9 @@
       <p class="doctor-description">{{ introduction }}</p>
     </div>
     <div id="button">
-      <el-button type="primary">
-        预约挂号
+      <el-button type="primary"
+        @click.stop="getSchedule(route.query.departmentId, route.query.clinicId, doctorId, title)">
+        获取排班
       </el-button>
     </div>
   </div>
@@ -19,6 +20,9 @@
 
 <script lang="ts" setup>
 import { ElButton } from 'element-plus';
+import { getDoctorSchedule } from '@/api/patient/registrations';
+import { useRoute } from 'vue-router';
+const route = useRoute();
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
   name: {
@@ -41,7 +45,18 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  doctorId: {
+    type: Number,
+    required: true,
+  },
 })
+const getSchedule = (deptId: number, clinicId: number, doctorId: number, title: string) => {
+  getDoctorSchedule(deptId, clinicId, doctorId, title)
+}
+
+// const createRegistrations = (patientId: number, scheduleId: number,) => {
+// createRegistrations(patientId, scheduleId,);
+// }
 </script>
 
 <style lang="scss" scoped>
