@@ -10,7 +10,10 @@
         </div>
         <div class="message-content">
           <div class="message-sender">{{ message.sender === 'user' ? '你' : 'AI助手' }}</div>
-          <div class="message-text">{{ message.text }}</div>
+          <div class="message-text">
+            {{ message.text }}
+            <div class="loading" v-if="message.sender === 'ai' && isLoading && index === messages.length - 1"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -22,18 +25,20 @@
         class="textarea-field"
         rows="3"
       ></textarea>
-      <button @click="sendMessage" class="send-button">发送</button>
+      <button :disabled="isLoading" @click="sendMessage" class="send-button">发送</button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
-import { DoAxios } from '@/api/index';
+import { ref, onMounted, onUnmounted, reactive, nextTick } from 'vue';
+import { DoAxios, DoAxiosWithErro } from '@/api/index';
 import { useUserStore } from "@/stores/user";
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { ElMessage,} from 'element-plus';
 
-const messages = ref([
+
+const messages = reactive([
   {
     sender: 'ai',
     text: '你好！有什么我可以帮助你的吗？',
@@ -42,16 +47,21 @@ const messages = ref([
 ]);
 
 const userStore = useUserStore();
-
+const isLoading = ref<boolean>(false);
 const newMessage = ref('');
 
 const chatMessages = ref<HTMLElement | null>(null);
-const sessionId = ref<number | null>(null);
+const sessionId = ref<string | null>(null);
+const fetchsource = ref<AbortController | null>(new AbortController());
 
 const sendMessage = async () => {
-  if (newMessage.value.trim() === '') return;
-
-  // 添加用户消息
+  if (newMessage.value.trim() === '') {
+    ElMessage({
+      message: '消息不能为空',
+      type: 'warning',
+    })
+    return
+  };
 
   const userMessae = {
     sender: 'user',
@@ -59,46 +69,37 @@ const sendMessage = async () => {
     avatar: '/src/assets/me.png',
   }
 
-  messages.value.push(userMessae);
+  messages.push(userMessae);
 
+  isLoading.value = true;
+  DoAxios('/api/appointment/ai-consult/send','post',{
+    patientId: userStore.userInfo!.userId as number,
+    question: newMessage.value,
+    appointmentId: 1,
+    sessionId: sessionId.value
+  },true).then(()=> {
+    // 清空输入框
+    newMessage.value = '';
+    messages.push({
+      sender: 'ai',
+      text: newMessage.value,
+      avatar: '/src/assets/AIavator.png',
+    })
 
+    scrollToBottom();
 
-
-
-  // 滚动到底部
-  scrollToBottom();
-
-
-
-  fetchEventSource('/api/appointment/ai-consult/send', {
-    method: 'POST',
-    headers: {
-    'Content-Type': 'application/json',
-     'sa-token-authorization':userStore.userToken
-    },
-    body: JSON.stringify({
-      sessionId: sessionId.value,
-      patientId: userStore.userInfo.userId as number,
-      question: newMessage.value,
-      appointmentId: 388
-    }),
-    onmessage(ev) {
-    console.log(ev.data);
-    },
-    onopen(response) {
-    // 连接建立时的回调
-      console.log('连接已建立',response);
-    },
-    onerror(err) {
-    // 连接出现异常时的回调
-    throw err; // 抛出错误以停止操作
-    }
-  });
-
-  // 清空输入框
-  newMessage.value = '';
-
-  
+    ElMessage({
+      message: '发送成功',
+      type: 'success',
+    })
+  }).catch(() => {
+    isLoading.value = false;
+    ElMessage({
+      message: '发送失败，请重新发送',
+      type: 'error',
+    })
+    messages.pop();
+  })
 };
 
 const scrollToBottom = () => {
@@ -107,22 +108,100 @@ const scrollToBottom = () => {
   }
 };
 
-onMounted(async () => {
-  console.log('ok')
-  fetchEventSource('/api/appointment/ai-consult/connect?appointmentId=388&patientId=3', {
-  headers: {
-    'sa-token-authorization':userStore.userToken
-  },
-  onmessage(event) {
-    const data = JSON.parse(event.data);
-    sessionId.value = data.data.sessionId;
-    console.log(sessionId.value);
+const handleStreamMessage = (value: string) => {
+  if(messages[messages.length - 1].sender === 'user'){
+    messages.push({
+      sender: 'ai',
+      text: newMessage.value,
+      avatar: '/src/assets/AIavator.png',
+    })
+    return
   }
-});
-
-
+  messages[messages.length - 1].text = messages[messages.length - 1].text + value;
   scrollToBottom();
+}
+
+const initFetchES = () => {
+  fetchEventSource('/api/appointment/ai-consult/connect', {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      'sa-token-authorization':userStore.userToken
+      },
+      body: JSON.stringify({
+        patientId: userStore?.userInfo!.userId as number,
+        question: newMessage.value,
+        appointmentId: 1
+      }),
+      signal: fetchsource.value?.signal,
+      onmessage(ev) {
+        const data = JSON.parse(ev.data);
+        if(data.content === "连接已建立"){
+          sessionId.value = data.sessionId;
+          DoAxiosWithErro('/api/appointment/ai-consult/history','get',{
+            sessionId: data.sessionId
+          },true).then((res) => {
+            console.log(res);
+          })
+          return
+        }
+        if(data.event === "message") {
+          handleStreamMessage(data.content)
+        }
+        if(data.event === "complete") {
+          isLoading.value = false;
+          return
+        }
+      },
+      onopen(response) {
+      // 连接建立时的回调
+      if(response.ok){
+        ElMessage({
+          message: '连接成功',
+          type: 'success',
+        })
+      } else{
+        ElMessage({
+          message: '连接失败',
+          type: 'error',
+        })
+      }
+      },
+      onerror(err) {
+      // 连接出现异常时的回调
+      ElMessage({
+        message: '连接失败',
+        type: 'error',
+      })
+      }
+    });
+}
+
+const overAichat = (sessionId: string | null) => {
+  DoAxios(`/api/appointment/ai-consult/end?sessionId=${sessionId}`,'post',{},true).then(() => {
+    ElMessage({
+      message: '聊天记录保存成功',
+      type: 'success',
+    })
+    if(fetchsource.value){
+      fetchsource.value.abort();
+    }
+  }).catch(() =>{
+    ElMessage({
+      message: '聊天记录保存失败',
+      type: 'error',
+    })
+  })
+}
+
+onMounted(async () => {
+    initFetchES();
 });
+
+
+onUnmounted(() => {
+  overAichat(sessionId.value);
+})
 </script>
 
 <style scoped>
@@ -166,6 +245,21 @@ onMounted(async () => {
 
 .message.user .message-avatar {
   order: 2;
+}
+
+.loading {
+  border: 4px solid #f3f3f3; /* Light grey */
+  border-top: 4px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 2s linear infinite;
+  margin-top: 5px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .message-avatar {
@@ -239,7 +333,9 @@ onMounted(async () => {
   transition: background-color 0.3s;
 }
 
-.send-button:hover {
-  background-color: #3a5bd9;
+.send-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
+
 </style>

@@ -84,7 +84,7 @@ const props = defineProps({
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 #card {
   float: left;
   min-height: 200px;
@@ -92,8 +92,9 @@ const props = defineProps({
   margin: 10px 2%;
   min-width: 400px;
   padding: 20px;
-  background-color: #fff;
+  background: vars.$card-bg-depart;
   border-radius: 10px;
+  color: #303133;
 
   h2 {
     border-bottom: 1px solid black;
@@ -121,6 +122,7 @@ const props = defineProps({
     .detail {
       font-weight: bold;
       margin-left: 20px;
+      color: #606266;
     }
   }
 }

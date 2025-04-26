@@ -18,6 +18,23 @@ const router = createRouter({
           path: "",
           name: "medicalAp",
           component: () => import("../views/patient/MedicalAp.vue"),
+          children: [
+            {
+              path: "",
+              name: "department",
+              component: () => import("@/components/Registrations/DepartmentCard.vue"),
+            },
+            {
+              path: ":department",
+              name: "clinic",
+              component: () => import("@/components/Registrations/ClinicCard.vue"),
+            },
+            {
+              path: ":department/:clinic",
+              name: "clinicDoctor",
+              component: () => import("@/components/Registrations/DoctorCard.vue"),
+            },
+          ],
         },
         {
           path: "chat",
@@ -84,6 +101,23 @@ const router = createRouter({
           path: "",
           name: "crud",
           component: () => import("../views/admin/CRUD.vue"),
+          children: [
+            {
+              path: "",
+              name: "crudDepartment",
+              component: () => import("@/components/Admin/DepartmentCrudCard.vue"),
+            },
+            {
+              path: ":department",
+              name: "crudClinic",
+              component: () => import("@/components/Admin/ClinicCrudCard.vue"),
+            },
+            {
+              path: ":department/:clinic",
+              name: "crudClinicDoctor",
+              component: () => import("@/components/Admin/DoctorCrudCard.vue"),
+            },
+          ],
         },
         {
           path: "shedule",
