@@ -101,8 +101,9 @@ export const getDoctorSchedule = async (
 ) => {
   try {
     const res = await DoAxiosWithErro(
-      "/api/appointment/doctor-schedules",
+      "/api/appointment/schedules",
       "post",
+
       { deptId, clinicId, doctorId, title, startDate: "2025-04-07", endDate: "2025-04-17" },
       true,
       true

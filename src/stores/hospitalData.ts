@@ -105,12 +105,25 @@ export const useHospitalStore = defineStore("hospital", () => {
   };
   // 医生相关操作
   const createDoctor = async (
+    username: string,
+    password: string,
+    email: string,
+    phone: string,
     clinicId: number,
     name: string,
     title: string,
     introduction: string
   ) => {
-    const getDoctor: doctor = await createDoctorRegistration(clinicId, name, title, introduction);
+    const getDoctor: doctor = await createDoctorRegistration(
+      username,
+      password,
+      email,
+      phone,
+      clinicId,
+      name,
+      title,
+      introduction
+    );
     doctors.push(getDoctor);
   };
 

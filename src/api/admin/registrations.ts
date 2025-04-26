@@ -81,21 +81,36 @@ export const deleteClinicRegistration = async (clinicId: number) => {
 };
 
 // 医生相关操作
-
-// 这里使用 FormData 来处理文件上传
 export const createDoctorRegistration = async (
+  username: string,
+  password: string,
+  email: string,
+  phone: string,
   clinicId: number,
   name: string,
   title: string,
   introduction: string
 ) => {
   try {
+    // 这里使用 FormData 来处理文件上传
     // 创建 FormData 对象并添加参数
     const formData = new FormData();
-    formData.append("clinicId", String(clinicId)); // 数值类型需转为字符串
-    formData.append("name", name);
-    formData.append("title", title);
-    formData.append("introduction", introduction);
+    const doctorInfo = {
+      username,
+      password,
+      email,
+      phone,
+      clinicId,
+      name,
+      title,
+      introduction,
+    };
+    formData.append(
+      "doctorInfo",
+      new Blob([JSON.stringify(doctorInfo)], {
+        type: "application/json",
+      })
+    );
 
     const res = await DoAxiosWithErro(
       "/api/admin/doctor",

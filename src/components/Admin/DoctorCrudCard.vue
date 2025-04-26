@@ -1,10 +1,10 @@
 <template>
-  <CardView style="height: 100%; min-height: 100vh;" v-loading="loading" :cardsprops="doctors" :myCard="DoctorCard">
+  <CardView style="height: 100%; min-height: 100vh;" v-loading="loading" :cardsprops="doctors" :myCard="DoctorCrudCard">
   </CardView>
 </template>
 
 <script lang="ts" setup>
-import DoctorCard from '../DoctorCard.vue';
+import DoctorCrudCard from "@/components/Admin/DoctorCrudDetailCard.vue";
 import CardView from '@/views/CardView.vue'
 import { useHospitalStore } from '@/stores/hospitalData'
 import { onMounted, ref } from 'vue';

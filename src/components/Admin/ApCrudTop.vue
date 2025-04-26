@@ -46,6 +46,22 @@ const createNewItem = async () => {
     })
   }
   else if (route.query.clinicId && route.query.departmentId) {
+    const username = prompt('请输入账户名')
+    if (!username) {
+      return
+    }
+    const password = prompt('请输入密码')
+    if (!password) {
+      return
+    }
+    const email = prompt('请输入邮箱')
+    if (!email) {
+      return
+    }
+    const phone = prompt('请输入手机号')
+    if (!phone) {
+      return
+    }
     const newName = prompt('请输入新医生的名称')
     if (!newName) {
       return
@@ -58,7 +74,7 @@ const createNewItem = async () => {
     if (!newintroduction) {
       return
     }
-    hospitalStore.createDoctor(Number(route.query.clinicId), newName, newtitle, newintroduction)
+    hospitalStore.createDoctor(username, password, email, phone, Number(route.query.clinicId), newName, newtitle, newintroduction)
   }
   else {
     console.log('失败')

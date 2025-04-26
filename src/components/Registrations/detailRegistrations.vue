@@ -4,6 +4,7 @@ import { doctorGetDetailRegistration } from '@/api/doctor/registrations';
 import { useRoute } from 'vue-router';
 import { ElTag, ElButton } from 'element-plus';
 import { type detailRegistration } from '@/api/doctor/registrations';
+import ChatView from '@/views/ChatView.vue';
 
 const patientData: Reactive<detailRegistration> = reactive({
   doctorId: 0,
@@ -59,6 +60,7 @@ onMounted(async () => {
         </div>
         <div class="right">
           <h3 style="font-size: 30px;">对话历史</h3>
+          <chat-view :appointmentId="1" :couldSend="false"></chat-view>
         </div>
       </div>
     </div>

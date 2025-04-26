@@ -12,9 +12,11 @@
       </el-scrollbar>
     </div>
     <div id="button">
-      <el-button type="primary"
-        @click.stop="getSchedule(route.query.departmentId, route.query.clinicId, doctorId, title)">
-        获取排班
+      <el-button type="primary">
+        修改
+      </el-button>
+      <el-button type="danger">
+        删除
       </el-button>
     </div>
   </div>
@@ -121,7 +123,14 @@ const getSchedule = (deptId: number, clinicId: number, doctorId: number, title: 
 }
 
 #button {
+  display: flex;
+  justify-content: space-between;
   position: absolute;
+  width: 60%;
   bottom: 20px;
+
+  .el-button {
+    width: 70px;
+  }
 }
 </style>
