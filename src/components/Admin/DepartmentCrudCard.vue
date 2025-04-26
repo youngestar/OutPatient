@@ -1,5 +1,4 @@
 <template>
-
   <CardView v-loading="loading" @handleclick="handleclick" style="text-align: center; height: 100%; min-height: 72vh;"
     :cardsprops="departs" :myCard="DepartCrudCard">
   </CardView>

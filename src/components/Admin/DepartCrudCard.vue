@@ -8,20 +8,56 @@
       <p v-else>发生故障</p>
     </div>
     <div id="btns">
-      <el-button type="primary" @click="$emit('click', props.name)">修改</el-button>
-      <el-button type="danger" @click="$emit('click', props.name)">删除</el-button>
+      <el-button type="primary" @click.stop="updateName">修改</el-button>
+      <el-button type="danger" @click.stop="deleteItem">删除</el-button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-// 这里可以添加逻辑代码
+import { useHospitalStore } from '@/stores/hospitalData';
+import { ElMessage } from 'element-plus';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+const hospitalStore = useHospitalStore();
+const updateName = async () => {
+  const newName = prompt('请输入新科室的名称', props.name);
+  if (!newName) {
+    return;
+  }
+  if (!route.query.departmentId) {
+    await hospitalStore.updateDepart(props.id, newName);
+  } else {
+    await hospitalStore.updateClinic(props.id, newName);
+  }
+  ElMessage({
+    message: '修改成功',
+    type: 'success',
+  });
+}
+
+const deleteItem = async () => {
+  if (!route.query.departmentId) {
+    await hospitalStore.deleteDepart(props.id);
+  } else {
+    await hospitalStore.deleteClinic(props.id);
+  }
+  ElMessage({
+    message: '删除成功',
+    type: 'success',
+  })
+}
 const props = defineProps({
   name: {
     type: String,
     required: true
   },
   state: {
+    type: Number,
+    required: true
+  },
+  id: {
     type: Number,
     required: true
   }

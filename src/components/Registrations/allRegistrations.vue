@@ -2,36 +2,40 @@
 import { ElScrollbar } from 'element-plus';
 import RegistrationCard from './RegistrationCard.vue';
 import { useRouter } from 'vue-router';
-import { onMounted, reactive, type Reactive } from 'vue';
+import { onMounted, ref, reactive, type Reactive } from 'vue';
 import { doctorGetRegistrations } from '@/api/doctor/registrations';
 import { getUesrInfo } from '@/api/patient/myInfo';
 import type { Registration } from '@/api/doctor/registrations';
 
+const loading = ref(true);
 const router = useRouter();
 const registrations: Reactive<Registration[]> = reactive([])
-const goToDetail = (id: string) => {
+const goToDetail = (name: string, doctorId: number, appointmentId: number) => {
   router.push({
     name: "detailRegistrations",
     params: {
-      id: id,
-    }
+      name: name,
+    },
+    query: {
+      doctorId: doctorId,
+      appointmentId: appointmentId,
+    },
   })
 }
 onMounted(async () => {
   const userInfo = await getUesrInfo();
-  const doctorId = userInfo?.userId;
-  console.log(doctorId)
+  const doctorId = userInfo?.doctorId;
   const getRegistrations = await doctorGetRegistrations(doctorId);
-  console.log(getRegistrations)
-  Object.assign(registrations, getRegistrations);
+  registrations.splice(0, registrations.length, ...getRegistrations);
+  loading.value = false;
 })
 </script>
 
 <template>
-  <el-scrollbar>
-    <RegistrationCard v-for="(item, index) in registrations" :key="index" @click="goToDetail(item.id)">
+  <el-scrollbar v-loading="loading">
+    <RegistrationCard v-for="(item, index) in registrations" :key="index"
+      @click="goToDetail(item.patientName, item.doctorId, item.appointmentId)" v-bind="item">
     </RegistrationCard>
-    <RegistrationCard @click="goToDetail('1')"></RegistrationCard>
   </el-scrollbar>
 </template>
 

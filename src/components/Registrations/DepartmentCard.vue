@@ -34,7 +34,7 @@ const handleclick = (department: department) => {
 onMounted(async () => {
   const newDepartments = await getDepartmentRegistrations();
   loading.value = false;
-  Object.assign(departs, newDepartments);
+  departs.splice(0, departs.length, ...newDepartments);
 })
 </script>
 

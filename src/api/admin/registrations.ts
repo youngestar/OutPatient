@@ -12,17 +12,17 @@ export const createDepartRegistration = async (deptName: string) => {
   }
 };
 
-export const updeteDepartRegistration = async (updetedDepartName: string) => {
+export const updeteDepartRegistration = async (deptId: number, updetedDepartName: string) => {
   try {
     const res = await DoAxiosWithErro(
       "/api/admin/department",
       "put",
-      { deptName: updetedDepartName },
+      { deptId, deptName: updetedDepartName },
       true,
       true
     );
 
-    console.log(res);
+    return res;
   } catch (err) {
     console.error(err);
   }
@@ -32,7 +32,7 @@ export const deleteDepartRegistration = async (deptId: number) => {
   try {
     const res = await DoAxiosWithErro(`/api/admin/department/${deptId}`, "delete", {}, true, false);
 
-    console.log(res);
+    return res;
   } catch (err) {
     console.error(err);
   }
@@ -48,24 +48,23 @@ export const createClinicRegistration = async (deptId: number, clinicName: strin
       true,
       true
     );
-    console.log(res);
     return res;
   } catch (err) {
     console.error(err);
   }
 };
 
-export const updeteClinicRegistration = async (updetedClinicName: string) => {
+export const updeteClinicRegistration = async (clinicId: number, updetedClinicName: string) => {
   try {
     const res = await DoAxiosWithErro(
       "/api/admin/clinic",
       "put",
-      { deptName: updetedClinicName },
+      { clinicId, clinicName: updetedClinicName },
       true,
       true
     );
 
-    console.log(res);
+    return res;
   } catch (err) {
     console.error(err);
   }
@@ -75,13 +74,15 @@ export const deleteClinicRegistration = async (clinicId: number) => {
   try {
     const res = await DoAxiosWithErro(`/api/admin/clinic/${clinicId}`, "delete", {}, true, false);
 
-    console.log(res);
+    return res;
   } catch (err) {
     console.error(err);
   }
 };
 
 // 医生相关操作
+
+// 这里使用 FormData 来处理文件上传
 export const createDoctorRegistration = async (
   clinicId: number,
   name: string,
@@ -89,10 +90,17 @@ export const createDoctorRegistration = async (
   introduction: string
 ) => {
   try {
+    // 创建 FormData 对象并添加参数
+    const formData = new FormData();
+    formData.append("clinicId", String(clinicId)); // 数值类型需转为字符串
+    formData.append("name", name);
+    formData.append("title", title);
+    formData.append("introduction", introduction);
+
     const res = await DoAxiosWithErro(
       "/api/admin/doctor",
       "post",
-      { clinicId, name, title, introduction },
+      formData, // 直接传递 FormData 对象
       true,
       true
     );

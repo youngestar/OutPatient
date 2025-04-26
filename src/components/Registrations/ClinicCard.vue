@@ -34,7 +34,7 @@ const handleclick = (clinic: clinic) => {
 onMounted(async () => {
   const newClinics = await getClinicRegistrations(route.query.departmentId);
   loading.value = false;
-  Object.assign(clinics, newClinics);
+  clinics.splice(0, clinics.length, ...newClinics);
 })
 </script>
 

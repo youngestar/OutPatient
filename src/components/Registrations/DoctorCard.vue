@@ -21,7 +21,7 @@ onMounted(async () => {
   const newDoctors = await getDoctorRegistrations(route.query.departmentId, route.query.clinicId);
   loading.value = false;
   console.log(newDoctors);
-  Object.assign(doctors, newDoctors);
+  doctors.splice(0, doctors.length, ...newDoctors);
 })
 </script>
 

@@ -13,6 +13,7 @@ export const getUesrInfo = async () => {
       email: res.email,
       IDCard: res.idCard,
       userId: res.userId,
+      doctorId: res.doctorId,
     };
     return userInfo;
   } catch (err) {

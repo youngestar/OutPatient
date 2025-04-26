@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue';
-import { getUesrInfo } from '@/api/patient/myinfo';
+import { getUesrInfo } from '@/api/patient/myInfo';
 import { ElAvatar } from 'element-plus';
 
 const loading = ref(true);

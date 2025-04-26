@@ -3,79 +3,82 @@
     <h2>患者信息</h2>
     <div id="main-msg">
       <div class="left">
-        <p><span class="label">当前序号:</span><span class="detail">{{ num }}</span></p>
-        <p><span class="label">姓名:</span><span class="detail">{{ name }}</span></p>
-        <p><span class="label">性别:</span><span class="detail">{{ gender }}</span></p>
-        <p><span class="label">年龄:</span><span class="detail">{{ age }}</span></p>
-        <p><span class="label">病历号:</span><span class="detail">{{ id }}</span></p>
+        <p><span class="label">序号:</span><span class="detail">{{ appointmentId }}</span></p>
+        <p><span class="label">病历号:</span><span class="detail">{{ scheduleId }}</span></p>
+        <p><span class="label">病人姓名:</span><span class="detail">{{ patientName }}</span></p>
+        <p><span class="label">是否初诊:</span><el-tag class="detail" type="warning">{{ isRevisit === 0 ? "是" : "否"
+            }}</el-tag></p>
+        <p><span class="label">就诊状态:</span><el-tag class="detail" type="warning">{{ status === 0 ? "待就诊" : status === 1
+          ? "已就诊" : status === 2 ? "已取消" : "出错了"
+            }}</el-tag></p>
       </div>
       <div class="right">
-        <p><span class="label">挂号时间:</span><span class="detail">{{ registerTime }}</span></p>
-        <p><span class="label">科室名:</span><span class="detail">{{ department }}</span></p>
-        <p><span class="label">诊室名:</span><span class="detail">{{ clinicRoom }}</span></p>
-        <p><span class="label">当前状态:</span><el-tag class="detail" type="warning">{{ state }}</el-tag></p>
-        <p><span class="label">备注:</span><span class="detail">{{ note }}</span></p>
+        <p><span class="label">挂号时间:</span><span class="detail">{{ appointmentDate }}</span></p>
+        <p><span class="label">科室名:</span><span class="detail">{{ deptName }}</span></p>
+        <p><span class="label">诊室名:</span><span class="detail">{{ clinicName }}</span></p>
+        <p><span class="label">就诊医生:</span><span class="detail">{{ doctorName }}</span></p>
       </div>
     </div>
-    <p><span class="label">症状:</span><span class="detail">{{ description }}</span></p>
+    <p><span class="label">备注:</span><span class="detail">{{ statusDesc }}</span></p>
   </div>
 </template>
-
 <script setup lang="ts">
-import { defineProps, ref } from 'vue';
-import { ElTag, } from 'element-plus';
+import { defineProps } from "vue";
+import { ElTag, } from "element-plus";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
-  num: {
+  appointmentId: {
     type: Number,
     required: true,
     default: 1,
   },
-  name: {
+  scheduleId: {
     type: String,
     required: true,
-    default: '默认患者',
+    default: "001",
   },
-  gender: {
+  patientName: {
     type: String,
     required: true,
-    default: '男',
+    default: "默认患者",
   },
-  age: {
+  isRevisit: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  status: {
     type: Number,
     required: true,
     default: 18,
   },
-  id: {
-    type: String,
-    required: true,
-    default: '001',
-  },
   description: {
     type: String,
     required: true,
-    default: '请阐释症状,例:患者头部发热',
+    default: "请阐释症状,例:患者头部发热",
   },
-  registerTime: {
+  appointmentDate: {
     type: String,
     required: true,
-    default: '2025-05-01',
+    default: "2025-05-01",
   },
-  department: {
+  deptName: {
     type: String,
     required: true,
-    default: '内科',
+    default: "内科",
   },
-  clinicRoom: {
+  clinicName: {
     type: String,
     required: true,
-    default: '门诊1',
+    default: "门诊1",
   },
-  state: {
+  doctorName: {
     type: String,
     required: true,
     default: "待执行",
   },
-  note: {
+  statusDesc: {
     type: String,
     required: true,
     default: "无",
@@ -106,13 +109,13 @@ const props = defineProps({
     display: flex;
 
     .right {
-      margin-left: 30%;
+      margin-left: 20%;
     }
   }
 
   p {
     display: flex;
-    margin: 1px 0;
+    margin: 5px 0;
 
     .label {
       width: 70px;

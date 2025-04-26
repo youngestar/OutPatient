@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ElButton } from 'element-plus'
+import { ElButton, ElMessage } from 'element-plus'
 import { useRouter, useRoute } from 'vue-router'
 import { useHospitalStore } from '@/stores/hospitalData'
 
@@ -23,19 +23,27 @@ const backpage = () => {
   }
 }
 
-const createNewItem = () => {
+const createNewItem = async () => {
   if (!route.query.departmentId && !route.query.clinicId) {
     const newName = prompt('请输入新科室的名称')
     if (!newName) {
       return
     }
-    hospitalStore.createDepart(newName)
+    await hospitalStore.createDepart(newName)
+    ElMessage({
+      message: '添加科室成功',
+      type: 'success',
+    })
   } else if (!route.query.clinicId && route.query.departmentId) {
     const newName = prompt('请输入新门诊的名称')
     if (!newName) {
       return
     }
-    hospitalStore.createClinic(Number(route.query.departmentId), newName)
+    await hospitalStore.createClinic(Number(route.query.departmentId), newName)
+    ElMessage({
+      message: '添加门诊成功',
+      type: 'success',
+    })
   }
   else if (route.query.clinicId && route.query.departmentId) {
     const newName = prompt('请输入新医生的名称')
