@@ -28,6 +28,7 @@ export interface clinic {
 
 export interface doctor {
   doctorId: number;
+  userId: number;
   name: string;
   title: string;
 
@@ -101,11 +102,7 @@ export const getDoctorSchedule = async (
 ) => {
   try {
     const res = await DoAxiosWithErro(
-<<<<<<< HEAD
-      "/api/appointment/schedules",
-=======
-      "/appointment/doctor-schedules",
->>>>>>> 0282fea0a574207f3e77247d24b1abe06f0fe886
+      "/appointment/schedules",
       "post",
 
       { deptId, clinicId, doctorId, title, startDate: "2025-04-07", endDate: "2025-04-17" },

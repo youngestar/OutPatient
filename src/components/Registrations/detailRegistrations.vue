@@ -60,7 +60,7 @@ onMounted(async () => {
         </div>
         <div class="right">
           <h3 style="font-size: 30px;">对话历史</h3>
-          <chat-view :appointmentId="1" :couldSend="false"></chat-view>
+          <chat-view style="margin-top: 20px;" :appointmentId="1" :couldSend="false"></chat-view>
         </div>
       </div>
     </div>
@@ -94,7 +94,8 @@ onMounted(async () => {
     }
 
     .right {
-      margin-left: 30%;
+      margin-left: 25%;
+      width: 40%;
     }
   }
 
@@ -105,6 +106,8 @@ onMounted(async () => {
     justify-content: space-between;
 
     .el-button {
+      position: relative;
+      bottom: 50px;
       width: 90px;
       height: 30px;
       font-size: 15px;

@@ -15,7 +15,7 @@
       <el-button type="primary">
         修改
       </el-button>
-      <el-button type="danger">
+      <el-button type="danger" @click.stop="hospitalStore.deleteDoctor(doctorId)">
         删除
       </el-button>
     </div>
@@ -25,7 +25,10 @@
 <script lang="ts" setup>
 import { ElButton, ElScrollbar } from 'element-plus';
 import { getDoctorSchedule } from '@/api/patient/registrations';
+import { useHospitalStore } from '@/stores/hospitalData';
 import { useRoute } from 'vue-router';
+
+const hospitalStore = useHospitalStore();
 const route = useRoute();
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
@@ -54,9 +57,7 @@ const props = defineProps({
     required: true,
   },
 })
-const getSchedule = (deptId: number, clinicId: number, doctorId: number, title: string) => {
-  getDoctorSchedule(deptId, clinicId, doctorId, title)
-}
+
 
 // const createRegistrations = (patientId: number, scheduleId: number,) => {
 // createRegistrations(patientId, scheduleId,);

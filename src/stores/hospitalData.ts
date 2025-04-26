@@ -13,6 +13,8 @@ import {
   deleteClinicRegistration,
   updeteClinicRegistration,
   createDoctorRegistration,
+  updateDoctorRegistration,
+  deleteDoctorRegistration,
 } from "@/api/admin/registrations";
 import type {
   getDepartment,
@@ -127,6 +129,54 @@ export const useHospitalStore = defineStore("hospital", () => {
     doctors.push(getDoctor);
   };
 
+  // 待测试
+  const updateDoctor = async (
+    doctorId: number,
+    userId: number,
+    username: string,
+    password: string,
+    email: string,
+    phone: string,
+    clinicId: number,
+    name: string,
+    title: string,
+    introduction: string
+  ) => {
+    const newDoctor: doctor = {
+      doctorId,
+      userId,
+      name,
+      title,
+      introduction,
+      avatar: "",
+      deptName: "",
+    };
+    const msg: doctor = await updateDoctorRegistration(
+      doctorId,
+      userId,
+      username,
+      password,
+      email,
+      phone,
+      clinicId,
+      name,
+      title,
+      introduction
+    );
+    const index = doctors.findIndex((doctor) => {
+      return doctor.doctorId === doctorId;
+    });
+    doctors[index] = newDoctor;
+  };
+
+  const deleteDoctor = async (doctorId: number) => {
+    const msg = await deleteDoctorRegistration(doctorId);
+    const index = doctors.findIndex((doctor) => {
+      return doctor.doctorId === doctorId;
+    });
+    doctors.splice(index, 1);
+  };
+
   return {
     departs,
     clinics,
@@ -141,5 +191,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     updateClinic,
     deleteClinic,
     createDoctor,
+    updateDoctor,
+    deleteDoctor,
   };
 });
