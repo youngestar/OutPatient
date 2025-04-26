@@ -4,7 +4,7 @@ import { DoAxiosWithErro } from "..";
 //科室相关操作
 export const createDepartRegistration = async (deptName: string) => {
   try {
-    const res = await DoAxiosWithErro("/api/admin/department", "post", { deptName }, true, true);
+    const res = await DoAxiosWithErro("/admin/department", "post", { deptName }, true, true);
 
     return res;
   } catch (err) {
@@ -15,7 +15,7 @@ export const createDepartRegistration = async (deptName: string) => {
 export const updeteDepartRegistration = async (deptId: number, updetedDepartName: string) => {
   try {
     const res = await DoAxiosWithErro(
-      "/api/admin/department",
+      "/admin/department",
       "put",
       { deptId, deptName: updetedDepartName },
       true,
@@ -30,7 +30,7 @@ export const updeteDepartRegistration = async (deptId: number, updetedDepartName
 
 export const deleteDepartRegistration = async (deptId: number) => {
   try {
-    const res = await DoAxiosWithErro(`/api/admin/department/${deptId}`, "delete", {}, true, false);
+    const res = await DoAxiosWithErro(`/admin/department/${deptId}`, "delete", {}, true, false);
 
     return res;
   } catch (err) {
@@ -42,7 +42,7 @@ export const deleteDepartRegistration = async (deptId: number) => {
 export const createClinicRegistration = async (deptId: number, clinicName: string) => {
   try {
     const res = await DoAxiosWithErro(
-      "/api/admin/clinic",
+      "/admin/clinic",
       "post",
       { deptId, clinicName },
       true,
@@ -57,7 +57,7 @@ export const createClinicRegistration = async (deptId: number, clinicName: strin
 export const updeteClinicRegistration = async (clinicId: number, updetedClinicName: string) => {
   try {
     const res = await DoAxiosWithErro(
-      "/api/admin/clinic",
+      "/admin/clinic",
       "put",
       { clinicId, clinicName: updetedClinicName },
       true,
@@ -72,7 +72,7 @@ export const updeteClinicRegistration = async (clinicId: number, updetedClinicNa
 
 export const deleteClinicRegistration = async (clinicId: number) => {
   try {
-    const res = await DoAxiosWithErro(`/api/admin/clinic/${clinicId}`, "delete", {}, true, false);
+    const res = await DoAxiosWithErro(`/admin/clinic/${clinicId}`, "delete", {}, true, false);
 
     return res;
   } catch (err) {
@@ -98,7 +98,7 @@ export const createDoctorRegistration = async (
     formData.append("introduction", introduction);
 
     const res = await DoAxiosWithErro(
-      "/api/admin/doctor",
+      "/admin/doctor",
       "post",
       formData, // 直接传递 FormData 对象
       true,

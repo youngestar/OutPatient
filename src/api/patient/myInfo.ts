@@ -1,7 +1,7 @@
 import { DoAxiosWithErro } from "..";
 export const getUesrInfo = async () => {
   try {
-    const res = await DoAxiosWithErro("/api/auth/currentUser", "get", {}, true, false);
+    const res = await DoAxiosWithErro("/auth/currentUser", "get", {}, true, false);
     const userInfo = {
       avatar: res.avatar,
       name: res.name,

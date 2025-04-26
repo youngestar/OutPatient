@@ -2,6 +2,7 @@
   <div class="chat-container">
     <div class="chat-header">
       <h2>AI助手</h2>
+      <el-button v-if="cuoldSend" class="over-button" @click="overAichat(sessionId)" type="danger" size="big">停止对话</el-button>
     </div>
     <div class="chat-messages" ref="chatMessages">
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.sender]">
@@ -17,7 +18,7 @@
         </div>
       </div>
     </div>
-    <div class="chat-input">
+    <div v-if="cuoldSend" class="chat-input">
       <textarea
         v-model="newMessage"
         @keypress.enter="sendMessage"
@@ -37,6 +38,16 @@ import { useUserStore } from "@/stores/user";
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { ElMessage,} from 'element-plus';
 
+const props = defineProps({
+  appoimentId: {
+    type: Number,
+    required: true,
+  },
+  cuoldSend: {
+    type: Boolean,
+    default: true,
+  }
+})
 
 const messages = reactive([
   {
@@ -72,7 +83,7 @@ const sendMessage = async () => {
   messages.push(userMessae);
 
   isLoading.value = true;
-  DoAxios('/api/appointment/ai-consult/send','post',{
+  DoAxios('/appointment/ai-consult/send','post',{
     patientId: userStore.userInfo!.userId as number,
     question: newMessage.value,
     appointmentId: 1,
@@ -130,15 +141,15 @@ const initFetchES = () => {
       },
       body: JSON.stringify({
         patientId: userStore?.userInfo!.userId as number,
+        appointmentId: 2,
         question: newMessage.value,
-        appointmentId: 1
       }),
       signal: fetchsource.value?.signal,
       onmessage(ev) {
         const data = JSON.parse(ev.data);
         if(data.content === "连接已建立"){
           sessionId.value = data.sessionId;
-          DoAxiosWithErro('/api/appointment/ai-consult/history','get',{
+          DoAxiosWithErro('/appointment/ai-consult/history','get',{
             sessionId: data.sessionId
           },true).then((res) => {
             console.log(res);
@@ -178,14 +189,11 @@ const initFetchES = () => {
 }
 
 const overAichat = (sessionId: string | null) => {
-  DoAxios(`/api/appointment/ai-consult/end?sessionId=${sessionId}`,'post',{},true).then(() => {
+  DoAxios(`/appointment/ai-consult/end?sessionId=${sessionId}`,'post',{},true).then(() => {
     ElMessage({
       message: '聊天记录保存成功',
       type: 'success',
     })
-    if(fetchsource.value){
-      fetchsource.value.abort();
-    }
   }).catch(() =>{
     ElMessage({
       message: '聊天记录保存失败',
@@ -200,11 +208,13 @@ onMounted(async () => {
 
 
 onUnmounted(() => {
-  overAichat(sessionId.value);
+  if(fetchsource.value){
+      fetchsource.value.abort();
+    }
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .chat-container {
   width: 100%;
   height: 100%;
@@ -221,7 +231,13 @@ onUnmounted(() => {
   background-color: #4a6cf7;
   color: white;
   padding: 15px;
+  position: relative;
   text-align: center;
+  .over-button{
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+  }
 }
 
 .chat-messages {

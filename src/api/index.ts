@@ -8,7 +8,7 @@ type Method = "get" | "post" | "put" | "delete";
 
 // 创建 Axios 实例
 const myApi = axios.create({
-  baseURL: import.meta.env.DEV ? "" : "/api",
+  baseURL: "/api",
   timeout: 10000,
 });
 

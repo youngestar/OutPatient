@@ -21,7 +21,7 @@ export interface detailRegistration extends Registration {
 export const doctorGetRegistrations = async (doctorId: number) => {
   try {
     const res = await DoAxiosWithErro(
-      `/api/appointment/doctor/${doctorId}`,
+      `/appointment/doctor/${doctorId}`,
       "get",
       {},
       true,
@@ -36,7 +36,7 @@ export const doctorGetRegistrations = async (doctorId: number) => {
 export const doctorGetDetailRegistration = async (doctorId: number, appointmentId: number) => {
   try {
     const res = await DoAxiosWithErro(
-      `/api/appointment/doctor/${doctorId}/appointment/${appointmentId}`,
+      `/appointment/doctor/${doctorId}/appointment/${appointmentId}`,
       "get",
       {},
       true,
