@@ -28,7 +28,7 @@ export const getChartsDataAge = async () => {
 // 医生工作量统计
 export const getChartsDataDoctor = async () => {
   try {
-    const res = await DoAxiosWithErro("/api/data-analysis/doctor-workload", "get", {}, true, false);
+    const res = await DoAxiosWithErro("/data-analysis/doctor-workload", "get", {}, true, false);
     console.log(res);
   } catch (err) {
     console.error(err);
@@ -39,7 +39,7 @@ export const getChartsDataDoctor = async () => {
 export const getChartsDataFrequency = async () => {
   try {
     const res = await DoAxiosWithErro(
-      "/api/data-analysis/patient-visit-frequency",
+      "/data-analysis/patient-visit-frequency",
       "get",
       {},
       true,
@@ -60,7 +60,7 @@ export const getChartsDataFrequency = async () => {
 export const getChartsDataGender = async () => {
   try {
     const res = await DoAxiosWithErro(
-      "/api/data-analysis/patient-gender-ratio",
+      "/data-analysis/patient-gender-ratio",
       "get",
       {},
       true,

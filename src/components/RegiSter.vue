@@ -37,7 +37,7 @@ const handleturn = () => {
 const handleSend = async () => {
   sendButton.disable = true;
   try {
-    await DoAxios(`/api/auth/email`, 'get', {
+    await DoAxios(`/auth/email`, 'get', {
       email: ruleForm.email
     }, false);
     ElMessage({
@@ -68,9 +68,10 @@ const checkUserName = (rule, value, callback) => {
   if (!value) {
     return callback(new Error("请输入昵称"))
   }
-  DoAxios('/api/auth/IsExists', 'get', {
+  DoAxios('/auth/IsExists', 'get', {
     username: value
-  }, false).then(() => {
+  }, false).then((res) => {
+    console.log(res);
     callback();
   }).catch(rject => {
     callback(rject);
@@ -91,11 +92,11 @@ const checkEmail = (rule, value, callback) => {
   }
 
   // 异步请求，检查邮箱是否已注册
-  DoAxios('/api/auth/IsExists', 'get', {
-    type: 'email',
+  DoAxios('/auth/IsExists', 'get', {
     value
   })
-    .then(() => {
+    .then((res) => {
+      console.log(res);
       callback();
     })
     .catch(err => {
@@ -239,7 +240,7 @@ const submitForm = () => {
       }
       isfetching.value = true
       console.log(formdata);
-      await DoAxiosWithErro('/api/auth/register', 'post', formdata, false).finally(() => {
+      await DoAxiosWithErro('/auth/register', 'post', formdata, false).finally(() => {
         isfetching.value = false
       });
       ElMessage({

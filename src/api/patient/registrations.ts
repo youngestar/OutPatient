@@ -41,7 +41,7 @@ export interface doctor {
 // 加载页面函数
 export const getDepartmentRegistrations = async () => {
   try {
-    const res = await DoAxiosWithErro("/api/appointment/departments", "get", {}, true, false);
+    const res = await DoAxiosWithErro("/appointment/departments", "get", {}, true, false);
     const departmentsData = res.map((department: getDepartment) => {
       return {
         name: department.deptName,
@@ -58,7 +58,7 @@ export const getDepartmentRegistrations = async () => {
 export const getClinicRegistrations = async (departmentId: number) => {
   try {
     const res = await DoAxiosWithErro(
-      "/api/appointment/clinics",
+      "/appointment/clinics",
       "get",
       { deptId: departmentId },
       true,
@@ -80,7 +80,7 @@ export const getClinicRegistrations = async (departmentId: number) => {
 export const getDoctorRegistrations = async (departmentId: number, clinicId: number) => {
   try {
     const res = await DoAxiosWithErro(
-      "/api/appointment/doctors",
+      "/appointment/doctors",
       "get",
       { deptId: departmentId, clinicId: clinicId },
       true,
@@ -101,7 +101,11 @@ export const getDoctorSchedule = async (
 ) => {
   try {
     const res = await DoAxiosWithErro(
+<<<<<<< HEAD
       "/api/appointment/schedules",
+=======
+      "/appointment/doctor-schedules",
+>>>>>>> 0282fea0a574207f3e77247d24b1abe06f0fe886
       "post",
 
       { deptId, clinicId, doctorId, title, startDate: "2025-04-07", endDate: "2025-04-17" },
@@ -119,7 +123,7 @@ export const getDoctorSchedule = async (
 const createRegistrations = async (patientId: number, scheduleId: number, isRevisit = 0) => {
   try {
     const res = await DoAxiosWithErro(
-      "/api/appointment/create",
+      "/appointment/create",
       "post",
       { patientId, scheduleId },
       true,
@@ -134,7 +138,7 @@ const createRegistrations = async (patientId: number, scheduleId: number, isRevi
 export const cancelRegistrations = async (appointmentId: number, patientId: number) => {
   try {
     const res = await DoAxiosWithErro(
-      "/api/appointment/cancel",
+      "/appointment/cancel",
       "post",
       { appointmentId, patientId },
       true,

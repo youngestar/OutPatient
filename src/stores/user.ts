@@ -38,7 +38,7 @@ export const useUserStore = defineStore('user', {
   actions: {
     async login(userData: { account: string; password: string }) {
       try {
-        const res = await DoAxiosWithErro('/api/auth/login', 'post', userData);
+        const res = await DoAxiosWithErro('/auth/login', 'post', userData);
         const info = res;
         // 登录成功，保存用户信息
         this.userToken = info.token;
@@ -55,7 +55,7 @@ export const useUserStore = defineStore('user', {
 
     async logout() {
       try {
-        await DoAxios('/api/auth/logout', 'post', {}, true);
+        await DoAxios('/auth/logout', 'post', {}, true);
       } catch (err) {
         // 可忽略登出接口错误（如 token 失效）
       }
