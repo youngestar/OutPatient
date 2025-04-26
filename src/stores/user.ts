@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { DoAxiosWithErro } from "@/api";
+import { DoAxiosWithErro, DoAxios } from "@/api";
 
 // 定义用户信息类型（根据实际接口返回结构调整）
 interface UserInfo {
@@ -55,7 +55,7 @@ export const useUserStore = defineStore('user', {
 
     async logout() {
       try {
-        await DoAxiosWithErro('/api/users/logout', 'post', {}, true);
+        await DoAxios('/api/auth/logout', 'post', {}, true);
       } catch (err) {
         // 可忽略登出接口错误（如 token 失效）
       }
