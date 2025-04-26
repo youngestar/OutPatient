@@ -4,13 +4,22 @@ import { DoAxiosWithErro } from "..";
 export const getChartsDataAge = async () => {
   try {
     const res = await DoAxiosWithErro(
-      "/data-analysis/patient-age-distribution",
+      "/api/data-analysis/patient-age-distribution",
       "get",
       {},
       true,
       false
     );
-    console.log(res);
+    const keys = Object.keys(res);
+    const values = Object.values(res);
+    const options = [];
+    for (let i = 0; i < keys.length; i++) {
+      options.push({
+        value: values[i],
+        name: keys[i],
+      });
+    }
+    return options;
   } catch (err) {
     console.error(err);
   }
@@ -19,7 +28,7 @@ export const getChartsDataAge = async () => {
 // 医生工作量统计
 export const getChartsDataDoctor = async () => {
   try {
-    const res = await DoAxiosWithErro("/data-analysis/doctor-workload", "get", {}, true, false);
+    const res = await DoAxiosWithErro("/api/data-analysis/doctor-workload", "get", {}, true, false);
     console.log(res);
   } catch (err) {
     console.error(err);
@@ -30,13 +39,18 @@ export const getChartsDataDoctor = async () => {
 export const getChartsDataFrequency = async () => {
   try {
     const res = await DoAxiosWithErro(
-      "/data-analysis/patient-visit-frequency",
+      "/api/data-analysis/patient-visit-frequency",
       "get",
       {},
       true,
       false
     );
-    console.log(res);
+    const keys = Object.keys(res);
+    const values = Object.values(res);
+    return {
+      keys,
+      values,
+    };
   } catch (err) {
     console.error(err);
   }
@@ -46,13 +60,18 @@ export const getChartsDataFrequency = async () => {
 export const getChartsDataGender = async () => {
   try {
     const res = await DoAxiosWithErro(
-      "/data-analysis/patient-gender-ratio",
+      "/api/data-analysis/patient-gender-ratio",
       "get",
       {},
       true,
       false
     );
-    console.log(res);
+    const keys = Object.keys(res);
+    const values = Object.values(res);
+    return {
+      keys,
+      values,
+    };
   } catch (err) {
     console.error(err);
   }

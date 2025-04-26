@@ -1,46 +1,24 @@
 <template>
-  <div>
-    <DoctorCard></DoctorCard>
-  </div>
+  <CardView style="height: 100%; min-height: 100vh;" v-loading="loading" :cardsprops="doctors" :myCard="DoctorCard">
+  </CardView>
 </template>
 
 <script lang="ts" setup>
 import DoctorCard from '../DoctorCard.vue';
 import CardView from '@/views/CardView.vue'
-import { useRouter } from 'vue-router'
+import { useHospitalStore } from '@/stores/hospitalData'
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router'
 
-const router = useRouter();
-const clinic = [
-  {
-    name: '门诊1',
-    desc: '在岗医生：张三',
-  },
-  {
-    name: '门诊2',
-    desc: '在岗医生：李四',
-  },
-]
+const hospitalStore = useHospitalStore();
+const loading = ref(true);
+const route = useRoute();
+const doctors = hospitalStore.doctors;
 
-const handleclick = (departmentName: string, clinicName: string) => {
-  router.push({
-    name: "crudClinic",
-    params: {
-      department: departmentName,
-      clinic: clinicName,
-    }
-  })
-}
-
-const props = defineProps({
-  myCard: {
-    type: Object,
-    required: true
-  },
-  cardsprops: {
-    type: Array,
-    required: true
-  },
-});
+onMounted(async () => {
+  await hospitalStore.getDoctors(Number(route.query.departmentId), Number(route.query.clinicId));
+  loading.value = false;
+})
 </script>
 
 <style lang="scss" scoped>

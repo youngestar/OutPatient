@@ -49,7 +49,7 @@ const router = createRouter({
         {
           path: "myinfo",
           name: "myinfo",
-          component: () => import("../views/patient/Myinfo.vue"),
+          component: () => import("../views/patient/MyInfo.vue"),
         },
         {
           path: "card",
@@ -74,7 +74,7 @@ const router = createRouter({
               component: () => import("@/components/Registrations/AllRegistrations.vue"),
             },
             {
-              path: ":id",
+              path: ":name",
               name: "detailRegistrations",
               component: () => import("@/components/Registrations/DetailRegistrations.vue"),
             },

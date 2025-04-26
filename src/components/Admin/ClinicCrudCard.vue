@@ -1,47 +1,42 @@
 <template>
-  <div>
-    <CardView :cardsprops="clinic" style="text-align: center;" :myCard="DepartCrudCard"
-      @handleclick="handleclick('1', '2')"></CardView>
-  </div>
+  <CardView v-loading="loading" :cardsprops="clinics" :myCard="DepartCrudCard" @handleclick="handleclick"
+    style="text-align: center; height: 100%; min-height: 72vh;">
+  </CardView>
 </template>
 
 <script lang="ts" setup>
+import { useHospitalStore } from '@/stores/hospitalData';
 import DepartCrudCard from '@/components/Admin/DepartCrudCard.vue'
 import CardView from '@/views/CardView.vue'
-import { useRouter } from 'vue-router'
+import { type clinic } from '@/api/patient/registrations';
+import { onMounted, ref } from 'vue';
+import { useRouter, useRoute } from 'vue-router'
 
+const hospitalStore = useHospitalStore();
+const loading = ref(true);
 const router = useRouter();
-const clinic = [
-  {
-    name: '门诊1',
-    desc: '在岗医生：张三',
-  },
-  {
-    name: '门诊2',
-    desc: '在岗医生：李四',
-  },
-]
+const route = useRoute();
+const clinics = hospitalStore.clinics;
 
-const handleclick = (departmentName: string, clinicName: string) => {
+const handleclick = (clinic: clinic) => {
   router.push({
     name: "crudClinicDoctor",
     params: {
-      department: departmentName,
-      clinic: clinicName,
+      department: route.query.departmentName as string,
+      clinic: clinic.name,
+    },
+    query: {
+      departmentId: route.query.departmentId,
+      clinicId: clinic.id,
     }
   })
 }
 
-const props = defineProps({
-  myCard: {
-    type: Object,
-    required: true
-  },
-  cardsprops: {
-    type: Array,
-    required: true
-  },
-});
+onMounted(async () => {
+  await hospitalStore.getClinics(Number(route.query.departmentId))
+  loading.value = false;
+
+})
 </script>
 
 <style lang="scss" scoped>
