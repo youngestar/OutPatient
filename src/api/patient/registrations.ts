@@ -93,6 +93,15 @@ export const getDoctorRegistrations = async (departmentId: number, clinicId: num
   }
 };
 
+export const getAllDoctorRegistrations = async () => {
+  try {
+    const res = await DoAxiosWithErro("/appointment/doctors", "get", {}, true, false);
+    return res;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 // 排班相关函数
 export const getDoctorSchedule = async (
   deptId: number,

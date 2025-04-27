@@ -1,7 +1,15 @@
 <template>
   <h2>我的信息</h2>
   <div id="card" class="light-shadow cardHover" v-loading="loading">
-    <el-avatar :size="160" :src="myInfo.avatar" style="float: left; margin: 0  50px 0 20px;"></el-avatar>
+    <div id="avatar">
+      <input type="file" id="file" @change="handleUP" style="display: none;" />
+      <el-avatar :src="myInfo.avatar" :size="160" style="background-color: #fff;"></el-avatar>
+      <label for="file">修改头像</label>
+      <el-button type="success" size="small" v-if="newAvatar" @click="uploadAvatar"
+        style="border: 1px #fff solid; width: 68px; border-radius: 5px; margin: auto; margin-top: 15px;">
+        保存修改
+      </el-button>
+    </div>
     <div id="main-msg">
       <div class="left">
         <p><span class="label">姓名:</span><span class="detail">{{ myInfo.name }}</span></p>
@@ -12,7 +20,7 @@
             : myInfo.gender === 2
               ? '女'
               : '错误'
-            }}</span></p>
+        }}</span></p>
         <p><span class="label">年龄:</span><span class="detail">{{ myInfo.age }}</span></p>
         <p><span class="label">地区:</span><span class="detail">{{ myInfo.region }}</span></p>
         <p><span class="label">详细住址:</span><span class="detail">{{ myInfo.address }}</span></p>
@@ -29,10 +37,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue';
-import { getUesrInfo } from '@/api/patient/myInfo';
+import { getUesrInfo, updateUserAvatar } from '@/api/patient/myInfo';
 import { ElAvatar } from 'element-plus';
 
 const loading = ref(true);
+const newAvatar = ref(false);
 const myInfo = reactive({
   avatar: '/src/assets/me.png',
   name: '默认患者',
@@ -44,6 +53,29 @@ const myInfo = reactive({
   email: '默认邮箱',
   IDCard: '默认身份证号',
 })
+
+const handleUP = (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+  myInfo.avatar = URL.createObjectURL(file);
+  newAvatar.value = true;
+}
+
+const uploadAvatar = async () => {
+  const file = (document.getElementById('file') as HTMLInputElement).files?.[0];
+  if (!file) return;
+  updateUserAvatar(file).then((res) => {
+    if (res.code === 200) {
+      ElAvatar.src = URL.createObjectURL(file);
+      ElAvatar.alt = '头像';
+      newAvatar.value = false;
+    } else {
+      console.error('上传失败');
+    }
+  }).catch((err) => {
+    console.error(err);
+  });
+}
 
 onMounted(async () => {
   const getInfo: object = await getUesrInfo();
@@ -67,6 +99,36 @@ h2 {
   padding: 20px;
   background-color: vars.$card-bg-depart;
   border-radius: 10px;
+
+  #avatar {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    float: left;
+    margin-left: 20px;
+    margin-right: 60px;
+
+    label {
+      cursor: pointer;
+      margin: auto;
+      margin-top: 15px;
+      width: 80px;
+      height: 30px;
+      background-color: #409eff;
+      color: #fff;
+      line-height: 30px;
+      border-radius: 8px;
+      border: #fff 1px solid;
+      text-align: center;
+      font-weight: bolder;
+      font-size: 14px;
+
+      &:hover {
+        background-color: #66b1ff;
+      }
+    }
+  }
 
   #main-msg {
     display: flex;

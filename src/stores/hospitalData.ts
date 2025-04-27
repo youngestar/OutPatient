@@ -127,6 +127,7 @@ export const useHospitalStore = defineStore("hospital", () => {
       introduction
     );
     doctors.push(getDoctor);
+    return getDoctor;
   };
 
   // 待测试
@@ -167,6 +168,7 @@ export const useHospitalStore = defineStore("hospital", () => {
       return doctor.doctorId === doctorId;
     });
     doctors[index] = newDoctor;
+    return msg;
   };
 
   const deleteDoctor = async (doctorId: number) => {
@@ -175,6 +177,7 @@ export const useHospitalStore = defineStore("hospital", () => {
       return doctor.doctorId === doctorId;
     });
     doctors.splice(index, 1);
+    return msg;
   };
 
   return {

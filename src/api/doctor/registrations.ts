@@ -20,13 +20,7 @@ export interface detailRegistration extends Registration {
 }
 export const doctorGetRegistrations = async (doctorId: number) => {
   try {
-    const res = await DoAxiosWithErro(
-      `/appointment/doctor/${doctorId}`,
-      "get",
-      {},
-      true,
-      false
-    );
+    const res = await DoAxiosWithErro(`/appointment/doctor/${doctorId}`, "get", {}, true, false);
     return res;
   } catch (err) {
     console.error(err);

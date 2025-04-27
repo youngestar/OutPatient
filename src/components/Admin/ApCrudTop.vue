@@ -3,9 +3,14 @@
     <el-button type="primary" @click="backpage">上一级</el-button>
     <el-button type="primary" @click="createNewItem">添加</el-button>
   </div>
+  <el-dialog v-model="dialogTableVisible" title="请填写医生信息" width="800">
+    <DoctorForm :optionType="optionType"></DoctorForm>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue'
+import DoctorForm from './DoctorForm.vue';
 import { ElButton, ElMessage } from 'element-plus'
 import { useRouter, useRoute } from 'vue-router'
 import { useHospitalStore } from '@/stores/hospitalData'
@@ -13,6 +18,8 @@ import { useHospitalStore } from '@/stores/hospitalData'
 const hospitalStore = useHospitalStore();
 const router = useRouter()
 const route = useRoute()
+const dialogTableVisible = ref(false);
+const optionType = ref("create")
 const backpage = () => {
   if (route.params.department) {
     router.back()
@@ -46,35 +53,8 @@ const createNewItem = async () => {
     })
   }
   else if (route.query.clinicId && route.query.departmentId) {
-    const username = prompt('请输入账户名')
-    if (!username) {
-      return
-    }
-    const password = prompt('请输入密码')
-    if (!password) {
-      return
-    }
-    const email = prompt('请输入邮箱')
-    if (!email) {
-      return
-    }
-    const phone = prompt('请输入手机号')
-    if (!phone) {
-      return
-    }
-    const newName = prompt('请输入新医生的名称')
-    if (!newName) {
-      return
-    }
-    const newtitle = prompt('请输入新医生的职称')
-    if (!newtitle) {
-      return
-    }
-    const newintroduction = prompt('请输入新医生的介绍')
-    if (!newintroduction) {
-      return
-    }
-    hospitalStore.createDoctor(username, password, email, phone, Number(route.query.clinicId), newName, newtitle, newintroduction)
+    optionType.value = "create"
+    dialogTableVisible.value = true
   }
   else {
     console.log('失败')

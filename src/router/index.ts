@@ -123,6 +123,13 @@ const router = createRouter({
           path: "shedule",
           name: "shedule",
           component: () => import("../views/admin/SheduleVue.vue"),
+          children: [
+            {
+              path: "",
+              name: "allDoctorsCard",
+              component: () => import("@/components/Admin/AllDoctorsCard.vue"),
+            },
+          ],
         },
       ],
     },
