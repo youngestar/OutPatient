@@ -2,7 +2,7 @@
   <div class="chat-container">
     <div class="chat-header">
       <h2>AI助手</h2>
-      <el-button v-if="cuoldSend" class="over-button" @click="overAichat(sessionId)" type="danger" size="big">停止对话</el-button>
+      <el-button v-if="couldSend" class="over-button" @click="overAichat(sessionId)" type="danger" size="big">停止对话</el-button>
     </div>
     <div class="chat-messages" ref="chatMessages">
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.sender]">
@@ -18,7 +18,7 @@
         </div>
       </div>
     </div>
-    <div v-if="cuoldSend" class="chat-input">
+    <div v-if="couldSend" class="chat-input">
       <textarea
         v-model="newMessage"
         @keypress.enter="sendMessage"
@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, reactive, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, reactive } from 'vue';
 import { DoAxios, DoAxiosWithErro } from '@/api/index';
 import { useUserStore } from "@/stores/user";
 import { fetchEventSource } from '@microsoft/fetch-event-source';
@@ -43,7 +43,7 @@ const props = defineProps({
     type: Number,
     required: true,
   },
-  cuoldSend: {
+  couldSend: {
     type: Boolean,
     default: true,
   }
@@ -86,7 +86,7 @@ const sendMessage = async () => {
   DoAxios('/appointment/ai-consult/send','post',{
     patientId: userStore.userInfo!.userId as number,
     question: newMessage.value,
-    appointmentId: 1,
+    appointmentId: props.appoimentId,
     sessionId: sessionId.value
   },true).then(()=> {
     // 清空输入框
@@ -217,7 +217,7 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 .chat-container {
   width: 100%;
-  height: 100%;
+  height: 90%;
   margin: 0 auto;
   background-color: #f5f7fa;
   border-radius: 10px;

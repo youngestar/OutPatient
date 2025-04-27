@@ -22,7 +22,7 @@
           class="textarea-field"
           rows="3"
         ></textarea>
-        <button @click="sendMessage" class="send-button">发送</button>
+        <button @click="sendMessage(1)" class="send-button">发送</button>
       </div>
     </div>
   </template>
@@ -32,6 +32,16 @@
   import { useUserStore } from '@/stores/user';
   import SockJS from 'sockjs-client';
   import { Client  } from '@stomp/stompjs';
+  import { ElMessage } from 'element-plus';
+  import { DoAxiosWithErro } from '@/api';
+
+
+  const props = defineProps({
+    diagId: {
+      type: Number,
+      required: true,
+    },
+  })
 
   const messages = ref([
     {
@@ -45,43 +55,31 @@
   const newMessage = ref('');
   const chatMessages = ref<HTMLElement | null>(null);
   
-  const sendMessage = () => {
-    if (newMessage.value.trim() === '') return;
-  
-    // 添加患者消息
-    messages.value.push({
-      sender: 'patient',
-      text: newMessage.value,
-      avatar: '/src/assets/me.png',
+
+  // 获取消息记录
+  const getHistory = (diagId: number) => {
+    DoAxiosWithErro(`/medical/diagnoses/${diagId}/feedback`, 'get', {}, true).then((res) => {
+      console.log(res);
+      });
+  }
+
+  // 发送消息
+  const sendMessage = (diagId: number = 1) => {
+    if (newMessage.value.trim() === '') {
+      ElMessage.warning('请输入消息内容');
+      return;
+    };
+
+    DoAxiosWithErro(`/medical/diagnoses/${diagId}/feedback?content=${newMessage.value}`,'post',{},true).then((res) => {
+      console.log(res);
+      ElMessage.success('发送成功');
     });
-  
+
     // 清空输入框
     newMessage.value = '';
   
     // 滚动到底部
     scrollToBottom();
-  
-    // 模拟医生回复
-    setTimeout(() => {
-      const doctorResponses = [
-        '我明白了，您目前的症状是什么？',
-        '好的，我正在分析您的情况。',
-        '建议您尽快来医院进行详细检查。',
-        '请告诉我您的具体症状和持续时间。',
-        '我正在为您准备进一步的建议。',
-      ];
-  
-      // 随机选择一个医生回复
-      const randomResponse = doctorResponses[Math.floor(Math.random() * doctorResponses.length)];
-  
-      messages.value.push({
-        sender: 'doctor',
-        text: randomResponse,
-        avatar: '/src/assets/doctor.png',
-      });
-  
-      scrollToBottom();
-    }, 1000);
   };
   
   const scrollToBottom = () => {
@@ -92,21 +90,30 @@
 
   
   onMounted(() => {
+    
+    // 获取历史消息
+    // getHistory(props.diagId);    //这里出错了，暂时注释掉
+
     scrollToBottom();
     const userId = userStore.userInfo!.userId;
 
-    const socket = new SockJS('/ws');
 
+    // 连接WebSocket
+    const socket = new SockJS('/ws');
     const stompClient = new Client({
       webSocketFactory() {
         return socket;
       }
     });
+    stompClient.connectHeaders = {
+      "sa-token-authorization":  userStore.userToken
+    };
 
     stompClient.onConnect = (frame) => {
       console.log('Connected: ' + frame);
-      stompClient.subscribe('/queue/feedback/' + userId, (response) => {
+      stompClient.subscribe('/user/queue/feedback', (response) => {
         const data = JSON.parse(response.body); // 假设返回的数据是一个对象
+        console.log(data);
         messages.value.push({
           sender: 'doctor',
           text: data.message,
@@ -115,6 +122,7 @@
         scrollToBottom();
       });
     };
+    stompClient.activate();
   });
   </script>
   

@@ -71,8 +71,11 @@ const checkUserName = (rule, value, callback) => {
   DoAxios('/auth/IsExists', 'get', {
     username: value
   }, false).then((res) => {
-    console.log(res);
-    callback();
+    if(!res) {
+      callback();
+    } else {
+      callback(new Error("该昵称已被注册"))
+    }
   }).catch(rject => {
     callback(rject);
   })
@@ -116,7 +119,7 @@ const checkCode = (rule, value, callback) => {
 }
 
 const checkPhone = (rule, value, callback) => {
-  const reg = /^1[23456789]\d{10}$/;
+  const reg = /^1[23456789]\d{9}$/;
   if (value === '') {
     return callback(new Error("请输入手机号"))
   }
