@@ -186,3 +186,6 @@ export const deleteDoctorRegistration = async (doctorId: number) => {
     console.error(err);
   }
 };
+
+// 搜索查找医生
+// export const;

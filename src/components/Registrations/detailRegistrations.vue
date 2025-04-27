@@ -1,28 +1,33 @@
 <script setup lang="ts">
 import { onMounted, reactive, type Reactive, ref } from 'vue';
 import { doctorGetDetailRegistration } from '@/api/doctor/registrations';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { ElTag, ElButton } from 'element-plus';
 import { type detailRegistration } from '@/api/doctor/registrations';
 import ChatView from '@/views/ChatView.vue';
+import DiagnoseForm from './DiagnoseForm.vue';
+import { ElDialog } from 'element-plus';
 
 const patientData: Reactive<detailRegistration> = reactive({
-  doctorId: 0,
+  deptName: "无",
+  clinicName: "无",
   appointmentId: 0,
   scheduleId: "无",
+  doctorName: "无",
+  doctorId: 0,
   patientName: "无",
+  patientId: 0,
   isRevisit: 0,
   status: 0,
   description: "无",
   appointmentDate: "无",
-  deptName: "无",
-  clinicName: "无",
-  doctorName: "无",
   statusDesc: "无",
   aiConsultSessionId: "无",
 });
+const dialogTableVisible = ref(false);
 const loading = ref(true);
 const route = useRoute();
+const router = useRouter();
 
 onMounted(async () => {
   const newPatientData = await doctorGetDetailRegistration(route.query.doctorId, route.query.appointmentId);
@@ -35,6 +40,8 @@ onMounted(async () => {
   <div id="detail-registrations">
     <div id="card" v-loading="loading">
       <h2>患者信息</h2>
+      <el-button style="position: absolute; right: 30px; top: 30px;" type="primary"
+        @click="router.back()">上一级</el-button>
       <div id="main-msg">
         <div class="left">
           <h3 style="font-size: 30px;">详细信息</h3>
@@ -54,13 +61,19 @@ onMounted(async () => {
           <p><span class="label">诊室名:</span><span class="detail">{{ patientData.clinicName }}</span></p>
           <p><span class="label">就诊医生:</span><span class="detail">{{ patientData.doctorName }}</span></p>
           <div class="bottom">
-            <el-button type="success">完成就诊</el-button>
-            <el-button type="danger">取消就诊</el-button>
+            <el-button type="success" @click="() => { dialogTableVisible = true }">完成就诊</el-button>
+            <el-button type="danger" disabled>取消就诊</el-button>
           </div>
+          <el-dialog v-model="dialogTableVisible" title="请填写医生信息" width="800">
+            <DiagnoseForm :appointmentId="patientData.appointmentId" :doctorId="patientData.doctorId"
+              :patientId="patientData.patientId" @close="dialogTableVisible = false">
+            </DiagnoseForm>
+          </el-dialog>
         </div>
         <div class="right">
           <h3 style="font-size: 30px;">对话历史</h3>
-          <chat-view style="margin-top: 20px;" :appointmentId="1" :couldSend="false"></chat-view>
+          <chat-view style="margin-top: 20px;" :appointmentId="patientData.aiConsultSessionId"
+            :couldSend="false"></chat-view>
         </div>
       </div>
     </div>
@@ -69,6 +82,7 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 #card {
+  position: relative;
   float: left;
   min-height: 720px;
   width: 96.5%;

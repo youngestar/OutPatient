@@ -33,3 +33,34 @@ export const getUesrInfo = async () => {
     console.error(err);
   }
 };
+
+export const updateUserInfo = async (
+  name: string,
+  gender: number,
+  age: number,
+  region: string,
+  address: string,
+  phone: string,
+  IDCard: string
+) => {
+  try {
+    const res = await DoAxiosWithErro(
+      "/auth/updateInfo",
+      "post",
+      {
+        name,
+        gender,
+        age,
+        region,
+        address,
+        phone,
+        IDCard,
+      },
+      true,
+      true
+    );
+    return res;
+  } catch (err) {
+    console.error(err);
+  }
+};

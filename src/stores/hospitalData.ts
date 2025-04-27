@@ -1,10 +1,18 @@
 import { reactive } from "vue";
+import { defineStore } from "pinia";
+import type {
+  getDepartment,
+  getClinic,
+  department,
+  clinic,
+  doctor,
+} from "@/api/patient/registrations";
 import {
   getDepartmentRegistrations,
   getClinicRegistrations,
   getDoctorRegistrations,
+  getAllDoctorRegistrations,
 } from "@/api/patient/registrations";
-import { defineStore } from "pinia";
 import {
   createDepartRegistration,
   updeteDepartRegistration,
@@ -16,13 +24,6 @@ import {
   updateDoctorRegistration,
   deleteDoctorRegistration,
 } from "@/api/admin/registrations";
-import type {
-  getDepartment,
-  getClinic,
-  department,
-  clinic,
-  doctor,
-} from "@/api/patient/registrations";
 
 export const useHospitalStore = defineStore("hospital", () => {
   const departs: department[] = reactive([]);
@@ -42,6 +43,11 @@ export const useHospitalStore = defineStore("hospital", () => {
 
   const getDoctors = async (departmentId: number, clinicId: number) => {
     const newDoctors = await getDoctorRegistrations(departmentId, clinicId);
+    doctors.splice(0, doctors.length, ...newDoctors);
+  };
+
+  const getAllDoctors = async () => {
+    const newDoctors = await getAllDoctorRegistrations();
     doctors.splice(0, doctors.length, ...newDoctors);
   };
 
@@ -130,7 +136,6 @@ export const useHospitalStore = defineStore("hospital", () => {
     return getDoctor;
   };
 
-  // 待测试
   const updateDoctor = async (
     doctorId: number,
     userId: number,
@@ -187,6 +192,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     getDepartments,
     getClinics,
     getDoctors,
+    getAllDoctors,
     createDepart,
     updateDepart,
     deleteDepart,

@@ -1,49 +1,3 @@
-<template>
-  <el-form ref="formRef" :model="formData" :rules="rules" label-width="120px" style="max-width: 800px">
-    <el-row :gutter="20">
-      <!-- 左列 -->
-      <el-col :span="12">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="formData.username" />
-        </el-form-item>
-
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="formData.password" type="password" show-password />
-        </el-form-item>
-
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="formData.email" type="email" />
-        </el-form-item>
-
-      </el-col>
-
-      <!-- 右列 -->
-      <el-col :span="12">
-        <el-form-item label="姓名" prop="name">
-          <el-input v-model="formData.name" />
-        </el-form-item>
-
-        <el-form-item label="职称" prop="title">
-          <el-input v-model="formData.title" />
-        </el-form-item>
-
-        <el-form-item label="联系电话" prop="phone">
-          <el-input v-model="formData.phone" />
-        </el-form-item>
-      </el-col>
-    </el-row>
-
-    <!-- 单独占满一行 -->
-    <el-form-item label="个人简介" prop="introduction">
-      <el-input v-model="formData.introduction" type="textarea" :autosize="{ minRows: 3 }" />
-    </el-form-item>
-
-    <el-form-item>
-      <el-button type="primary" @click="handleSubmit">提交</el-button>
-    </el-form-item>
-  </el-form>
-</template>
-
 <script setup lang="ts">
 import { useHospitalStore } from '@/stores/hospitalData'
 import { useRoute } from 'vue-router'
@@ -157,3 +111,50 @@ const handleSubmit = async () => {
   }
 }
 </script>
+
+
+<template>
+  <el-form ref="formRef" :model="formData" :rules="rules" label-width="120px" style="max-width: 800px">
+    <el-row :gutter="20">
+      <!-- 左列 -->
+      <el-col :span="12">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="formData.username" />
+        </el-form-item>
+
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="formData.password" type="password" show-password />
+        </el-form-item>
+
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="formData.email" type="email" />
+        </el-form-item>
+
+      </el-col>
+
+      <!-- 右列 -->
+      <el-col :span="12">
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="formData.name" />
+        </el-form-item>
+
+        <el-form-item label="职称" prop="title">
+          <el-input v-model="formData.title" />
+        </el-form-item>
+
+        <el-form-item label="联系电话" prop="phone">
+          <el-input v-model="formData.phone" />
+        </el-form-item>
+      </el-col>
+    </el-row>
+
+    <!-- 单独占满一行 -->
+    <el-form-item label="个人简介" prop="introduction">
+      <el-input v-model="formData.introduction" type="textarea" :autosize="{ minRows: 3 }" />
+    </el-form-item>
+
+    <el-form-item>
+      <el-button type="primary" @click="handleSubmit">提交</el-button>
+    </el-form-item>
+  </el-form>
+</template>

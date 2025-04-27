@@ -32,14 +32,22 @@
       </div>
     </div>
     <!-- <p><span class="label">症状:</span><span class="detail">{{ myInfo.description }}</span></p> -->
+    <el-button type="info" style="position: relative; right: 80px;;width: 15%; margin: 0 45%; margin-top: 120px;"
+      @click="() => { dialogTableVisible = true }">修改个人资料
+    </el-button>
+    <el-dialog v-model="dialogTableVisible" title="请填写更新后用户信息" width="800">
+      <UserForm @submit="changeInfo"></UserForm>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue';
 import { getUesrInfo, updateUserAvatar } from '@/api/patient/myInfo';
-import { ElAvatar } from 'element-plus';
+import { ElAvatar, ElMessage } from 'element-plus';
+import UserForm from './UserForm.vue';
 
+const dialogTableVisible = ref(false);
 const loading = ref(true);
 const newAvatar = ref(false);
 const myInfo = reactive({
@@ -57,6 +65,17 @@ const myInfo = reactive({
 const handleUP = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0];
   if (!file) return;
+  if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+    ElMessage.error('不支持该文件类型，请选择 JPEG、PNG 格式的图片');
+    return;
+  }
+
+  // 文件大小检查（这里假设最大文件大小为 2MB）
+  const maxSize = 2 * 1024 * 1024; // 2MB
+  if (file.size > maxSize) {
+    ElMessage.error('文件大小超过限制，请选择小于 2MB 的图片');
+    return;
+  }
   myInfo.avatar = URL.createObjectURL(file);
   newAvatar.value = true;
 }
@@ -75,6 +94,10 @@ const uploadAvatar = async () => {
   }).catch((err) => {
     console.error(err);
   });
+}
+
+const changeInfo = (formData) => {
+  Object.assign(myInfo, formData);
 }
 
 onMounted(async () => {
@@ -135,6 +158,7 @@ h2 {
 
     .right {
       margin-left: 30%;
+      width: 40%;
     }
   }
 
