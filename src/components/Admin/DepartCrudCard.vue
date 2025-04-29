@@ -66,6 +66,7 @@ const props = defineProps({
 
 <style lang="scss" scoped>
 .department-card {
+  cursor: pointer;
   width: 300px;
   height: 200px;
   background: vars.$card-bg-depart;

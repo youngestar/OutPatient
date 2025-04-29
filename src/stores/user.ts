@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { DoAxiosWithErro, DoAxios } from "@/api";
 
 // 定义用户信息类型（根据实际接口返回结构调整）
-interface UserInfo {
+export interface UserInfo {
   userId: number;
   patientId: number;
   username: string;
@@ -21,24 +21,23 @@ interface UserInfo {
   token: string; // 可选的token字段
 }
 
-
 // Store 定义
-export const useUserStore = defineStore('user', {
+export const useUserStore = defineStore("user", {
   state: () => ({
-    userInfo: JSON.parse(localStorage.getItem('userInfo') || 'null') as UserInfo | null,
-    userToken: localStorage.getItem('userToken') || '',
-    isLoggedIn: !!localStorage.getItem('userToken')
+    userInfo: JSON.parse(localStorage.getItem("userInfo") || "null") as UserInfo | null,
+    userToken: localStorage.getItem("userToken") || "",
+    isLoggedIn: !!localStorage.getItem("userToken"),
   }),
 
   getters: {
     isAuthenticated: (state): boolean => !!state.userToken,
-    userName: (state): string => state.userInfo?.username || 'Guest'
+    userName: (state): string => state.userInfo?.username || "Guest",
   },
 
   actions: {
     async login(userData: { account: string; password: string }) {
       try {
-        const res = await DoAxiosWithErro('/auth/login', 'post', userData);
+        const res = await DoAxiosWithErro("/auth/login", "post", userData);
         const info = res;
         // 登录成功，保存用户信息
         this.userToken = info.token;
@@ -46,8 +45,8 @@ export const useUserStore = defineStore('user', {
         this.isLoggedIn = true;
 
         // 持久化
-        localStorage.setItem('userToken', this.userToken);
-        localStorage.setItem('userInfo', JSON.stringify(info));
+        localStorage.setItem("userToken", this.userToken);
+        localStorage.setItem("userInfo", JSON.stringify(info));
       } catch (err) {
         throw err;
       }
@@ -55,15 +54,15 @@ export const useUserStore = defineStore('user', {
 
     async logout() {
       try {
-        await DoAxios('/auth/logout', 'post', {}, true);
+        await DoAxios("/auth/logout", "post", {}, true);
       } catch (err) {
         // 可忽略登出接口错误（如 token 失效）
       }
       this.userInfo = null;
-      this.userToken = '';
+      this.userToken = "";
       this.isLoggedIn = false;
-      localStorage.removeItem('userToken');
-      localStorage.removeItem('userInfo');
-    }
-  }
+      localStorage.removeItem("userToken");
+      localStorage.removeItem("userInfo");
+    },
+  },
 });

@@ -1,18 +1,25 @@
 <template>
   <div class="card-view">
-    <component v-for="(card, index) in props.cardsprops" :key="cardsprops[index]" :is="props.myCard"
-      v-bind="cardsprops[index]" @click="handleclick(cardsprops[index])" />
-    <div class="add-card">
-      <el-button type="primary" circle style="font-size: 20px;" @click="backpage">
-        {{ "<" }} </el-button>
-          <el-button type="primary" circle style="font-size: 20px;" @click="nextpage">></el-button>
-    </div>
-
+    <component v-for="(card) in paginatedData" :key="card" :is="props.myCard"
+      v-bind="typeof card === 'object' ? card : {}" @click="handleclick(card)" />
+    <el-pagination class="add-card" layout="prev, pager, next" background size="large"
+      v-model:current-page="currentPage" :total="props.cardsprops.length" :page-size="pageSize"
+      v-show="props.cardsprops.length >= pageSize" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits } from 'vue';
+import { defineProps, defineEmits, computed } from 'vue';
+import { ref } from 'vue';
+
+// 分页组件相关
+const currentPage = ref(1);
+const pageSize = ref(12); // 每页显示的数量
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return props.cardsprops.slice(start, end);
+});
 
 const props = defineProps({
   myCard: {
@@ -26,16 +33,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['backpage', 'nextpage', 'handleclick']);
-
-const backpage = () => {
-  emit('backpage');
-}
-
-const nextpage = () => {
-  emit('nextpage');
-}
-
-const handleclick = (item) => {
+const handleclick = (item: any) => {
   emit('handleclick', item);
 }
 
@@ -47,15 +45,19 @@ const handleclick = (item) => {
   height: 100%;
   display: flex;
   flex-wrap: wrap;
-  row-gap: 1%;
+  row-gap: 20px;
   column-gap: 4%;
 }
 
 .add-card {
   width: 100%;
+  position: relative;
+  right: 60px;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10%;
+  margin: 50px auto;
+  margin-bottom: 10px;
+  gap: 5%;
 }
 </style>

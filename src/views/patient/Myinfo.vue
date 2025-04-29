@@ -84,12 +84,11 @@ const uploadAvatar = async () => {
   const file = (document.getElementById('file') as HTMLInputElement).files?.[0];
   if (!file) return;
   updateUserAvatar(file).then((res) => {
-    if (res.code === 200) {
+    if (res) {
       ElAvatar.src = URL.createObjectURL(file);
       ElAvatar.alt = '头像';
       newAvatar.value = false;
-    } else {
-      console.error('上传失败');
+      ElMessage.success('头像修改成功');
     }
   }).catch((err) => {
     console.error(err);
@@ -101,7 +100,7 @@ const changeInfo = (formData) => {
 }
 
 onMounted(async () => {
-  const getInfo: object = await getUesrInfo();
+  const getInfo = await getUesrInfo();
   loading.value = false;
   Object.assign(myInfo, getInfo);
 })

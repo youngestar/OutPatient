@@ -39,6 +39,20 @@ export interface doctor {
   deptName: string;
 }
 
+export interface schedule {
+  cardType: string;
+  scheduleId: number;
+  doctorId: number;
+  doctorName: string;
+  doctorTitle: string;
+  doctorIntroduction: string;
+  doctorAvatar: string;
+  scheduleDate: string;
+  timeSlot: string;
+  remainingQuota: number;
+  canBook: boolean;
+}
+
 // 加载页面函数
 export const getDepartmentRegistrations = async () => {
   try {
@@ -104,29 +118,27 @@ export const getAllDoctorRegistrations = async () => {
 
 // 排班相关函数
 export const getDoctorSchedule = async (
-  deptId: number,
-  clinicId: number,
   doctorId: number,
-  title: string
+  title: string,
+  startDate: string,
+  endDate: string
 ) => {
   try {
     const res = await DoAxiosWithErro(
       "/appointment/schedules",
       "post",
-
-      { deptId, clinicId, doctorId, title, startDate: "2025-04-07", endDate: "2025-04-17" },
+      { doctorId, title, startDate, endDate },
       true,
       true
     );
-    console.log(res);
-    // return res;
+    return res;
   } catch (err) {
     console.error(err);
   }
 };
 
 //挂号相关函数
-const createRegistrations = async (patientId: number, scheduleId: number, isRevisit = 0) => {
+export const createRegistrations = async (patientId: number, scheduleId: number) => {
   try {
     const res = await DoAxiosWithErro(
       "/appointment/create",
@@ -136,6 +148,7 @@ const createRegistrations = async (patientId: number, scheduleId: number, isRevi
       true
     );
     console.log(res);
+    return res;
   } catch (err) {
     console.error(err);
   }

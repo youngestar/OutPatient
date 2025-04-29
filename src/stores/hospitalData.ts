@@ -6,12 +6,14 @@ import type {
   department,
   clinic,
   doctor,
+  schedule,
 } from "@/api/patient/registrations";
 import {
   getDepartmentRegistrations,
   getClinicRegistrations,
   getDoctorRegistrations,
   getAllDoctorRegistrations,
+  getDoctorSchedule,
 } from "@/api/patient/registrations";
 import {
   createDepartRegistration,
@@ -29,6 +31,7 @@ export const useHospitalStore = defineStore("hospital", () => {
   const departs: department[] = reactive([]);
   const clinics: clinic[] = reactive([]);
   const doctors = reactive<doctor[]>([]);
+  const schedules: schedule[] = reactive([]);
 
   // 获取列表
   const getDepartments = async () => {
@@ -46,9 +49,20 @@ export const useHospitalStore = defineStore("hospital", () => {
     doctors.splice(0, doctors.length, ...newDoctors);
   };
 
+  // 待修正
   const getAllDoctors = async () => {
     const newDoctors = await getAllDoctorRegistrations();
     doctors.splice(0, doctors.length, ...newDoctors);
+  };
+
+  const getSchedules = async (
+    doctorId: number,
+    title: string,
+    startDate: string,
+    endDate: string
+  ) => {
+    const newSchedules = await getDoctorSchedule(doctorId, title, startDate, endDate);
+    schedules.splice(0, schedules.length, ...newSchedules);
   };
 
   // 科室相关操作
@@ -189,10 +203,12 @@ export const useHospitalStore = defineStore("hospital", () => {
     departs,
     clinics,
     doctors,
+    schedules,
     getDepartments,
     getClinics,
     getDoctors,
     getAllDoctors,
+    getSchedules,
     createDepart,
     updateDepart,
     deleteDepart,

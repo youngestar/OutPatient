@@ -34,6 +34,11 @@ const router = createRouter({
               name: "clinicDoctor",
               component: () => import("@/components/Registrations/DoctorCard.vue"),
             },
+            {
+              path: ":department/:clinic/:doctor",
+              name: "clinicDoctorSchedule",
+              component: () => import("@/components/Registrations/ScheduleCardsView.vue"),
+            },
           ],
         },
         {
