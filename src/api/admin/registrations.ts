@@ -187,7 +187,76 @@ export const deleteDoctorRegistration = async (doctorId: number) => {
   }
 };
 
-// 搜索查找医生
-// export const;
-
 // 排班相关操作
+export const createSchedule = async (
+  doctorId: number,
+  clinicId: number,
+  scheduleDate: string,
+  timeSlot: string,
+  maxPatients: number,
+  currentPatients: number,
+  status: number
+) => {
+  try {
+    const res = await DoAxiosWithErro(
+      "/admin/schedule",
+      "post",
+      { doctorId, clinicId, scheduleDate, timeSlot, maxPatients, currentPatients, status },
+      true,
+      true
+    );
+    return res;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const updateSchedule = async (
+  scheduleId: number,
+  doctorId: number,
+  clinicId: number,
+  scheduleDate: string,
+  timeSlot: string,
+  maxPatients: number,
+  currentPatients: number,
+  status: number
+) => {
+  try {
+    const res = await DoAxiosWithErro(
+      "/admin/schedule",
+      "put",
+      {
+        scheduleId,
+        doctorId,
+        clinicId,
+        scheduleDate,
+        timeSlot,
+        maxPatients,
+        currentPatients,
+        status,
+      },
+      true,
+      true
+    );
+    return res;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const deleteSchedule = async (scheduleId: number) => {
+  try {
+    const res = await DoAxiosWithErro(
+      `/admin/schedule/${scheduleId}`,
+      "delete",
+      {
+        scheduleId,
+      },
+      true,
+      false
+    );
+    return res;
+  } catch (err) {
+    console.error(err);
+  }
+};

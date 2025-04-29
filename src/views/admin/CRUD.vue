@@ -1,18 +1,24 @@
 <template>
   <el-scrollbar>
     <div class="medical-ap">
-      <ApCrudTop></ApCrudTop>
+      <ApTop @changeLoading="changeLoading" cardType="admin"></ApTop>
       <div style="flex: 1;">
-        <RouterView></RouterView>
+        <RouterView v-loading="loading"></RouterView>
       </div>
     </div>
   </el-scrollbar>
 </template>
 
 <script lang="ts" setup>
-import ApCrudTop from '@/components/Admin/ApCrudTop.vue'
+import ApTop from '@/components/ApTop.vue'
 import { RouterView } from 'vue-router'
 import { ElScrollbar } from 'element-plus';
+import { ref } from 'vue';
+
+const loading = ref(false)
+const changeLoading = () => {
+  loading.value = !loading.value
+}
 </script>
 
 <style lang="scss" scoped>

@@ -1,22 +1,21 @@
 <template>
-  <CardView v-loading="loading" @handleclick="handleclick" style="text-align: center;" :cardsprops="departs"
-    :myCard="DepartCard">
+  <CardView v-loading="loading" @handleclick="handleclick" style="text-align: center; height: 100%; min-height: 72vh;"
+    :cardsprops="departs.map((item) => { return { ...item, cardType: 'patient' } })" :myCard="DepartCard">
   </CardView>
 </template>
 
 <script lang="ts" setup>
-import { getDepartmentRegistrations } from '@/api/patient/registrations';
-import DepartCard from '@/components/DepartCard.vue'
+import { useHospitalStore } from '@/stores/hospitalData';
+import DepartCard from '@/components/DepartCard.vue';
 import CardView from '@/views/CardView.vue'
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router'
 import { type department } from '@/api/patient/registrations';
 
+const hospitalStore = useHospitalStore();
 const loading = ref(true);
 const router = useRouter();
-const departs = reactive([
-
-]);
+const departs = hospitalStore.departs;
 
 const handleclick = (department: department) => {
   router.push({
@@ -32,9 +31,8 @@ const handleclick = (department: department) => {
 }
 
 onMounted(async () => {
-  const newDepartments = await getDepartmentRegistrations();
+  await hospitalStore.getDepartments();
   loading.value = false;
-  departs.splice(0, departs.length, ...newDepartments);
 })
 </script>
 

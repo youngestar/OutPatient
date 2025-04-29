@@ -1,10 +1,11 @@
 <template>
-  <CardView v-loading="loading" :cardsprops="doctors" :myCard="DoctorCard">
+  <CardView style="height: 100%; min-height: 100vh;" v-loading="loading"
+    :cardsprops="doctors.map(doctor => { return { ...doctor, cardType: 'doctor' } })" :myCard="DoctorCard">
   </CardView>
 </template>
 
 <script lang="ts" setup>
-import DoctorCard from '../DoctorCard.vue';
+import DoctorCard from '@/components/DoctorCard.vue';
 import CardView from '@/views/CardView.vue'
 import type { doctor } from '@/api/patient/registrations';
 import { getDoctorRegistrations } from '@/api/patient/registrations';

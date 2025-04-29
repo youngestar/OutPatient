@@ -106,17 +106,6 @@ export const getDoctorRegistrations = async (departmentId: number, clinicId: num
     console.error(err);
   }
 };
-
-export const getAllDoctorRegistrations = async () => {
-  try {
-    const res = await DoAxiosWithErro("/appointment/doctors", "get", {}, true, false);
-    return res;
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-// 排班相关函数
 export const getDoctorSchedule = async (
   doctorId: number,
   title: string,
@@ -164,6 +153,32 @@ export const cancelRegistrations = async (appointmentId: number, patientId: numb
       true
     );
     console.log(res);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+// 搜索相关函数
+export const searchClinic = async (name: string) => {
+  try {
+    const res = await DoAxiosWithErro("/appointment/clinics/search", "get", { name }, true, false);
+    const clinicsData = res.map((clinic: getClinic) => {
+      return {
+        name: clinic.clinicName,
+        state: clinic.isActive,
+        id: clinic.clinicId,
+      };
+    });
+    return clinicsData;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const searchDoctor = async (name: string) => {
+  try {
+    const res = await DoAxiosWithErro("/appointment/doctors", "get", { name }, true, false);
+    return res;
   } catch (err) {
     console.error(err);
   }

@@ -1,11 +1,11 @@
 <template>
-  <CardView v-loading="loading" :cardsprops="schedules.map((item) => { return { ...item, itemType: 'admin' } })"
+  <CardView v-loading="loading" :cardsprops="schedules.map((item) => { return { ...item, cardType: 'admin' } })"
     :myCard="ScheduleCard" style="text-align: center; height: 100%; min-height: 72vh;">
   </CardView>
 </template>
 
 <script lang="ts" setup>
-import ScheduleCard from './ScheduleCard.vue';
+import ScheduleCard from '@/components/Registrations/ScheduleCard.vue';
 import CardView from '@/views/CardView.vue'
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
