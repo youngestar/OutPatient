@@ -7,7 +7,7 @@
     <div class="chat-messages" ref="chatMessages">
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.sender]">
         <div class="message-avatar">
-          <img :src="message.avatar" alt="头像" />
+          <img :src="avatars[message.sender === 'user' ? 0 : 1]" alt="头像" />
         </div>
         <div class="message-content">
           <div class="message-sender">{{ message.sender === 'user' ? '你' : 'AI助手' }}</div>
@@ -35,6 +35,7 @@
 import { ref, onMounted, onUnmounted, reactive } from 'vue';
 import { DoAxios, DoAxiosWithErro } from '@/api/index';
 import { useUserStore } from "@/stores/user";
+import { useChatHistoryStore } from '@/stores/ChatHistory';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { ElMessage,} from 'element-plus';
 
@@ -49,15 +50,18 @@ const props = defineProps({
   }
 })
 
+const avatars = ['/src/assets/me.png', '/src/assets/AIavator.png']
+
 const messages = reactive([
   {
     sender: 'ai',
-    text: '你好！有什么我可以帮助你的吗？',
-    avatar: '/src/assets/AIavator.png',
+    text: '你好！有什么我可以帮助你的吗？'
   },
 ]);
 
 const userStore = useUserStore();
+const chatHistoryStore = useChatHistoryStore();
+
 const isLoading = ref<boolean>(false);
 const newMessage = ref('');
 
@@ -77,7 +81,6 @@ const sendMessage = async () => {
   const userMessae = {
     sender: 'user',
     text: newMessage.value,
-    avatar: '/src/assets/me.png',
   }
 
   messages.push(userMessae);
@@ -87,14 +90,13 @@ const sendMessage = async () => {
     patientId: userStore.userInfo!.userId as number,
     question: newMessage.value,
     appointmentId: props.appoimentId,
-    sessionId: sessionId.value
+    sessionId: chatHistoryStore.sessionId
   },true).then(()=> {
     // 清空输入框
     newMessage.value = '';
     messages.push({
       sender: 'ai',
       text: newMessage.value,
-      avatar: '/src/assets/AIavator.png',
     })
 
     scrollToBottom();
@@ -124,12 +126,37 @@ const handleStreamMessage = (value: string) => {
     messages.push({
       sender: 'ai',
       text: newMessage.value,
-      avatar: '/src/assets/AIavator.png',
     })
     return
   }
   messages[messages.length - 1].text = messages[messages.length - 1].text + value;
   scrollToBottom();
+}
+
+const getHistory = (sessionId : string) => {
+  DoAxiosWithErro('/appointment/ai-consult/history','get',{
+    sessionId: sessionId
+  },true).then((res) => {
+    const history = res.messageHistory
+    history.map((item: any,index: number) => {
+      if(index === 0){
+        return
+      }
+      if(item.role === 'user'){
+        messages.push({
+          sender: 'user',
+          text: item.content
+        })
+        scrollToBottom();
+      } else {
+        messages.push({
+          sender: 'ai',
+          text: item.content
+        })
+        scrollToBottom();
+      }
+    })
+  })
 }
 
 const initFetchES = () => {
@@ -141,19 +168,15 @@ const initFetchES = () => {
       },
       body: JSON.stringify({
         patientId: userStore?.userInfo!.userId as number,
-        appointmentId: 2,
+        appointmentId: props.appoimentId,
         question: newMessage.value,
+        sessionId: chatHistoryStore.sessionId
       }),
       signal: fetchsource.value?.signal,
       onmessage(ev) {
         const data = JSON.parse(ev.data);
         if(data.content === "连接已建立"){
-          sessionId.value = data.sessionId;
-          DoAxiosWithErro('/appointment/ai-consult/history','get',{
-            sessionId: data.sessionId
-          },true).then((res) => {
-            console.log(res);
-          })
+          chatHistoryStore.sessionId = data.sessionId;
           return
         }
         if(data.event === "message") {
@@ -204,6 +227,9 @@ const overAichat = (sessionId: string | null) => {
 
 onMounted(async () => {
     initFetchES();
+    if(chatHistoryStore.sessionId){
+      getHistory(chatHistoryStore.sessionId)
+    }
 });
 
 

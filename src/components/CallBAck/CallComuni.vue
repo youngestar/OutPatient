@@ -22,7 +22,7 @@
           class="textarea-field"
           rows="3"
         ></textarea>
-        <button @click="sendMessage(1)" class="send-button">发送</button>
+        <button @click="sendMessage(diagId)" class="send-button">发送</button>
       </div>
     </div>
   </template>
@@ -71,7 +71,6 @@
     };
 
     DoAxiosWithErro(`/medical/diagnoses/${diagId}/feedback?content=${newMessage.value}`,'post',{},true).then((res) => {
-      console.log(res);
       ElMessage.success('发送成功');
     });
 
@@ -92,10 +91,9 @@
   onMounted(() => {
     
     // 获取历史消息
-    // getHistory(props.diagId);    //这里出错了，暂时注释掉
+    getHistory(props.diagId);    //这里出错了，暂时注释掉
 
     scrollToBottom();
-    const userId = userStore.userInfo!.userId;
 
 
     // 连接WebSocket
@@ -110,7 +108,7 @@
     };
 
     stompClient.onConnect = (frame) => {
-      console.log('Connected: ' + frame);
+
       stompClient.subscribe('/user/queue/feedback', (response) => {
         const data = JSON.parse(response.body); // 假设返回的数据是一个对象
         console.log(data);

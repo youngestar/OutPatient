@@ -13,7 +13,7 @@
         <el-table-column prop="statusDesc" label="状态" style="flex: 1" />
         <el-table-column label="操作" style="flex: 1">
           <template #default="scope">
-            <el-button @click="isShowChat = true; appoimentId = scope.row.appointmentId">开始咨询</el-button>
+            <el-button :disabled="scope.row.status !== 0" @click="isShowChat = true; appoimentId = scope.row.appointmentId">开始咨询</el-button>
           </template>
         </el-table-column>
       </el-table>
