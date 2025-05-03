@@ -42,8 +42,13 @@ export default defineConfig({
       "/api": {
         target: "http://localhost:8080",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
+        rewrite: (path) => path.replace(/^\/api/, '')
       },
-    },
-  },
-});
+      '/ws': {
+        target: 'http://localhost:8080',
+        ws: true, // 重要：启用WebSocket代理
+        changeOrigin: true
+      }
+    }
+  }
+})
