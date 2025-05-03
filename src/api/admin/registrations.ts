@@ -1,6 +1,4 @@
-import { number } from "echarts";
 import { DoAxiosWithErro } from "..";
-
 //科室相关操作
 export const createDepartRegistration = async (deptName: string) => {
   try {
@@ -195,7 +193,11 @@ export const createScheduleRegistration = async (
   timeSlot: string,
   maxPatients: number,
   currentPatients: number,
-  status: number
+  status: number,
+  doctorName: string,
+  doctorTitle: string,
+  doctorIntroduction: string,
+  doctorAvatar: string
 ) => {
   try {
     const res = await DoAxiosWithErro(
@@ -205,7 +207,22 @@ export const createScheduleRegistration = async (
       true,
       true
     );
-    return res;
+    const newSchedule = {
+      // 响应结果提取部分
+      scheduleId: res.scheduleId,
+      doctorId: res.doctorId,
+      clinicId: res.clinicId,
+      scheduleDate: res.scheduleDate,
+      timeSlot: res.timeSlot,
+      remainingQuota: res.maxPatients - res.currentPatients,
+      canBook: res.maxPatients - res.currentPatients > 0 ? true : false,
+      // 请求提供部分
+      doctorName: doctorName,
+      doctorTitle: doctorTitle,
+      doctorIntroduction: doctorIntroduction,
+      doctorAvatar: doctorAvatar,
+    };
+    return newSchedule;
   } catch (err) {
     console.error(err);
   }
@@ -219,7 +236,11 @@ export const updateScheduleRegistration = async (
   timeSlot: string,
   maxPatients: number,
   currentPatients: number,
-  status: number
+  status: number,
+  doctorName: string,
+  doctorTitle: string,
+  doctorIntroduction: string,
+  doctorAvatar: string
 ) => {
   try {
     const res = await DoAxiosWithErro(
@@ -238,7 +259,21 @@ export const updateScheduleRegistration = async (
       true,
       true
     );
-    return res;
+    const newSchedule = {
+      scheduleId: res.scheduleId,
+      doctorId: res.doctorId,
+      clinicId: res.clinicId,
+      scheduleDate: res.scheduleDate,
+      timeSlot: res.timeSlot,
+      remainingQuota: res.maxPatients - res.currentPatients,
+      canBook: res.maxPatients - res.currentPatients > 0 ? true : false,
+      // 请求提供部分
+      doctorName: doctorName,
+      doctorTitle: doctorTitle,
+      doctorIntroduction: doctorIntroduction,
+      doctorAvatar: doctorAvatar,
+    };
+    return newSchedule;
   } catch (err) {
     console.error(err);
   }

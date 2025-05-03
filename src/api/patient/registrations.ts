@@ -40,7 +40,6 @@ export interface doctor {
 }
 
 export interface schedule {
-  cardType: string;
   scheduleId: number;
   doctorId: number;
   doctorName: string;
@@ -136,7 +135,6 @@ export const createRegistrations = async (patientId: number, scheduleId: number)
       true,
       true
     );
-    console.log(res);
     return res;
   } catch (err) {
     console.error(err);

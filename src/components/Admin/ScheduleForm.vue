@@ -49,6 +49,7 @@ import { reactive, ref, watch } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { useHospitalStore } from '@/stores/hospitalData'
+import { useRoute } from 'vue-router'
 
 interface ScheduleForm {
   scheduleDate: string
@@ -58,6 +59,7 @@ interface ScheduleForm {
   status: number
 }
 
+const route = useRoute()
 const hospitalStore = useHospitalStore()
 
 const props = defineProps({
@@ -165,7 +167,11 @@ const handleSubmit = async () => {
           submitData.timeSlot,
           submitData.maxPatients,
           submitData.currentPatients,
-          submitData.status
+          submitData.status,
+          route.query.name,
+          route.query.title,
+          route.query.introduction,
+          route.query.avatar,
         )
         if (res) {
           ElMessage.success('排班设置保存成功')
@@ -180,7 +186,11 @@ const handleSubmit = async () => {
           submitData.timeSlot,
           submitData.maxPatients,
           submitData.currentPatients,
-          submitData.status
+          submitData.status,
+          route.query.name,
+          route.query.title,
+          route.query.introduction,
+          route.query.avatar,
         )
         if (res) {
           ElMessage.success('排班设置更新成功')

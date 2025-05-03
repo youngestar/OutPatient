@@ -91,6 +91,9 @@ const getSchedule = () => {
     query: {
       doctorId: props.doctorId,
       title: props.title,
+      name: props.name,
+      introduction: props.introduction,
+      avatar: props.avatar,
     }
   })
 }
@@ -107,6 +110,9 @@ const getCrudSchedule = () => {
       doctorId: props.doctorId,
       clinicId: route.query.clinicId as string,
       title: props.title,
+      name: props.name,
+      introduction: props.introduction,
+      avatar: props.avatar,
     }
   })
 }

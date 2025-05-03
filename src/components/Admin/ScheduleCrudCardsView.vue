@@ -18,7 +18,8 @@ const route = useRoute();
 const schedules = hospitalStore.schedules;
 
 onMounted(async () => {
-  hospitalStore.getSchedules(Number(route.query.doctorId), route.query.title, "2025-04-07", "2025-04-17").then(() => {
+  // 获取时间待修改
+  hospitalStore.getSchedules(Number(route.query.doctorId), route.query.title, "2025-04-07", "2028-04-17").then(() => {
     console.log(schedules);
     loading.value = false;
     ElMessage.success('获取排班成功');

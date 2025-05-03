@@ -7,7 +7,7 @@
       <div class="left">
         <p><span class="label">医生编号:</span><span class="detail">{{ props.doctorId }}</span></p>
         <p><span class="label">医生名:</span><span class="detail">{{ props.doctorName
-            }}</span></p>
+        }}</span></p>
         <p><span class="label">挂号序号:</span><span class="detail">{{ props.scheduleId }}</span></p>
         <p><span class="label">是否可预约:</span><span class="detail"><el-tag class="detail" size="large" type="warning">{{
           props.canBook
@@ -26,10 +26,14 @@
           </el-button>
         </div>
         <div id="btn" v-else-if="props.cardType === 'admin'">
-          <el-button type="primary" size="large">
+          <el-button type="primary" size="large" @click="updateSchedule">
             更新排班
           </el-button>
-          <el-button type="danger" size="large">
+          <el-dialog v-model="scheduleDialogTableVisible" title="请填写排班信息" width="800">
+            <ScheduleForm :optionType="optionType" :clinicId="route.query.clinicId" :doctorId="route.query.doctorId">
+            </ScheduleForm>
+          </el-dialog>
+          <el-button type="danger" size="large" @click="deleteSchedule">
             取消排班
           </el-button>
         </div>
@@ -39,11 +43,13 @@
 </template>
 
 <script lang="ts" setup>
-import { type schedule } from '@/api/patient/registrations';
 import { ref, type Ref, defineProps, onMounted } from 'vue';
-import { ElAvatar } from 'element-plus';
+import { ElAvatar, ElMessage, ElDialog } from 'element-plus';
 import { createRegistrations } from '@/api/patient/registrations';
 import type { UserInfo } from '@/stores/user';
+import { useHospitalStore } from '@/stores/hospitalData';
+import { useRoute } from 'vue-router';
+
 const user: Ref<UserInfo> = ref({
   userId: 0,
   patientId: 0,
@@ -62,7 +68,8 @@ const user: Ref<UserInfo> = ref({
   updateTime: '',
   token: '',
 });
-const props: schedule = defineProps({
+
+const props = defineProps({
   cardType: {
     type: String,
     required: true,
@@ -109,9 +116,29 @@ const props: schedule = defineProps({
   }
 });
 
+const route = useRoute();
+const hospitalStore = useHospitalStore();
+const scheduleDialogTableVisible = ref(false);
+const optionType = ref('update');
+
 const createSchedule = () => {
   createRegistrations(user.value.patientId, props.scheduleId)
 }
+
+const updateSchedule = () => {
+  optionType.value = "create"
+  scheduleDialogTableVisible.value = true
+}
+
+const deleteSchedule = async () => {
+  const res = await hospitalStore.deleteSchedule(props.scheduleId)
+  if (res) {
+    ElMessage.success('删除排班成功')
+  } else {
+    ElMessage.error('删除排班失败')
+  }
+}
+
 
 onMounted(() => {
   const userInfoString = localStorage.getItem('userInfo');

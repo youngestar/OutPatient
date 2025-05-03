@@ -260,7 +260,11 @@ export const useHospitalStore = defineStore("hospital", () => {
     timeSlot: string,
     maxPatients: number,
     currentPatients: number,
-    status: number
+    status: number,
+    doctorName: string,
+    doctorTitle: string,
+    doctorIntroduction: string,
+    doctorAvatar: string
   ) => {
     const getSchedule = await createScheduleRegistration(
       doctorId,
@@ -269,9 +273,12 @@ export const useHospitalStore = defineStore("hospital", () => {
       timeSlot,
       maxPatients,
       currentPatients,
-      status
+      status,
+      doctorName,
+      doctorTitle,
+      doctorIntroduction,
+      doctorAvatar
     );
-    console.log(getSchedule);
     if (!getSchedule) {
       console.error("创建排班失败");
       return;
@@ -288,7 +295,11 @@ export const useHospitalStore = defineStore("hospital", () => {
     timeSlot: string,
     maxPatients: number,
     currentPatients: number,
-    status: number
+    status: number,
+    doctorName: string,
+    doctorTitle: string,
+    doctorIntroduction: string,
+    doctorAvatar: string
   ) => {
     const getSchedule = await updateScheduleRegistration(
       scheduleId,
@@ -298,7 +309,11 @@ export const useHospitalStore = defineStore("hospital", () => {
       timeSlot,
       maxPatients,
       currentPatients,
-      status
+      status,
+      doctorName,
+      doctorTitle,
+      doctorIntroduction,
+      doctorAvatar
     );
     if (!getSchedule) {
       console.error("更新排班失败");
