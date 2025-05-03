@@ -37,7 +37,7 @@ import { DoAxios, DoAxiosWithErro } from '@/api/index';
 import { useUserStore } from "@/stores/user";
 import { useChatHistoryStore } from '@/stores/ChatHistory';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { ElMessage,} from 'element-plus';
+import { ElMessage, } from 'element-plus';
 
 const props = defineProps({
   appoimentId: {
@@ -86,7 +86,7 @@ const sendMessage = async () => {
   messages.push(userMessae);
 
   isLoading.value = true;
-  DoAxios('/appointment/ai-consult/send','post',{
+  DoAxios('/appointment/ai-consult/send', 'post', {
     patientId: userStore.userInfo!.userId as number,
     question: newMessage.value,
     appointmentId: props.appoimentId,
@@ -122,7 +122,7 @@ const scrollToBottom = () => {
 };
 
 const handleStreamMessage = (value: string) => {
-  if(messages[messages.length - 1].sender === 'user'){
+  if (messages[messages.length - 1].sender === 'user') {
     messages.push({
       sender: 'ai',
       text: newMessage.value,
@@ -161,8 +161,8 @@ const getHistory = (sessionId : string) => {
 
 const initFetchES = () => {
   fetchEventSource('/api/appointment/ai-consult/connect', {
-      method: 'POST',
-      headers: {
+    method: 'POST',
+    headers: {
       'Content-Type': 'application/json',
       'sa-token-authorization':userStore.userToken
       },
@@ -189,35 +189,35 @@ const initFetchES = () => {
       },
       onopen(response) {
       // 连接建立时的回调
-      if(response.ok){
+      if (response.ok) {
         ElMessage({
           message: '连接成功',
           type: 'success',
         })
-      } else{
+      } else {
         ElMessage({
           message: '连接失败',
           type: 'error',
         })
       }
-      },
-      onerror(err) {
+    },
+    onerror(err) {
       // 连接出现异常时的回调
       ElMessage({
         message: '连接失败',
         type: 'error',
       })
-      }
-    });
+    }
+  });
 }
 
 const overAichat = (sessionId: string | null) => {
-  DoAxios(`/appointment/ai-consult/end?sessionId=${sessionId}`,'post',{},true).then(() => {
+  DoAxios(`/appointment/ai-consult/end?sessionId=${sessionId}`, 'post', {}, true).then(() => {
     ElMessage({
       message: '聊天记录保存成功',
       type: 'success',
     })
-  }).catch(() =>{
+  }).catch(() => {
     ElMessage({
       message: '聊天记录保存失败',
       type: 'error',
@@ -234,9 +234,9 @@ onMounted(async () => {
 
 
 onUnmounted(() => {
-  if(fetchsource.value){
-      fetchsource.value.abort();
-    }
+  if (fetchsource.value) {
+    fetchsource.value.abort();
+  }
 })
 </script>
 
@@ -259,7 +259,8 @@ onUnmounted(() => {
   padding: 15px;
   position: relative;
   text-align: center;
-  .over-button{
+
+  .over-button {
     position: absolute;
     right: 1rem;
     top: 1rem;
@@ -290,8 +291,10 @@ onUnmounted(() => {
 }
 
 .loading {
-  border: 4px solid #f3f3f3; /* Light grey */
-  border-top: 4px solid #3498db; /* Blue */
+  border: 4px solid #f3f3f3;
+  /* Light grey */
+  border-top: 4px solid #3498db;
+  /* Blue */
   border-radius: 50%;
   width: 20px;
   height: 20px;
@@ -300,8 +303,13 @@ onUnmounted(() => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .message-avatar {
@@ -357,10 +365,14 @@ onUnmounted(() => {
   border-radius: 20px;
   outline: none;
   font-size: 14px;
-  resize: none; /* 禁止用户手动调整大小 */
-  overflow-y: auto; /* 添加滚动条 */
-  min-height: 60px; /* 设置最小高度 */
-  max-height: 120px; /* 设置最大高度 */
+  resize: none;
+  /* 禁止用户手动调整大小 */
+  overflow-y: auto;
+  /* 添加滚动条 */
+  min-height: 60px;
+  /* 设置最小高度 */
+  max-height: 120px;
+  /* 设置最大高度 */
 }
 
 .send-button {
@@ -379,5 +391,4 @@ onUnmounted(() => {
   background-color: #ccc;
   cursor: not-allowed;
 }
-
 </style>

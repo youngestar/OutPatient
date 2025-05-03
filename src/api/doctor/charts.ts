@@ -4,7 +4,7 @@ import { DoAxiosWithErro } from "..";
 export const getChartsDataAge = async () => {
   try {
     const res = await DoAxiosWithErro(
-      "/api/data-analysis/patient-age-distribution",
+      "/data-analysis/patient-age-distribution",
       "get",
       {},
       true,

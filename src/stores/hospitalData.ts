@@ -1,10 +1,20 @@
 import { reactive } from "vue";
+import { defineStore } from "pinia";
+import type {
+  getDepartment,
+  getClinic,
+  department,
+  clinic,
+  doctor,
+  schedule,
+} from "@/api/patient/registrations";
 import {
   getDepartmentRegistrations,
   getClinicRegistrations,
   getDoctorRegistrations,
+  getAllDoctorRegistrations,
+  getDoctorSchedule,
 } from "@/api/patient/registrations";
-import { defineStore } from "pinia";
 import {
   createDepartRegistration,
   updeteDepartRegistration,
@@ -13,19 +23,15 @@ import {
   deleteClinicRegistration,
   updeteClinicRegistration,
   createDoctorRegistration,
+  updateDoctorRegistration,
+  deleteDoctorRegistration,
 } from "@/api/admin/registrations";
-import type {
-  getDepartment,
-  getClinic,
-  department,
-  clinic,
-  doctor,
-} from "@/api/patient/registrations";
 
 export const useHospitalStore = defineStore("hospital", () => {
   const departs: department[] = reactive([]);
   const clinics: clinic[] = reactive([]);
   const doctors = reactive<doctor[]>([]);
+  const schedules: schedule[] = reactive([]);
 
   // 获取列表
   const getDepartments = async () => {
@@ -41,6 +47,22 @@ export const useHospitalStore = defineStore("hospital", () => {
   const getDoctors = async (departmentId: number, clinicId: number) => {
     const newDoctors = await getDoctorRegistrations(departmentId, clinicId);
     doctors.splice(0, doctors.length, ...newDoctors);
+  };
+
+  // 待修正
+  const getAllDoctors = async () => {
+    const newDoctors = await getAllDoctorRegistrations();
+    doctors.splice(0, doctors.length, ...newDoctors);
+  };
+
+  const getSchedules = async (
+    doctorId: number,
+    title: string,
+    startDate: string,
+    endDate: string
+  ) => {
+    const newSchedules = await getDoctorSchedule(doctorId, title, startDate, endDate);
+    schedules.splice(0, schedules.length, ...newSchedules);
   };
 
   // 科室相关操作
@@ -125,15 +147,68 @@ export const useHospitalStore = defineStore("hospital", () => {
       introduction
     );
     doctors.push(getDoctor);
+    return getDoctor;
+  };
+
+  const updateDoctor = async (
+    doctorId: number,
+    userId: number,
+    username: string,
+    password: string,
+    email: string,
+    phone: string,
+    clinicId: number,
+    name: string,
+    title: string,
+    introduction: string
+  ) => {
+    const newDoctor: doctor = {
+      doctorId,
+      userId,
+      name,
+      title,
+      introduction,
+      avatar: "",
+      deptName: "",
+    };
+    const msg: doctor = await updateDoctorRegistration(
+      doctorId,
+      userId,
+      username,
+      password,
+      email,
+      phone,
+      clinicId,
+      name,
+      title,
+      introduction
+    );
+    const index = doctors.findIndex((doctor) => {
+      return doctor.doctorId === doctorId;
+    });
+    doctors[index] = newDoctor;
+    return msg;
+  };
+
+  const deleteDoctor = async (doctorId: number) => {
+    const msg = await deleteDoctorRegistration(doctorId);
+    const index = doctors.findIndex((doctor) => {
+      return doctor.doctorId === doctorId;
+    });
+    doctors.splice(index, 1);
+    return msg;
   };
 
   return {
     departs,
     clinics,
     doctors,
+    schedules,
     getDepartments,
     getClinics,
     getDoctors,
+    getAllDoctors,
+    getSchedules,
     createDepart,
     updateDepart,
     deleteDepart,
@@ -141,5 +216,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     updateClinic,
     deleteClinic,
     createDoctor,
+    updateDoctor,
+    deleteDoctor,
   };
 });

@@ -41,13 +41,7 @@ export const deleteDepartRegistration = async (deptId: number) => {
 // 门诊相关操作
 export const createClinicRegistration = async (deptId: number, clinicName: string) => {
   try {
-    const res = await DoAxiosWithErro(
-      "/admin/clinic",
-      "post",
-      { deptId, clinicName },
-      true,
-      true
-    );
+    const res = await DoAxiosWithErro("/admin/clinic", "post", { deptId, clinicName }, true, true);
     return res;
   } catch (err) {
     console.error(err);
@@ -105,6 +99,7 @@ export const createDoctorRegistration = async (
       title,
       introduction,
     };
+    // 更替为二进制文件符合 form-data 形式
     formData.append(
       "doctorInfo",
       new Blob([JSON.stringify(doctorInfo)], {
@@ -125,3 +120,74 @@ export const createDoctorRegistration = async (
     console.error(err);
   }
 };
+
+export const updateDoctorRegistration = async (
+  doctorId: number,
+  userId: number,
+  username: string,
+  password: string,
+  email: string,
+  phone: string,
+  clinicId: number,
+  name: string,
+  title: string,
+  introduction: string
+) => {
+  try {
+    // 这里使用 FormData 来处理文件上传
+    // 创建 FormData 对象并添加参数
+    const formData = new FormData();
+    const doctorInfo = {
+      doctorId,
+      userId,
+      username,
+      password,
+      email,
+      phone,
+      clinicId,
+      name,
+      title,
+      introduction,
+    };
+    // 更替为二进制文件符合 form-data 形式
+    formData.append(
+      "doctorInfo",
+      new Blob([JSON.stringify(doctorInfo)], {
+        type: "application/json",
+      })
+    );
+
+    const res = await DoAxiosWithErro(
+      "/admin/doctor",
+      "put",
+      formData, // 直接传递 FormData 对象
+      true,
+      true
+    );
+
+    return res;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const deleteDoctorRegistration = async (doctorId: number) => {
+  try {
+    const res = await DoAxiosWithErro(
+      `/admin/doctor/${doctorId}`,
+      "delete",
+      { doctorId }, // 直接传递 FormData 对象
+      true,
+      false
+    );
+
+    return res;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+// 搜索查找医生
+// export const;
+
+// 排班相关操作

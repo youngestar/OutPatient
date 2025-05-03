@@ -12,20 +12,31 @@
       </el-scrollbar>
     </div>
     <div id="button">
-      <el-button type="primary">
+      <el-button type="primary" @click.stop="dialogTableVisible = true">
         修改
       </el-button>
-      <el-button type="danger">
+      <el-button type="danger" @click.stop="deleteDoctor(doctorId)">
         删除
       </el-button>
+      <el-dialog v-model="dialogTableVisible" title="请填写医生信息" width="800">
+        <DoctorForm :optionType="optionType" :doctor-id="doctorId" :user-id="userId"></DoctorForm>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue';
 import { ElButton, ElScrollbar } from 'element-plus';
 import { getDoctorSchedule } from '@/api/patient/registrations';
+import DoctorForm from './DoctorForm.vue';
+import { useHospitalStore } from '@/stores/hospitalData';
 import { useRoute } from 'vue-router';
+import { ElMessage } from 'element-plus';
+const dialogTableVisible = ref(false);
+const optionType = ref("update")
+
+const hospitalStore = useHospitalStore();
 const route = useRoute();
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
@@ -53,13 +64,28 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  userId: {
+    type: Number,
+    required: true,
+  },
 })
-const getSchedule = (deptId: number, clinicId: number, doctorId: number, title: string) => {
-  getDoctorSchedule(deptId, clinicId, doctorId, title)
+const deleteDoctor = async (doctorId: number) => {
+  const res = await hospitalStore.deleteDoctor(doctorId)
+  if (res) {
+    ElMessage({
+      message: '删除医生成功',
+      type: 'success',
+    })
+  } else {
+    ElMessage({
+      message: '删除医生失败',
+      type: 'error',
+    })
+  }
 }
 
 // const createRegistrations = (patientId: number, scheduleId: number,) => {
-// createRegistrations(patientId, scheduleId,);
+//   createRegistrations(patientId, scheduleId,);
 // }
 </script>
 

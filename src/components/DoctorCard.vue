@@ -12,8 +12,7 @@
       </el-scrollbar>
     </div>
     <div id="button">
-      <el-button type="primary"
-        @click.stop="getSchedule(route.query.departmentId, route.query.clinicId, doctorId, title)">
+      <el-button type="primary" @click.stop="getSchedule()">
         获取排班
       </el-button>
     </div>
@@ -22,10 +21,9 @@
 
 <script lang="ts" setup>
 import { ElButton, ElScrollbar } from 'element-plus';
-import { getDoctorSchedule } from '@/api/patient/registrations';
 import { useRoute } from 'vue-router';
+import router from '@/router';
 const route = useRoute();
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
   name: {
     type: String,
@@ -52,13 +50,22 @@ const props = defineProps({
     required: true,
   },
 })
-const getSchedule = (deptId: number, clinicId: number, doctorId: number, title: string) => {
-  getDoctorSchedule(deptId, clinicId, doctorId, title)
+
+const getSchedule = () => {
+  router.push({
+    name: "clinicDoctorSchedule",
+    params: {
+      department: route.query.departmentName as string,
+      clinic: route.query.clinicName as string,
+      doctor: props.name
+    },
+    query: {
+      doctorId: props.doctorId,
+      title: props.title,
+    }
+  })
 }
 
-// const createRegistrations = (patientId: number, scheduleId: number,) => {
-// createRegistrations(patientId, scheduleId,);
-// }
 </script>
 
 <style lang="scss" scoped>
