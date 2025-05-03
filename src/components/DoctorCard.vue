@@ -17,6 +17,9 @@
       </el-button>
     </div>
     <div id="button" v-else-if="props.cardType === 'admin'">
+      <el-button type="info" @click.stop="getCrudSchedule()">
+        获取排班
+      </el-button>
       <el-button type="primary" @click.stop="dialogTableVisible = true">
         修改
       </el-button>
@@ -87,6 +90,22 @@ const getSchedule = () => {
     },
     query: {
       doctorId: props.doctorId,
+      title: props.title,
+    }
+  })
+}
+
+const getCrudSchedule = () => {
+  router.push({
+    name: "crudClinicDoctorSchedule",
+    params: {
+      department: route.query.departmentName as string,
+      clinic: route.query.clinicName as string,
+      doctor: props.name
+    },
+    query: {
+      doctorId: props.doctorId,
+      clinicId: route.query.clinicId as string,
       title: props.title,
     }
   })

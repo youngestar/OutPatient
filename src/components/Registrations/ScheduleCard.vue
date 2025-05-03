@@ -7,7 +7,7 @@
       <div class="left">
         <p><span class="label">医生编号:</span><span class="detail">{{ props.doctorId }}</span></p>
         <p><span class="label">医生名:</span><span class="detail">{{ props.doctorName
-        }}</span></p>
+            }}</span></p>
         <p><span class="label">挂号序号:</span><span class="detail">{{ props.scheduleId }}</span></p>
         <p><span class="label">是否可预约:</span><span class="detail"><el-tag class="detail" size="large" type="warning">{{
           props.canBook
@@ -115,7 +115,6 @@ const createSchedule = () => {
 
 onMounted(() => {
   const userInfoString = localStorage.getItem('userInfo');
-  console.log(`userInfoString: ${userInfoString}`)
   if (userInfoString) {
     user.value = JSON.parse(userInfoString) as UserInfo;
   }

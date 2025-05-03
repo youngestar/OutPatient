@@ -26,6 +26,9 @@ import {
   createDoctorRegistration,
   updateDoctorRegistration,
   deleteDoctorRegistration,
+  createScheduleRegistration,
+  updateScheduleRegistration,
+  deleteScheduleRegistration,
 } from "@/api/admin/registrations";
 
 export const useHospitalStore = defineStore("hospital", () => {
@@ -249,6 +252,78 @@ export const useHospitalStore = defineStore("hospital", () => {
     return msg;
   };
 
+  // 排班相关操作
+  const createSchedule = async (
+    doctorId: number,
+    clinicId: number,
+    scheduleDate: string,
+    timeSlot: string,
+    maxPatients: number,
+    currentPatients: number,
+    status: number
+  ) => {
+    const getSchedule = await createScheduleRegistration(
+      doctorId,
+      clinicId,
+      scheduleDate,
+      timeSlot,
+      maxPatients,
+      currentPatients,
+      status
+    );
+    console.log(getSchedule);
+    if (!getSchedule) {
+      console.error("创建排班失败");
+      return;
+    }
+    schedules.push(getSchedule);
+    return true;
+  };
+
+  const updateSchedule = async (
+    scheduleId: number,
+    doctorId: number,
+    clinicId: number,
+    scheduleDate: string,
+    timeSlot: string,
+    maxPatients: number,
+    currentPatients: number,
+    status: number
+  ) => {
+    const getSchedule = await updateScheduleRegistration(
+      scheduleId,
+      doctorId,
+      clinicId,
+      scheduleDate,
+      timeSlot,
+      maxPatients,
+      currentPatients,
+      status
+    );
+    if (!getSchedule) {
+      console.error("更新排班失败");
+      return;
+    }
+    const index = schedules.findIndex((schedule) => {
+      return schedule.scheduleId === scheduleId;
+    });
+    schedules[index] = getSchedule;
+    return true;
+  };
+
+  const deleteSchedule = async (scheduleId: number) => {
+    const res = await deleteScheduleRegistration(scheduleId);
+    if (!res) {
+      console.error("删除排班失败");
+      return;
+    }
+    const index = schedules.findIndex((schedule) => {
+      return schedule.scheduleId === scheduleId;
+    });
+    schedules.splice(index, 1);
+    return true;
+  };
+
   return {
     departs,
     clinics,
@@ -269,5 +344,8 @@ export const useHospitalStore = defineStore("hospital", () => {
     createDoctor,
     updateDoctor,
     deleteDoctor,
+    createSchedule,
+    updateSchedule,
+    deleteSchedule,
   };
 });

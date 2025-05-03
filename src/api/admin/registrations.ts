@@ -188,7 +188,7 @@ export const deleteDoctorRegistration = async (doctorId: number) => {
 };
 
 // 排班相关操作
-export const createSchedule = async (
+export const createScheduleRegistration = async (
   doctorId: number,
   clinicId: number,
   scheduleDate: string,
@@ -211,7 +211,7 @@ export const createSchedule = async (
   }
 };
 
-export const updateSchedule = async (
+export const updateScheduleRegistration = async (
   scheduleId: number,
   doctorId: number,
   clinicId: number,
@@ -244,7 +244,7 @@ export const updateSchedule = async (
   }
 };
 
-export const deleteSchedule = async (scheduleId: number) => {
+export const deleteScheduleRegistration = async (scheduleId: number) => {
   try {
     const res = await DoAxiosWithErro(
       `/admin/schedule/${scheduleId}`,
