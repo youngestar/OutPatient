@@ -28,13 +28,16 @@
   </template>
   
   <script lang="ts" setup>
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, nextTick, watch} from 'vue';
   import { useUserStore } from '@/stores/user';
+  import { useComunicationStore } from '@/stores/comunication';
   import SockJS from 'sockjs-client';
   import { Client  } from '@stomp/stompjs';
   import { ElMessage } from 'element-plus';
   import { DoAxiosWithErro } from '@/api';
 
+  const avatarUrl = ['/src/assets/me.png', '/src/assets/doctor.png'];
+  const sender = ['patient', 'doctor'];
 
   const props = defineProps({
     diagId: {
@@ -52,16 +55,29 @@
   ]);
   
   const userStore = useUserStore();
+  const comunicationStore = useComunicationStore();
   const newMessage = ref('');
   const chatMessages = ref<HTMLElement | null>(null);
+
+  const [doctorId, patientId] = [userStore.userInfo.doctorId, userStore.userInfo.patientId];
   
 
   // 获取消息记录
-  const getHistory = (diagId: number) => {
-    DoAxiosWithErro(`/medical/diagnoses/${diagId}/feedback`, 'get', {}, true).then((res) => {
-      console.log(res);
-      });
-  }
+  // const getHistory = (diagId: number) => {
+  //   DoAxiosWithErro(`/medical/diagnoses/${diagId}/feedback`, 'get', {}, true).then((res) => {
+  //     console.log(res);
+  //     });
+  // }
+
+  const addMessage = (message: string,senderType: number) => {
+    const newMessage = {
+      sender: sender[senderType],
+      text: message,
+      avatar: avatarUrl[senderType],
+    };
+    messages.value.push(newMessage);
+    scrollToBottom();
+  };
 
   // 发送消息
   const sendMessage = (diagId: number = 1) => {
@@ -72,55 +88,94 @@
 
     DoAxiosWithErro(`/medical/diagnoses/${diagId}/feedback?content=${newMessage.value}`,'post',{},true).then((res) => {
       ElMessage.success('发送成功');
+      addMessage(newMessage.value, +(!patientId));
+      // 清空输入框
+      newMessage.value = '';
+      scrollToBottom();
     });
 
-    // 清空输入框
-    newMessage.value = '';
-  
-    // 滚动到底部
-    scrollToBottom();
   };
   
   const scrollToBottom = () => {
-    if (chatMessages.value) {
-      chatMessages.value.scrollTop = chatMessages.value.scrollHeight;
-    }
+    nextTick(() => {
+        if (chatMessages.value) {
+          chatMessages.value.scrollTop = chatMessages.value.scrollHeight;
+        }
+      });
   };
+
+  watch(comunicationStore.messagemMap.get(props.diagId), () => {
+    console.log('watch');
+    const historylist = comunicationStore.messagemMap.get(props.diagId);
+    messages.value = [];
+    historylist?.forEach((item) => {
+      addMessage(item.content, item.senderType);
+    })
+  });
+
+  const init = async () => {
+    // 获取历史消息
+    // getHistory(props.diagId);    //这里出错了，暂时注释掉
+
+    let historylist = comunicationStore.messagemMap.get(props.diagId);
+
+    console.log(historylist);
+
+    if (!historylist || historylist.length === 0) {
+      await comunicationStore.initMessageMap(doctorId, patientId);
+      historylist = comunicationStore.messagemMap.get(props.diagId);
+    }
+
+    historylist?.forEach((item) => {
+      addMessage(item.content, item.senderType);
+    })
+
+    scrollToBottom();
+  }
+
+  const markRead = () => {
+    DoAxiosWithErro(`/medical/diagnoses/${props.diagId}/feedback/read`, 'post', {}, true).then((res) => {
+      console.log(res);
+    });
+  }
 
   
   onMounted(() => {
     
     // 获取历史消息
-    getHistory(props.diagId);    //这里出错了，暂时注释掉
+    // getHistory(props.diagId);    //这里出错了，暂时注释掉
+    init();
 
-    scrollToBottom();
+    markRead();
+
+
 
 
     // 连接WebSocket
-    const socket = new SockJS('/ws');
-    const stompClient = new Client({
-      webSocketFactory() {
-        return socket;
-      }
-    });
-    stompClient.connectHeaders = {
-      "sa-token-authorization":  userStore.userToken
-    };
+    // const socket = new SockJS('/ws');
+    // const stompClient = new Client({
+    //   webSocketFactory() {
+    //     return socket;
+    //   }
+    // });
+    // stompClient.connectHeaders = {
+    //   "sa-token-authorization":  userStore.userToken
+    // };
 
-    stompClient.onConnect = (frame) => {
+    // stompClient.onConnect = (frame) => {
 
-      stompClient.subscribe('/user/queue/feedback', (response) => {
-        const data = JSON.parse(response.body); // 假设返回的数据是一个对象
-        console.log(data);
-        messages.value.push({
-          sender: 'doctor',
-          text: data.message,
-          avatar: '/src/assets/doctor.png',
-        });
-        scrollToBottom();
-      });
-    };
-    stompClient.activate();
+    //   stompClient.subscribe('/user/queue/feedback', (response) => {
+    //     const data = JSON.parse(response.body); // 假设返回的数据是一个对象
+    //     console.log(data);
+    //     messages.value.push({
+    //       sender: 'doctor',
+    //       text: data.message,
+    //       avatar: '/src/assets/doctor.png',
+    //     });
+    //     scrollToBottom();
+    //   });
+    // };
+    // stompClient.activate();
   });
   </script>
   

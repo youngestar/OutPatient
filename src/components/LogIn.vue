@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useUserStore } from '@/stores/user';
+import { useComunicationStore } from '@/stores/comunication';
 import { reactive, defineEmits, ref } from 'vue'
 import { useRouter } from 'vue-router';
 
@@ -7,6 +8,7 @@ const Login = ref(null);
 const logining = ref(false);
 const router = useRouter();
 const userstor = useUserStore();
+const comunication = useComunicationStore();
 
 // do not use same name with ref
 const form = reactive({
@@ -41,6 +43,10 @@ const handleLogin = async () => {
       return
     }
   }  finally {
+    const userToken = userstor.userToken;
+    const [doctorId,patientId] = [userstor.userInfo.doctorId,userstor.userInfo.patientId];
+    console.log(userToken, doctorId, patientId);
+    comunication.init(userToken, doctorId, patientId);
     logining.value = false;
   }
   

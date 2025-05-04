@@ -2,7 +2,7 @@
   <div class="chat-container">
     <div class="chat-header">
       <h2>AI助手</h2>
-      <el-button v-if="couldSend" class="over-button" @click="overAichat(sessionId)" type="danger" size="big">停止对话</el-button>
+      <el-button v-if="couldSend && !hasRecorded" class="over-button" @click="overAichat(chatHistoryStore.getId(appoimentId))" type="danger" size="big">停止对话</el-button>
     </div>
     <div class="chat-messages" ref="chatMessages">
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.sender]">
@@ -18,7 +18,7 @@
         </div>
       </div>
     </div>
-    <div v-if="couldSend" class="chat-input">
+    <div v-if="couldSend && !hasRecorded" class="chat-input">
       <textarea
         v-model="newMessage"
         @keypress.enter="sendMessage"
@@ -63,6 +63,7 @@ const userStore = useUserStore();
 const chatHistoryStore = useChatHistoryStore();
 
 const isLoading = ref<boolean>(false);
+const hasRecorded = ref<boolean>(false);
 const newMessage = ref('');
 
 const chatMessages = ref<HTMLElement | null>(null);
@@ -90,7 +91,7 @@ const sendMessage = async () => {
     patientId: userStore.userInfo!.userId as number,
     question: newMessage.value,
     appointmentId: props.appoimentId,
-    sessionId: chatHistoryStore.sessionId
+    sessionId: chatHistoryStore.getId(props.appoimentId)
   },true).then(()=> {
     // 清空输入框
     newMessage.value = '';
@@ -153,10 +154,22 @@ const getHistory = (sessionId : string) => {
           sender: 'ai',
           text: item.content
         })
-        scrollToBottom();
       }
     })
+  }).then(() => {
+    scrollToBottom();
   })
+}
+
+const checkHasRecod = async (appointmentId: number) => {
+  const res =  await DoAxiosWithErro(`/appointment/ai-consult/exists?appointmentId=${appointmentId}`,'get',{},true)
+  if(res){
+    hasRecorded.value = true;
+    return true
+  } else {
+    hasRecorded.value = false;
+    return false
+  }
 }
 
 const initFetchES = () => {
@@ -170,13 +183,13 @@ const initFetchES = () => {
         patientId: userStore?.userInfo!.userId as number,
         appointmentId: props.appoimentId,
         question: newMessage.value,
-        sessionId: chatHistoryStore.sessionId
+        sessionId: chatHistoryStore.getId(props.appoimentId)
       }),
       signal: fetchsource.value?.signal,
       onmessage(ev) {
         const data = JSON.parse(ev.data);
         if(data.content === "连接已建立"){
-          chatHistoryStore.sessionId = data.sessionId;
+          chatHistoryStore.addId(props.appoimentId, data.sessionId)
           return
         }
         if(data.event === "message") {
@@ -226,10 +239,46 @@ const overAichat = (sessionId: string | null) => {
 }
 
 onMounted(async () => {
-    initFetchES();
-    if(chatHistoryStore.sessionId){
-      getHistory(chatHistoryStore.sessionId)
-    }
+    // if(props.couldSend){
+    //   initFetchES();
+    //   if(chatHistoryStore.getId(props.appoimentId)){
+    //     getHistory(chatHistoryStore.getId(props.appoimentId))
+    //   }
+    // } else {
+    //   DoAxiosWithErro(`/appointment/message-history/${props.appoimentId}`, 'get', {}, true).then((res) =>{
+    //     console.log(res)
+    //   })
+    // }
+    checkHasRecod(props.appoimentId).then((res) => {
+      if(!res){
+        initFetchES();
+        if(chatHistoryStore.getId(props.appoimentId)){
+          getHistory(chatHistoryStore.getId(props.appoimentId))
+        }
+      } else {
+        DoAxiosWithErro(`/appointment/message-history/${props.appoimentId}`, 'get', {}, true).then((res) =>{
+          res.map((item: any,index: number) => {
+            if(index === 0){
+              return
+            }
+            if(item.role === 'user'){
+              messages.push({
+                sender: 'user',
+                text: item.content
+              })
+              scrollToBottom();
+            } else {
+              messages.push({
+                sender: 'ai',
+                text: item.content
+              })
+            }
+          })
+        }).then(() => {
+          scrollToBottom();
+        })
+      }
+    })
 });
 
 

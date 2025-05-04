@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 
 interface ChatHistory {
     sender: 'ai' | 'user';
@@ -13,42 +13,37 @@ interface SessionIdObj {
 
 
 export const useChatHistoryStore = defineStore("chatHistory", () =>{
-    const sessionId = ref(localStorage.getItem('sessionId')?.id as string || '');
 
-    const saveSessionId = (id: string) => {
-        if (!id) return;
-        sessionId.value = id;
-        const idObj = {time: Date.now(), id};
-        const idObjString = JSON.stringify(idObj);
-        localStorage.setItem('sessionId', idObjString);
+    const sessionIdMap = reactive(new Map())
+
+    const addId = (appoimentId: number, sessionId: string) => {
+        const newId = {
+            sessionId,
+            time: new Date().getTime()
+        }
+        sessionIdMap.set(appoimentId,newId);
     }
 
-    const getSessionId = () => {
-        const idObjString = localStorage.getItem('sessionId');
-        console.log(idObjString);
-        if (idObjString) {
-            const idObj = JSON.parse(idObjString) as SessionIdObj;
-            if (Date.now() - idObj.time > 1000 * 60 * 60) { // 1 day
-                return '';
-            }
-            return idObj.id;
-        }
-    }
 
-    const updateTime = () => {
-        const idObjString = localStorage.getItem('sessionId');
-        if (idObjString) {
-            const idObj = JSON.parse(idObjString) as SessionIdObj;
-            idObj.time = Date.now();
-            localStorage.setItem('sessionId', JSON.stringify(idObj));
+    const getId = (appoimentId : number) => {
+        const idObj = sessionIdMap.get(appoimentId);
+        if(!idObj) {
+            return ''
         }
+        if(idObj.time - new Date().getTime() > 60 * 60 * 1000 ){
+            sessionIdMap.delete(appoimentId)
+            return ''
+        }
+
+        idObj.time = new Date().getTime();
+
+        return idObj.sessionId;
     }
 
     return {
-        sessionId,
-        getSessionId,
-        updateTime,
-        saveSessionId
+        sessionIdMap,
+        addId,
+        getId   
     }
 
 })
