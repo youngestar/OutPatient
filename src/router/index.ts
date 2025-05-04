@@ -122,17 +122,10 @@ const router = createRouter({
               name: "crudClinicDoctor",
               component: () => import("@/components/Admin/DoctorCrudCard.vue"),
             },
-          ],
-        },
-        {
-          path: "shedule",
-          name: "shedule",
-          component: () => import("../views/admin/SheduleVue.vue"),
-          children: [
             {
-              path: "",
-              name: "allDoctorsCard",
-              component: () => import("@/components/Admin/AllDoctorsCard.vue"),
+              path: ":department/:clinic/:doctor",
+              name: "crudClinicDoctorSchedule",
+              component: () => import("@/components/Admin/ScheduleCrudCardsView.vue"),
             },
           ],
         },

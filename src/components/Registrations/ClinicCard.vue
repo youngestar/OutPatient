@@ -1,21 +1,22 @@
 <template>
-  <CardView v-loading="loading" :cardsprops="clinics" :myCard="DepartCard" @handleclick="handleclick">
+  <CardView v-loading="loading" :cardsprops="clinics.map((item) => { return { ...item, cardType: 'patient' } })"
+    :myCard="DepartCard" @handleclick="handleclick" style="text-align: center; height: 100%; min-height: 72vh;">
   </CardView>
 </template>
 
 <script lang="ts" setup>
-import DepartCard from '@/components/DepartCard.vue'
+import { useHospitalStore } from '@/stores/hospitalData';
+import DepartCard from '@/components/DepartCard.vue';
 import CardView from '@/views/CardView.vue'
-import { getClinicRegistrations, type clinic } from '@/api/patient/registrations';
-import { reactive, onMounted, ref } from 'vue';
+import { type clinic } from '@/api/patient/registrations';
+import { onMounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router'
 
+const hospitalStore = useHospitalStore();
 const loading = ref(true);
 const router = useRouter();
 const route = useRoute();
-const clinics = reactive([
-
-])
+const clinics = hospitalStore.clinics;
 
 const handleclick = (clinic: clinic) => {
   router.push({
@@ -26,17 +27,17 @@ const handleclick = (clinic: clinic) => {
     },
     query: {
       departmentId: route.query.departmentId,
-      departmentName: route.query.departmentName,
       clinicId: clinic.id,
+      departmentName: route.query.departmentName,
       clinicName: clinic.name,
     }
   })
 }
 
 onMounted(async () => {
-  const newClinics = await getClinicRegistrations(route.query.departmentId);
+  await hospitalStore.getClinics(Number(route.query.departmentId))
   loading.value = false;
-  clinics.splice(0, clinics.length, ...newClinics);
+
 })
 </script>
 

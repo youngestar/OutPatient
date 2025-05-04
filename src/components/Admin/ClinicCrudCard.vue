@@ -1,12 +1,12 @@
 <template>
-  <CardView v-loading="loading" :cardsprops="clinics" :myCard="DepartCrudCard" @handleclick="handleclick"
-    style="text-align: center; height: 100%; min-height: 72vh;">
+  <CardView v-loading="loading" :cardsprops="clinics.map((item) => { return { ...item, cardType: 'admin' } })"
+    :myCard="DepartCard" @handleclick="handleclick" style="text-align: center; height: 100%; min-height: 72vh;">
   </CardView>
 </template>
 
 <script lang="ts" setup>
 import { useHospitalStore } from '@/stores/hospitalData';
-import DepartCrudCard from '@/components/Admin/DepartCrudCard.vue'
+import DepartCard from '@/components/DepartCard.vue';
 import CardView from '@/views/CardView.vue'
 import { type clinic } from '@/api/patient/registrations';
 import { onMounted, ref } from 'vue';
