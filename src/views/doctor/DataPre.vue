@@ -4,7 +4,7 @@
       <FrequencyData ref="chartsFrequency" style="float: left; height: 40vh;"></FrequencyData>
       <AgeData ref="chartsAge" style="float: left; height: 40vh;"></AgeData>
       <GenderData ref="chartsGender" style="float: left; height: 40vh;"></GenderData>
-      <DoctorData style="float: left; height: 40vh;"></DoctorData>
+      <!-- <DoctorData style="float: left; height: 40vh;"></DoctorData> -->
     </el-scrollbar>
   </div>
 </template>

@@ -79,7 +79,7 @@ onMounted(async () => {
           </div>
           <div class="right">
             <h3 style="font-size: 30px;">对话历史</h3>
-            <chat-view style="margin-top: 20px; height: 62.5vh;" :appointmentId="patientData.aiConsultSessionId"
+            <chat-view style="margin-top: 20px; height: 62.5vh;" :appoimentId="patientData.appointmentId"
               :couldSend="false"></chat-view>
           </div>
         </div>

@@ -1,7 +1,7 @@
 <template>
   <div class="ap-top">
     <div id="patient">
-      <el-button type="primary" @click="backpage">上一级</el-button>
+      <el-button type="primary" @click="backpage" v-show="route.params.department">上一级</el-button>
       <div v-if="route.query.departmentId && !route.query.doctorId" id="searchInput"
         style="position: relative; bottom: 2.5px;">
         <el-input v-model="searchContent" style="width: 240px;height: 40px;"
@@ -54,9 +54,7 @@ const backpage = () => {
   if (route.params.department) {
     router.back()
   } else {
-    router.push({
-      name: 'home',
-    })
+    return
   }
 }
 
@@ -77,6 +75,7 @@ const handleSearch = async () => {
   }
 }
 
+// 添加处理函数
 const createNewItem = async () => {
   if (!route.query.departmentId && !route.query.clinicId && !route.query.doctorId) {
     const newName = prompt('请输入新科室的名称')
