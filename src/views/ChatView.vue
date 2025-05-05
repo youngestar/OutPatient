@@ -249,6 +249,33 @@ onMounted(async () => {
     //     console.log(res)
     //   })
     // }
+    console.log(props)
+
+    if(!props.couldSend) {
+      DoAxiosWithErro(`/appointment/message-history/${props.appoimentId}`, 'get', {}, true).then((res) =>{
+          res.map((item: any,index: number) => {
+            if(index === 0){
+              return
+            }
+            if(item.role === 'user'){
+              messages.push({
+                sender: 'user',
+                text: item.content
+              })
+              scrollToBottom();
+            } else {
+              messages.push({
+                sender: 'ai',
+                text: item.content
+              })
+            }
+          })
+        }).then(() => {
+          scrollToBottom();
+        })
+      return;
+    }
+
     checkHasRecod(props.appoimentId).then((res) => {
       if(!res){
         initFetchES();

@@ -32,6 +32,7 @@ const router = useRouter();
 onMounted(async () => {
   const newPatientData = await doctorGetDetailRegistration(route.query.doctorId, route.query.appointmentId);
   Object.assign(patientData, newPatientData);
+  console.log(newPatientData,patientData)
   loading.value = false;
 })
 </script>
@@ -79,7 +80,8 @@ onMounted(async () => {
           </div>
           <div class="right">
             <h3 style="font-size: 30px;">对话历史</h3>
-            <chat-view style="margin-top: 20px; height: 62.5vh;" :appoimentId="patientData.appointmentId"
+            <chat-view style="margin-top: 20px; height: 62.5vh;" 
+              :appoimentId="+(route.query.appointmentId)"
               :couldSend="false"></chat-view>
           </div>
         </div>

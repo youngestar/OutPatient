@@ -135,7 +135,7 @@
 
   const markRead = () => {
     DoAxiosWithErro(`/medical/diagnoses/${props.diagId}/feedback/read`, 'post', {}, true).then((res) => {
-      console.log(res);
+      comunicationStore.unreadCounters[props.diagId] = 0
     });
   }
 
