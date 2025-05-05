@@ -43,11 +43,11 @@ const handleLogin = async () => {
       return
     }
   } finally {
+    logining.value = false;
     const userToken = userstor.userToken;
     const [doctorId, patientId] = [userstor.userInfo.doctorId, userstor.userInfo.patientId];
     console.log(userToken, doctorId, patientId);
     comunication.init(userToken, doctorId, patientId);
-    logining.value = false;
   }
 
 }
