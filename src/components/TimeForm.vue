@@ -107,12 +107,6 @@ const handleSubmit = async () => {
     // 执行表单验证
     await formRef.value?.validate()
 
-    // 验证通过后的处理逻辑
-    ElMessage.success({
-      message: `已选择时间段：${dateForm.startDate} 至 ${dateForm.endDate}`,
-      duration: 3000
-    })
-
     // 提交逻辑
     switch (props.optionType) {
       case "autoUpdate":

@@ -7,7 +7,7 @@
       <div class="left">
         <p><span class="label">医生编号:</span><span class="detail">{{ props.doctorId }}</span></p>
         <p><span class="label">医生名:</span><span class="detail">{{ props.doctorName
-        }}</span></p>
+            }}</span></p>
         <p><span class="label">挂号序号:</span><span class="detail">{{ props.scheduleId }}</span></p>
         <p><span class="label">是否可预约:</span><span class="detail"><el-tag class="detail" size="large" type="warning">{{
           props.canBook
@@ -30,7 +30,8 @@
             更新排班
           </el-button>
           <el-dialog v-model="scheduleDialogTableVisible" title="请填写排班信息" width="800">
-            <ScheduleForm :optionType="optionType" :clinicId="route.query.clinicId" :doctorId="route.query.doctorId">
+            <ScheduleForm @submit="adminUpdateSchedule" :optionType="optionType" :clinicId="route.query.clinicId"
+              :doctorId="route.query.doctorId" :scheduleId="props.scheduleId">
             </ScheduleForm>
           </el-dialog>
           <el-button type="danger" size="large" @click="deleteSchedule">
@@ -127,19 +128,37 @@ const createSchedule = async () => {
     const res = await createRegistrations(user.value.patientId, props.scheduleId)
     if (res) {
       ElMessage.success('预约成功')
-    } else {
-      ElMessage.error('预约失败, 您是否已经预约过该时段?')
     }
-  } catch (error) {
-    ElMessage.error('预约失败, 请稍后再试')
+  }
+  catch (error) {
     throw error
   }
-
 }
 
 const updateSchedule = () => {
   optionType.value = "update"
   scheduleDialogTableVisible.value = true
+}
+
+const adminUpdateSchedule = async (submitData) => {
+  console.log(props)
+  const res = await hospitalStore.updateSchedule(
+    props.scheduleId,
+    props.doctorId,
+    route.query.clinicId,
+    submitData.scheduleDate,
+    submitData.timeSlot,
+    submitData.maxPatients,
+    submitData.currentPatients,
+    submitData.status,
+    route.query.name,
+    route.query.title,
+    route.query.introduction,
+    route.query.avatar,
+  )
+  if (res) {
+    ElMessage.success('排班设置更新成功')
+  }
 }
 
 const deleteSchedule = async () => {

@@ -62,6 +62,8 @@ interface ScheduleForm {
 const route = useRoute()
 const hospitalStore = useHospitalStore()
 
+
+const emits = defineEmits(['submit'])
 const props = defineProps({
   optionType: {
     type: String,
@@ -80,6 +82,7 @@ const props = defineProps({
     required: false
   }
 })
+
 const formData = reactive<ScheduleForm>({
   scheduleDate: '',
   timeSlot: '',
@@ -178,24 +181,7 @@ const handleSubmit = async () => {
           resetForm()
         }
       } else if (props.optionType === 'update' && props.scheduleId) {
-        const res = await hospitalStore.updateSchedule(
-          props.scheduleId,
-          props.doctorId,
-          props.clinicId,
-          submitData.scheduleDate,
-          submitData.timeSlot,
-          submitData.maxPatients,
-          submitData.currentPatients,
-          submitData.status,
-          route.query.name,
-          route.query.title,
-          route.query.introduction,
-          route.query.avatar,
-        )
-        if (res) {
-          ElMessage.success('排班设置更新成功')
-          resetForm()
-        }
+        emits('submit', submitData)
       }
     }
   } catch (error) {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElScrollbar } from 'element-plus';
+import { ElScrollbar, ElEmpty } from 'element-plus';
 import RegistrationCard from './RegistrationCard.vue';
 import { useRouter } from 'vue-router';
 import { onMounted, ref, reactive, type Reactive } from 'vue';
@@ -36,6 +36,8 @@ onMounted(async () => {
     <RegistrationCard v-for="(item, index) in registrations" :key="index"
       @click="goToDetail(item.patientName, item.doctorId, item.appointmentId)" v-bind="item">
     </RegistrationCard>
+    <el-empty v-if="registrations.length === 0" description="还没有挂号记录"
+      style="width: 100%; height: 80vh; background-color: #fff;" />
   </el-scrollbar>
 </template>
 

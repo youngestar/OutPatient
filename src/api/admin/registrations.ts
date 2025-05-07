@@ -55,7 +55,6 @@ export const updeteClinicRegistration = async (clinicId: number, updetedClinicNa
       true,
       true
     );
-
     return res;
   } catch (err) {
     console.error(err);
@@ -85,38 +84,39 @@ export const createDoctorRegistration = async (
   avatarFile: File
 ) => {
   try {
+    // 这里使用 FormData 来处理文件上传
+    // 创建 FormData 对象并添加参数
     const formData = new FormData();
-
-    // 添加JSON数据部分
+    const doctorInfo = {
+      username,
+      password,
+      email,
+      phone,
+      clinicId,
+      name,
+      title,
+      introduction,
+    };
+    // 更替为二进制文件符合 form-data 形式
     formData.append(
       "doctorInfo",
-      JSON.stringify({
-        username,
-        password,
-        email,
-        phone,
-        clinicId,
-        name,
-        title,
-        introduction,
+      new Blob([JSON.stringify(doctorInfo)], {
+        type: "application/json",
       })
     );
-
-    // 单独添加文件部分
     formData.append("avatarFile", avatarFile);
 
     const res = await DoAxiosWithErro(
       "/admin/doctor",
       "post",
-      formData,
+      formData, // 直接传递 FormData 对象
       true,
-      true // 或让Axios自动处理
+      true
     );
 
     return res;
   } catch (err) {
     console.error(err);
-    throw err; // 重新抛出错误以便调用者处理
   }
 };
 
@@ -134,142 +134,44 @@ export const updateDoctorRegistration = async (
   avatarFile: File
 ) => {
   try {
+    // 这里使用 FormData 来处理文件上传
+    // 创建 FormData 对象并添加参数
     const formData = new FormData();
-
-    // 添加JSON数据部分
+    const doctorInfo = {
+      doctorId,
+      userId,
+      username,
+      password,
+      email,
+      phone,
+      clinicId,
+      name,
+      title,
+      introduction,
+    };
+    // 更替为二进制文件符合 form-data 形式
     formData.append(
       "doctorInfo",
-      JSON.stringify({
-        doctorId,
-        userId,
-        username,
-        password,
-        email,
-        phone,
-        clinicId,
-        name,
-        title,
-        introduction,
+      new Blob([JSON.stringify(doctorInfo)], {
+        type: "application/json",
       })
     );
-
-    // 单独添加文件部分
     formData.append("avatarFile", avatarFile);
 
     const res = await DoAxiosWithErro(
       "/admin/doctor",
       "put",
-      formData,
+      formData, // 直接传递 FormData 对象
       true,
-      true // 或让Axios自动处理
+      true
     );
 
+    console.log("头像", avatarFile);
     return res;
   } catch (err) {
     console.error(err);
-    throw err; // 重新抛出错误以便调用者处理
   }
 };
-
-// export const createDoctorRegistration = async (
-//   username: string,
-//   password: string,
-//   email: string,
-//   phone: string,
-//   clinicId: number,
-//   name: string,
-//   title: string,
-//   introduction: string,
-//   avatarFile: File
-// ) => {
-//   try {
-//     // 这里使用 FormData 来处理文件上传
-//     // 创建 FormData 对象并添加参数
-//     const formData = new FormData();
-//     const doctorInfo = {
-//       username,
-//       password,
-//       email,
-//       phone,
-//       clinicId,
-//       name,
-//       title,
-//       introduction,
-//       avatarFile,
-//     };
-//     // 更替为二进制文件符合 form-data 形式
-//     formData.append(
-//       "doctorInfo",
-//       new Blob([JSON.stringify(doctorInfo)], {
-//         type: "application/json",
-//       })
-//     );
-
-//     const res = await DoAxiosWithErro(
-//       "/admin/doctor",
-//       "post",
-//       formData, // 直接传递 FormData 对象
-//       true,
-//       true
-//     );
-
-//     return res;
-//   } catch (err) {
-//     console.error(err);
-//   }
-// };
-
-// export const updateDoctorRegistration = async (
-//   doctorId: number,
-//   userId: number,
-//   username: string,
-//   password: string,
-//   email: string,
-//   phone: string,
-//   clinicId: number,
-//   name: string,
-//   title: string,
-//   introduction: string,
-//   avatarFile: File
-// ) => {
-//   try {
-//     // 这里使用 FormData 来处理文件上传
-//     // 创建 FormData 对象并添加参数
-//     const formData = new FormData();
-//     const doctorInfo = {
-//       doctorId,
-//       userId,
-//       username,
-//       password,
-//       email,
-//       phone,
-//       clinicId,
-//       name,
-//       title,
-//       introduction,
-//       avatarFile,
-//     };
-//     // 更替为二进制文件符合 form-data 形式
-//     formData.append(
-//       "doctorInfo",
-//       new Blob([JSON.stringify(doctorInfo)], {
-//         type: "application/json",
-//       })
-//     );
-
-//     const res = await DoAxiosWithErro(
-//       "/admin/doctor",
-//       "put",
-//       formData, // 直接传递 FormData 对象
-//       true,
-//       true
-//     );
-
-//     return res;
-//   } catch (err) {
-//     console.error(err);
-//   }
-// };
 
 export const deleteDoctorRegistration = async (doctorId: number) => {
   try {
@@ -362,13 +264,13 @@ export const updateScheduleRegistration = async (
       true
     );
     const newSchedule = {
-      scheduleId: res.scheduleId,
-      doctorId: res.doctorId,
-      clinicId: res.clinicId,
-      scheduleDate: res.scheduleDate,
-      timeSlot: res.timeSlot,
-      remainingQuota: res.maxPatients - res.currentPatients,
-      canBook: res.maxPatients - res.currentPatients > 0 ? true : false,
+      scheduleId: scheduleId,
+      doctorId: doctorId,
+      clinicId: clinicId,
+      scheduleDate: scheduleDate,
+      timeSlot: timeSlot,
+      remainingQuota: maxPatients - currentPatients,
+      canBook: maxPatients - currentPatients > 0 ? true : false,
       // 请求提供部分
       doctorName: doctorName,
       doctorTitle: doctorTitle,

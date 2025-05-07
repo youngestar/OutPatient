@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import ScheduleCard from '@/components/Registrations/ScheduleCard.vue';
+import ScheduleCard from '@/components/Registrations/ScheduleCard.vue'
 import CardView from '@/views/CardView.vue'
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
@@ -39,7 +39,6 @@ function getCurrentAndSevenDaysLaterDate(): {
 
 onMounted(async () => {
   hospitalStore.getSchedules(Number(route.query.doctorId), route.query.title, getCurrentAndSevenDaysLaterDate().currentDate, getCurrentAndSevenDaysLaterDate().sevenDaysLater).then(() => {
-    console.log(schedules);
     loading.value = false;
     ElMessage.success('获取排班成功');
   }).catch(() => {
