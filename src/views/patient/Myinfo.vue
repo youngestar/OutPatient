@@ -20,7 +20,7 @@
             : myInfo.gender === 2
               ? '女'
               : '错误'
-        }}</span></p>
+            }}</span></p>
         <p><span class="label">年龄:</span><span class="detail">{{ myInfo.age }}</span></p>
         <p><span class="label">地区:</span><span class="detail">{{ myInfo.region }}</span></p>
         <p><span class="label">详细住址:</span><span class="detail">{{ myInfo.address }}</span></p>
@@ -95,7 +95,7 @@ const uploadAvatar = async () => {
   });
 }
 
-const changeInfo = (formData) => {
+const changeInfo = (formDData) => {
   Object.assign(myInfo, formData);
 }
 

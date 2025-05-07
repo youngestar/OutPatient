@@ -29,8 +29,7 @@ myApi.interceptors.response.use(
     }
 
     const status = error.response.status;
-    const message =
-      error.response.data?.message || "系统出错，请尝试重新登录";
+    const message = error.response.data?.message || "系统出错，请尝试重新登录";
     return Promise.reject(`${status} ${message}`);
   }
 );
@@ -70,12 +69,12 @@ export const DoAxios = async (
   // 请求并返回数据
   try {
     const resp = await myApi(requestConfig);
-    if( resp.data.code === 200) {
+    if (resp.data.code === 200) {
       return resp.data.data;
     }
     throw new Error(resp.data.message);
   } catch (error: any) {
-    throw new Error(error?.message || "未知错误");
+    throw new Error(error || "未知错误");
   }
 };
 

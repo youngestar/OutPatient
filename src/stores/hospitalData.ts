@@ -31,6 +31,36 @@ import {
   deleteScheduleRegistration,
 } from "@/api/admin/registrations";
 
+function getCurrentDate(): {
+  currentDate: string;
+} {
+  const currentDate = new Date();
+
+  function formatDate(date: Date): string {
+    const year = date.getFullYear();
+    // 月份从 0 开始，需 +1 并补零（如 1 月 → "01"）
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    // 日期补零（如 5 号 → "05"）
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  return {
+    currentDate: formatDate(currentDate),
+  };
+}
+
+function getRoundedUpCurrentHour(): number {
+  const now = new Date();
+  const currentHour = now.getHours(); // 当前小时（0-23）
+  const currentMinute = now.getMinutes(); // 当前分钟（0-59）
+
+  // 分钟 > 0 时小时加 1，否则保持当前小时
+  const roundedHour = currentMinute > 0 ? currentHour + 1 : currentHour;
+
+  return roundedHour;
+}
+
 export const useHospitalStore = defineStore("hospital", () => {
   const departs: department[] = reactive([]);
   const clinics: clinic[] = reactive([]);
@@ -71,11 +101,20 @@ export const useHospitalStore = defineStore("hospital", () => {
     startDate: string,
     endDate: string
   ) => {
-    const newSchedules = await getDoctorSchedule(doctorId, title, startDate, endDate);
-    if (!newSchedules) {
+    const getSchedules = await getDoctorSchedule(doctorId, title, startDate, endDate);
+    if (!getSchedules) {
       console.error("获取医生排班失败");
       return;
     }
+    const toDay = getCurrentDate().currentDate;
+    const nowHour = getRoundedUpCurrentHour();
+
+    const newSchedules = getSchedules.filter((schedule: schedule) => {
+      return (
+        schedule.scheduleDate !== toDay ||
+        (schedule.scheduleDate === toDay && Number(schedule.timeSlot.split("-")[1]) <= nowHour)
+      );
+    });
     schedules.splice(0, schedules.length, ...newSchedules);
   };
 
@@ -175,7 +214,8 @@ export const useHospitalStore = defineStore("hospital", () => {
     clinicId: number,
     name: string,
     title: string,
-    introduction: string
+    introduction: string,
+    avatar: File
   ) => {
     const getDoctor: doctor = await createDoctorRegistration(
       username,
@@ -185,7 +225,8 @@ export const useHospitalStore = defineStore("hospital", () => {
       clinicId,
       name,
       title,
-      introduction
+      introduction,
+      avatar
     );
     if (!getDoctor) {
       console.error("创建医生失败");
@@ -205,7 +246,8 @@ export const useHospitalStore = defineStore("hospital", () => {
     clinicId: number,
     name: string,
     title: string,
-    introduction: string
+    introduction: string,
+    avatar: File
   ) => {
     const newDoctor: doctor = {
       doctorId,
@@ -226,7 +268,8 @@ export const useHospitalStore = defineStore("hospital", () => {
       clinicId,
       name,
       title,
-      introduction
+      introduction,
+      avatar
     );
     if (!msg) {
       console.error("更新医生失败");

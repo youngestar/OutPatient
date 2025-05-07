@@ -17,9 +17,28 @@ const hospitalStore = useHospitalStore();
 const route = useRoute();
 const schedules = hospitalStore.schedules;
 
+function getCurrentAndSevenDaysLaterDate(): {
+  currentDate: string;
+  sevenDaysLater: string;
+} {
+  const currentDate = new Date();
+  const sevenDaysLaterDate = new Date(currentDate.getTime() + 7 * 86400000);
+
+  function formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  return {
+    currentDate: formatDate(currentDate),
+    sevenDaysLater: formatDate(sevenDaysLaterDate)
+  };
+}
+
 onMounted(async () => {
-  // 获取时间待修改
-  hospitalStore.getSchedules(Number(route.query.doctorId), route.query.title, "2025-04-07", "2028-04-17").then(() => {
+  hospitalStore.getSchedules(Number(route.query.doctorId), route.query.title, getCurrentAndSevenDaysLaterDate().currentDate, getCurrentAndSevenDaysLaterDate().sevenDaysLater).then(() => {
     console.log(schedules);
     loading.value = false;
     ElMessage.success('获取排班成功');

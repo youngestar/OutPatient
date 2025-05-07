@@ -49,6 +49,7 @@ import { createRegistrations } from '@/api/patient/registrations';
 import type { UserInfo } from '@/stores/user';
 import { useHospitalStore } from '@/stores/hospitalData';
 import { useRoute } from 'vue-router';
+import ScheduleForm from '@/components/Admin/ScheduleForm.vue';
 
 const user: Ref<UserInfo> = ref({
   userId: 0,
@@ -121,12 +122,23 @@ const hospitalStore = useHospitalStore();
 const scheduleDialogTableVisible = ref(false);
 const optionType = ref('update');
 
-const createSchedule = () => {
-  createRegistrations(user.value.patientId, props.scheduleId)
+const createSchedule = async () => {
+  try {
+    const res = await createRegistrations(user.value.patientId, props.scheduleId)
+    if (res) {
+      ElMessage.success('预约成功')
+    } else {
+      ElMessage.error('预约失败, 您是否已经预约过该时段?')
+    }
+  } catch (error) {
+    ElMessage.error('预约失败, 请稍后再试')
+    throw error
+  }
+
 }
 
 const updateSchedule = () => {
-  optionType.value = "create"
+  optionType.value = "update"
   scheduleDialogTableVisible.value = true
 }
 

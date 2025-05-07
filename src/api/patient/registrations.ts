@@ -128,12 +128,14 @@ export const getDoctorSchedule = async (
 //挂号相关函数
 export const createRegistrations = async (patientId: number, scheduleId: number) => {
   try {
+    // 构建查询字符串
+    const queryString = `?patientId=${patientId}&scheduleId=${scheduleId}`;
     const res = await DoAxiosWithErro(
-      "/appointment/create",
+      `/appointment/create${queryString}`,
       "post",
-      { patientId, scheduleId },
+      {}, // 请求体为空
       true,
-      true
+      false
     );
     return res;
   } catch (err) {
