@@ -1,8 +1,9 @@
 <template>
   <div class="patient-container">
     <el-container style="height: 100%;">
-      <el-header>
+      <el-header style="display: flex; justify-content: space-between; align-items: center;">
         <div class="tip">医疗门诊</div>
+        <el-button type="primary" @click="logout">退出登录</el-button>
       </el-header>
       <el-main style="height: 100%;">
         <el-container style="height: 100%;">
@@ -20,6 +21,17 @@
 
 <script lang="ts" setup>
 import  MeNu from '@/components/MeNu.vue';
+import { useUserStore } from '@/stores/user';
+import { useRouter } from 'vue-router';
+
+const userStore = useUserStore()
+
+const route = useRouter()
+
+const logout = () => {
+  userStore.logout()
+  route.push('/')
+}
 
 const routers = [
       {

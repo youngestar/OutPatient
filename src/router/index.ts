@@ -18,11 +18,33 @@ const router = createRouter({
           path: "",
           name: "medicalAp",
           component: () => import("../views/patient/MedicalAp.vue"),
+          children: [
+            {
+              path: "",
+              name: "department",
+              component: () => import("@/components/Registrations/DepartmentCard.vue"),
+            },
+            {
+              path: ":department",
+              name: "clinic",
+              component: () => import("@/components/Registrations/ClinicCard.vue"),
+            },
+            {
+              path: ":department/:clinic",
+              name: "clinicDoctor",
+              component: () => import("@/components/Registrations/DoctorCard.vue"),
+            },
+            {
+              path: ":department/:clinic/:doctor",
+              name: "clinicDoctorSchedule",
+              component: () => import("@/components/Registrations/ScheduleCardsView.vue"),
+            },
+          ],
         },
         {
           path: "chat",
           name: "chat",
-          component: () => import("../views/ChatView.vue"),
+          component: () => import("../views/patient/ChatView.vue"),
         },
         {
           path: "callback",
@@ -32,7 +54,7 @@ const router = createRouter({
         {
           path: "myinfo",
           name: "myinfo",
-          component: () => import("../views/patient/Myinfo.vue"),
+          component: () => import("../views/patient/MyInfo.vue"),
         },
         {
           path: "card",
@@ -57,7 +79,7 @@ const router = createRouter({
               component: () => import("@/components/Registrations/AllRegistrations.vue"),
             },
             {
-              path: ":id",
+              path: ":name",
               name: "detailRegistrations",
               component: () => import("@/components/Registrations/DetailRegistrations.vue"),
             },
@@ -84,11 +106,28 @@ const router = createRouter({
           path: "",
           name: "crud",
           component: () => import("../views/admin/CRUD.vue"),
-        },
-        {
-          path: "shedule",
-          name: "shedule",
-          component: () => import("../views/admin/SheduleVue.vue"),
+          children: [
+            {
+              path: "",
+              name: "crudDepartment",
+              component: () => import("@/components/Admin/DepartmentCrudCard.vue"),
+            },
+            {
+              path: ":department",
+              name: "crudClinic",
+              component: () => import("@/components/Admin/ClinicCrudCard.vue"),
+            },
+            {
+              path: ":department/:clinic",
+              name: "crudClinicDoctor",
+              component: () => import("@/components/Admin/DoctorCrudCard.vue"),
+            },
+            {
+              path: ":department/:clinic/:doctor",
+              name: "crudClinicDoctorSchedule",
+              component: () => import("@/components/Admin/ScheduleCrudCardsView.vue"),
+            },
+          ],
         },
       ],
     },

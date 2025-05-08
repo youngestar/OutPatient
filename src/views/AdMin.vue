@@ -1,14 +1,12 @@
 <template>
   <div class="patient-container">
     <el-container style="height: 100%;">
-      <el-header>
+      <el-header style="display: flex; justify-content: space-between; align-items: center;">
         <div class="tip">医疗门诊</div>
+        <el-button type="primary" @click="logout">退出登录</el-button>
       </el-header>
       <el-main style="height: 100%;">
         <el-container style="height: 100%;">
-          <el-aside>
-            <me-nu :routers="routers"></me-nu>
-          </el-aside>
           <el-main class="main-content">
             <router-view></router-view>
           </el-main>
@@ -19,28 +17,25 @@
 </template>
 
 <script lang="ts" setup>
-import  MeNu from '@/components/MeNu.vue';
+import { useUserStore } from '@/stores/user';
+import { useRouter } from 'vue-router';
 
-const routers = [
-  {
-    router: '/admin',
-    name: '人员科室消息管理'
-  },
-  {
-    router: '/admin/shedule',
-    name: '排班'
-  }
-]
+const userStore = useUserStore()
 
+const route = useRouter()
 
+const logout = () => {
+  userStore.logout()
+  route.push('/')
+}
 </script>
 
 <style lang="scss" scoped>
-.patient-container{
+.patient-container {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%,-50%);
+  transform: translate(-50%, -50%);
   width: 95%;
   height: 95%;
   background: vars.$card-bg;
@@ -48,12 +43,14 @@ const routers = [
   margin: 0 auto;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
 }
-.tip{
+
+.tip {
   font-size: 1.5rem;
   font-weight: bold;
   margin: 1rem 0;
 }
-.main-content{
+
+.main-content {
   border-radius: 1rem;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   overflow: hidden;

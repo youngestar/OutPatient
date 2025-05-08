@@ -1,13 +1,11 @@
 <template>
   <div>
-    排班
+    <RouterView />
   </div>
 </template>
 
 <script lang="ts" setup>
-
+import { RouterView } from 'vue-router';
 </script>
 
-<style>
-
-</style>
+<style></style>

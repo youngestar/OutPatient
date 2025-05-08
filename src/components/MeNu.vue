@@ -1,7 +1,7 @@
 <template>
     <div>
       <el-menu
-    style="background-color: rgba(255, 255, 255, 0);"
+       style="background-color: rgba(255, 255, 255, 0);"
        :router="true"
        default-active="0"
       >
