@@ -215,7 +215,8 @@ export const useHospitalStore = defineStore("hospital", () => {
     name: string,
     title: string,
     introduction: string,
-    avatar: File
+    avatar: File,
+    avatarUrl: string
   ) => {
     const getDoctor: doctor = await createDoctorRegistration(
       username,
@@ -228,6 +229,7 @@ export const useHospitalStore = defineStore("hospital", () => {
       introduction,
       avatar
     );
+    getDoctor.avatar = avatarUrl;
     if (!getDoctor) {
       console.error("创建医生失败");
       return;
@@ -247,7 +249,8 @@ export const useHospitalStore = defineStore("hospital", () => {
     name: string,
     title: string,
     introduction: string,
-    avatar: File
+    avatar: File,
+    avatarUrl: string
   ) => {
     const newDoctor: doctor = {
       doctorId,
@@ -255,7 +258,7 @@ export const useHospitalStore = defineStore("hospital", () => {
       name,
       title,
       introduction,
-      avatar: "",
+      avatar: avatarUrl,
       deptName: "",
     };
     const msg: doctor = await updateDoctorRegistration(
