@@ -14,23 +14,26 @@ const myApi = axios.create({
 
 // 响应拦截器：统一处理响应和错误
 myApi.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response; // 成功直接返回响应
-  },
+  (response: AxiosResponse) => response,
   (error) => {
-    // 请求超时处理
     if (error.code === "ECONNABORTED" && error.message?.includes("timeout")) {
-      return Promise.reject("请求超时，请稍后重试");
+      error.message = "请求超时，请稍后重试";
+      return Promise.reject(error);
     }
 
-    // 网络断开或服务无响应
     if (!error.response) {
-      return Promise.reject("网络异常");
+      error.message = "网络异常";
+      return Promise.reject(error);
     }
 
-    const status = error.response.status;
-    const message = error.response.data?.message || "系统出错，请尝试重新登录";
-    return Promise.reject(`${status} ${message}`);
+    if (error.response.status === 401) {
+      const userStore = useUserStore();
+      userStore?.clearSession?.();
+    }
+
+    const fallback = error.response.statusText || "系统出错，请稍后重试";
+    error.message = error.response.data?.message || fallback;
+    return Promise.reject(error);
   }
 );
 
@@ -55,7 +58,7 @@ export const DoAxios = async (
       throw new Error("Token 为空，请先登录");
     }
     requestConfig.headers = {
-      "sa-token-authorization": token,
+      satoken: token,
     };
   }
 
@@ -72,9 +75,13 @@ export const DoAxios = async (
     if (resp.data.code === 200) {
       return resp.data.data;
     }
-    throw new Error(resp.data.message);
+    throw new Error(resp.data.message || "请求失败");
   } catch (error: any) {
-    throw new Error(error || "未知错误");
+    if (axios.isAxiosError(error)) {
+      const message = error.response?.data?.message || error.message || "请求失败";
+      throw new Error(message);
+    }
+    throw new Error(error?.message || "未知错误");
   }
 };
 

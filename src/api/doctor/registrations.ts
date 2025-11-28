@@ -23,7 +23,13 @@ export interface detailRegistration extends Registration {
 // 获取挂号信息
 export const doctorGetRegistrations = async (doctorId: number) => {
   try {
-    const res = await DoAxiosWithErro(`/appointment/doctor/${doctorId}`, "get", {}, true, false);
+    const res = await DoAxiosWithErro(
+      "/appointment/application/doctor",
+      "get",
+      { doctorId },
+      true,
+      false
+    );
     return res;
   } catch (err) {
     console.error(err);
@@ -33,9 +39,9 @@ export const doctorGetRegistrations = async (doctorId: number) => {
 export const doctorGetDetailRegistration = async (doctorId: number, appointmentId: number) => {
   try {
     const res = await DoAxiosWithErro(
-      `/appointment/doctor/${doctorId}/appointment/${appointmentId}`,
+      "/appointment/doctor/appointment/detail",
       "get",
-      {},
+      { doctorId, appointmentId },
       true,
       false
     );

@@ -55,7 +55,7 @@ export interface schedule {
 // 加载页面函数
 export const getDepartmentRegistrations = async () => {
   try {
-    const res = await DoAxiosWithErro("/appointment/departments", "get", {}, true, false);
+    const res = await DoAxiosWithErro("/appointment/department/list", "get", {}, true, false);
     const departmentsData = res.map((department: getDepartment) => {
       return {
         name: department.deptName,
@@ -113,7 +113,7 @@ export const getDoctorSchedule = async (
 ) => {
   try {
     const res = await DoAxiosWithErro(
-      "/appointment/schedules",
+      "/appointment/doctor/schedules",
       "post",
       { doctorId, title, startDate, endDate },
       true,
@@ -128,14 +128,12 @@ export const getDoctorSchedule = async (
 //挂号相关函数
 export const createRegistrations = async (patientId: number, scheduleId: number) => {
   try {
-    // 构建查询字符串
-    const queryString = `?patientId=${patientId}&scheduleId=${scheduleId}`;
     const res = await DoAxiosWithErro(
-      `/appointment/create${queryString}`,
+      "/appointment/create",
       "post",
-      {}, // 请求体为空
+      { patientId, scheduleId, isRevisit: 0 },
       true,
-      false
+      true
     );
     return res;
   } catch (err) {

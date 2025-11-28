@@ -44,9 +44,11 @@ const handleLogin = async () => {
     }
   } finally {
     logining.value = false;
+    const userInfo = userstor.userInfo;
     const userToken = userstor.userToken;
-    const [doctorId, patientId] = [userstor.userInfo.doctorId, userstor.userInfo.patientId];
-    if (doctorId && patientId) {
+    const doctorId = userInfo?.doctorId;
+    const patientId = userInfo?.patientId;
+    if (userToken && doctorId && patientId) {
       comunication.init(userToken, doctorId, patientId);
     }
   }

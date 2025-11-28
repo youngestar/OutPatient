@@ -24,7 +24,7 @@ export const getUesrInfo = async () => {
       address: res.address,
       phone: res.phone,
       email: res.email,
-      IDCard: res.idCard,
+      idCard: res.idCard,
       userId: res.userId,
       doctorId: res.doctorId,
     };
@@ -41,7 +41,7 @@ export const updateUserInfo = async (
   region: string,
   address: string,
   phone: string,
-  IDCard: string
+  idCard: string
 ) => {
   try {
     const res = await DoAxiosWithErro(
@@ -54,7 +54,7 @@ export const updateUserInfo = async (
         region,
         address,
         phone,
-        IDCard,
+        idCard,
       },
       true,
       true

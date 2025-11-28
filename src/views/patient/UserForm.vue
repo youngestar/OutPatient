@@ -12,7 +12,7 @@ interface PersonalInfo {
   region: string
   address: string
   phone: string
-  IDCard: string
+  idCard: string
 }
 
 // 提交数据
@@ -26,7 +26,7 @@ const formData = reactive<PersonalInfo>({
   region: '',
   address: '',
   phone: '',
-  IDCard: ''
+  idCard: ''
 })
 
 
@@ -54,7 +54,7 @@ const rules = reactive<FormRules<PersonalInfo>>({
     { required: true, message: '手机号不能为空', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '无效的手机号码', trigger: 'blur' }
   ],
-  IDCard: [
+  idCard: [
     { required: true, message: '身份证号不能为空', trigger: 'blur' },
     {
       pattern: /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])\d{3}[\dXx]$/,
@@ -71,7 +71,15 @@ const handleSubmit = async () => {
 
   try {
     await formRef.value.validate()
-    updateUserInfo(formData.name, formData.gender, formData.age, formData.IDCard, formData.phone, formData.region, formData.address).then((res) => {
+    updateUserInfo(
+      formData.name,
+      formData.gender,
+      formData.age,
+      formData.region,
+      formData.address,
+      formData.phone,
+      formData.idCard
+    ).then((res) => {
       if (res.name) {
         ElMessage.success('信息提交成功')
         emit('submit', formData)
@@ -124,8 +132,8 @@ const resetForm = () => {
           <el-input v-model="formData.phone" placeholder="11位手机号码" />
         </el-form-item>
 
-        <el-form-item label="身份证号" prop="IDCard">
-          <el-input v-model="formData.IDCard" placeholder="18位身份证号码" maxlength="18" />
+        <el-form-item label="身份证号" prop="idCard">
+          <el-input v-model="formData.idCard" placeholder="18位身份证号码" maxlength="18" />
         </el-form-item>
       </el-col>
     </el-row>

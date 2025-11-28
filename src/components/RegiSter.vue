@@ -1,4 +1,5 @@
-<script setup>
+<script setup lang="ts">
+
 import { DoAxios, DoAxiosWithErro } from '@/api';
 import { reactive, ref, defineEmits } from 'vue'
 import { ElMessage } from 'element-plus';
@@ -71,7 +72,7 @@ const checkUserName = (rule, value, callback) => {
   DoAxios('/auth/IsExists', 'get', {
     username: value
   }, false).then((res) => {
-    if(!res) {
+    if (!res) {
       callback();
     } else {
       callback(new Error("该昵称已被注册"))
@@ -96,7 +97,7 @@ const checkEmail = (rule, value, callback) => {
 
   // 异步请求，检查邮箱是否已注册
   DoAxios('/auth/IsExists', 'get', {
-    value
+    email: value,
   })
     .then((res) => {
       console.log(res);
@@ -277,10 +278,13 @@ const sendMessage = async () => {
     });
   });
 
-  Promise.all(validationPromises).then(() => {
-    
-    handleSend();  // 验证通过后发送消息
-  })
+  Promise.all(validationPromises)
+    .then(() => {
+      handleSend(); // 验证通过后发送消息
+    })
+    .catch(() => {
+      ElMessage.warning('请先完善必填信息');
+    });
 };
 
 

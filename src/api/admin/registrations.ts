@@ -2,7 +2,7 @@ import { DoAxiosWithErro } from "..";
 //科室相关操作
 export const createDepartRegistration = async (deptName: string) => {
   try {
-    const res = await DoAxiosWithErro("/admin/department", "post", { deptName }, true, true);
+    const res = await DoAxiosWithErro("/admin/department/add", "post", { deptName }, true, true);
 
     return res;
   } catch (err) {
@@ -13,8 +13,8 @@ export const createDepartRegistration = async (deptName: string) => {
 export const updeteDepartRegistration = async (deptId: number, updetedDepartName: string) => {
   try {
     const res = await DoAxiosWithErro(
-      "/admin/department",
-      "put",
+      "/admin/department/update",
+      "post",
       { deptId, deptName: updetedDepartName },
       true,
       true
@@ -28,7 +28,7 @@ export const updeteDepartRegistration = async (deptId: number, updetedDepartName
 
 export const deleteDepartRegistration = async (deptId: number) => {
   try {
-    const res = await DoAxiosWithErro(`/admin/department/${deptId}`, "delete", {}, true, false);
+    const res = await DoAxiosWithErro("/admin/department/delete", "post", { deptId }, true, true);
 
     return res;
   } catch (err) {
@@ -39,7 +39,13 @@ export const deleteDepartRegistration = async (deptId: number) => {
 // 门诊相关操作
 export const createClinicRegistration = async (deptId: number, clinicName: string) => {
   try {
-    const res = await DoAxiosWithErro("/admin/clinic", "post", { deptId, clinicName }, true, true);
+    const res = await DoAxiosWithErro(
+      "/admin/clinic/add",
+      "post",
+      { deptId, clinicName },
+      true,
+      true
+    );
     return res;
   } catch (err) {
     console.error(err);
@@ -49,8 +55,8 @@ export const createClinicRegistration = async (deptId: number, clinicName: strin
 export const updeteClinicRegistration = async (clinicId: number, updetedClinicName: string) => {
   try {
     const res = await DoAxiosWithErro(
-      "/admin/clinic",
-      "put",
+      "/admin/clinic/update",
+      "post",
       { clinicId, clinicName: updetedClinicName },
       true,
       true
@@ -63,7 +69,7 @@ export const updeteClinicRegistration = async (clinicId: number, updetedClinicNa
 
 export const deleteClinicRegistration = async (clinicId: number) => {
   try {
-    const res = await DoAxiosWithErro(`/admin/clinic/${clinicId}`, "delete", {}, true, false);
+    const res = await DoAxiosWithErro("/admin/clinic/delete", "post", { clinicId }, true, true);
 
     return res;
   } catch (err) {
@@ -99,7 +105,7 @@ export const createDoctorRegistration = async (
     };
     // 更替为二进制文件符合 form-data 形式
     formData.append(
-      "doctorInfo",
+      "doctorRequest",
       new Blob([JSON.stringify(doctorInfo)], {
         type: "application/json",
       })
@@ -107,7 +113,7 @@ export const createDoctorRegistration = async (
     formData.append("avatarFile", avatarFile);
 
     const res = await DoAxiosWithErro(
-      "/admin/doctor",
+      "/admin/doctor/Doctor-add",
       "post",
       formData, // 直接传递 FormData 对象
       true,
@@ -151,7 +157,7 @@ export const updateDoctorRegistration = async (
     };
     // 更替为二进制文件符合 form-data 形式
     formData.append(
-      "doctorInfo",
+      "doctorRequest",
       new Blob([JSON.stringify(doctorInfo)], {
         type: "application/json",
       })
@@ -159,8 +165,8 @@ export const updateDoctorRegistration = async (
     formData.append("avatarFile", avatarFile);
 
     const res = await DoAxiosWithErro(
-      "/admin/doctor",
-      "put",
+      "/admin/doctor/Doctor-update",
+      "post",
       formData, // 直接传递 FormData 对象
       true,
       true
@@ -176,11 +182,11 @@ export const updateDoctorRegistration = async (
 export const deleteDoctorRegistration = async (doctorId: number) => {
   try {
     const res = await DoAxiosWithErro(
-      `/admin/doctor/${doctorId}`,
-      "delete",
-      { doctorId }, // 直接传递 FormData 对象
+      "/admin/doctor/Doctor-delete",
+      "post",
+      { doctorId },
       true,
-      false
+      true
     );
 
     return res;
@@ -205,26 +211,25 @@ export const createScheduleRegistration = async (
 ) => {
   try {
     const res = await DoAxiosWithErro(
-      "/admin/schedule",
+      "/admin/schedule/add",
       "post",
       { doctorId, clinicId, scheduleDate, timeSlot, maxPatients, currentPatients, status },
       true,
       true
     );
+    const scheduleId = Number(res);
     const newSchedule = {
-      // 响应结果提取部分
-      scheduleId: res.scheduleId,
-      doctorId: res.doctorId,
-      clinicId: res.clinicId,
-      scheduleDate: res.scheduleDate,
-      timeSlot: res.timeSlot,
-      remainingQuota: res.maxPatients - res.currentPatients,
-      canBook: res.maxPatients - res.currentPatients > 0 ? true : false,
-      // 请求提供部分
-      doctorName: doctorName,
-      doctorTitle: doctorTitle,
-      doctorIntroduction: doctorIntroduction,
-      doctorAvatar: doctorAvatar,
+      scheduleId,
+      doctorId,
+      clinicId,
+      scheduleDate,
+      timeSlot,
+      remainingQuota: maxPatients - currentPatients,
+      canBook: maxPatients - currentPatients > 0,
+      doctorName,
+      doctorTitle,
+      doctorIntroduction,
+      doctorAvatar,
     };
     return newSchedule;
   } catch (err) {
@@ -248,8 +253,8 @@ export const updateScheduleRegistration = async (
 ) => {
   try {
     const res = await DoAxiosWithErro(
-      "/admin/schedule",
-      "put",
+      "/admin/schedule/update",
+      "post",
       {
         scheduleId,
         doctorId,
@@ -263,6 +268,9 @@ export const updateScheduleRegistration = async (
       true,
       true
     );
+    if (!res) {
+      return null;
+    }
     const newSchedule = {
       scheduleId: scheduleId,
       doctorId: doctorId,
@@ -285,15 +293,7 @@ export const updateScheduleRegistration = async (
 
 export const deleteScheduleRegistration = async (scheduleId: number) => {
   try {
-    const res = await DoAxiosWithErro(
-      `/admin/schedule/${scheduleId}`,
-      "delete",
-      {
-        scheduleId,
-      },
-      true,
-      false
-    );
+    const res = await DoAxiosWithErro("/admin/schedule/delete", "post", { scheduleId }, true, true);
     return res;
   } catch (err) {
     console.error(err);
@@ -307,26 +307,13 @@ export const autoUpdateSchedules = async (
   clinicId?: number
 ) => {
   try {
-    // 通过 Axios 的 params 传递 Query 参数，保持 POST 方法
-    if (clinicId) {
-      const res = await DoAxiosWithErro(
-        `/admin/schedule/auto?startDate=${startDate}&endDate=${endDate}&clinicId=${clinicId}`,
-        "post",
-        {},
-        true,
-        false
-      );
-      return res;
-    } else {
-      const res = await DoAxiosWithErro(
-        `/admin/schedule/auto?startDate=${startDate}&endDate=${endDate}`,
-        "post",
-        {},
-        true,
-        false
-      );
-      return res;
-    }
+    const payload: Record<string, string | number | undefined> = {
+      startDate,
+      endDate,
+      clinicId,
+    };
+    const res = await DoAxiosWithErro("/admin/schedule/auto", "post", payload, true, true);
+    return res;
   } catch (err) {
     console.error("自动更新排班失败:", err);
     throw err; // 可选：向上抛出错误以便上层处理

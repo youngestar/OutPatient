@@ -64,7 +64,13 @@ watch(comunicationStore.unreadCounters, () => {
 
 const getList = async () => {
   isLoading.value = true
-  DoAxiosWithErro(`/medical/doctor/${userStore.userInfo!.doctorId}/diagnoses`, 'get', {}, true)
+  DoAxiosWithErro(
+    '/medical/doctor/diagnoses-list',
+    'get',
+    { doctorId: userStore.userInfo!.doctorId },
+    true,
+    false
+  )
     .then(res => {
       digList.push(...res)
     })

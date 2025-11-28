@@ -20,7 +20,7 @@
             : myInfo.gender === 2
               ? '女'
               : '错误'
-            }}</span></p>
+        }}</span></p>
         <p><span class="label">年龄:</span><span class="detail">{{ myInfo.age }}</span></p>
         <p><span class="label">地区:</span><span class="detail">{{ myInfo.region }}</span></p>
         <p><span class="label">详细住址:</span><span class="detail">{{ myInfo.address }}</span></p>
@@ -28,7 +28,7 @@
       <div class="right">
         <p><span class="label">手机号:</span><span class="detail">{{ myInfo.phone }}</span></p>
         <p><span class="label">邮箱:</span><span class="detail">{{ myInfo.email }}</span></p>
-        <p><span class="label">身份证号:</span><span class="detail">{{ myInfo.IDCard }}</span></p>
+        <p><span class="label">身份证号:</span><span class="detail">{{ myInfo.idCard }}</span></p>
       </div>
     </div>
     <!-- <p><span class="label">症状:</span><span class="detail">{{ myInfo.description }}</span></p> -->
@@ -59,7 +59,7 @@ const myInfo = reactive({
   address: '默认地址',
   phone: '默认手机号',
   email: '默认邮箱',
-  IDCard: '默认身份证号',
+  idCard: '默认身份证号',
 })
 
 const handleUP = (e: Event) => {
@@ -95,7 +95,7 @@ const uploadAvatar = async () => {
   });
 }
 
-const changeInfo = (formDData) => {
+const changeInfo = (formData) => {
   Object.assign(myInfo, formData);
 }
 

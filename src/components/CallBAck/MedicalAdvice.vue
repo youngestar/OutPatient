@@ -1,13 +1,13 @@
 <template>
   <div v-loading="isLoading" element-loading-text="加载中" class="card">
     <el-table :data="detail" style="width: 100%">
-        <el-table-column prop="diagId" label="预约ID" style="flex: 1" />
-        <el-table-column prop="doctorName" label="医生姓名" style="flex: 1" />
-        <el-table-column prop="doctorTitle" label="医生职称" style="flex: 1" />
-        <el-table-column prop="diagnosisResult" label="诊断结果" style="flex: 1" />
-        <el-table-column prop="examination" label="检查结果" style="flex: 1" />
-        <el-table-column prop="prescription" label="处方" style="flex: 1" />
-      </el-table>
+      <el-table-column prop="diagId" label="预约ID" style="flex: 1" />
+      <el-table-column prop="doctorName" label="医生姓名" style="flex: 1" />
+      <el-table-column prop="doctorTitle" label="医生职称" style="flex: 1" />
+      <el-table-column prop="diagnosisResult" label="诊断结果" style="flex: 1" />
+      <el-table-column prop="examination" label="检查结果" style="flex: 1" />
+      <el-table-column prop="prescription" label="处方" style="flex: 1" />
+    </el-table>
   </div>
 </template>
 
@@ -47,9 +47,15 @@ const detail = reactive(<DiagnosisDetail[]>[])
 // 获取诊断详情
 const getDetal = async () => {
   isLoading.value = true
-  DoAxiosWithErro(`/medical/diagnoses/${props.diagId}`,'get',{},true).then(res => {
+  DoAxiosWithErro(
+    '/medical/diagnosis-detail',
+    'get',
+    { diagId: props.diagId },
+    true,
+    false
+  ).then(res => {
     detail.push(res)
-  }).finally(() =>{
+  }).finally(() => {
     isLoading.value = false
   })
 }
@@ -69,4 +75,3 @@ onMounted(() => {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 </style>
-

@@ -13,12 +13,14 @@
         <el-table-column prop="statusDesc" label="状态" style="flex: 1" />
         <el-table-column label="操作" style="flex: 1">
           <template #default="scope">
-            <el-button :disabled="scope.row.status !== 0" @click="isShowChat = true; appoimentId = scope.row.appointmentId">AI咨询</el-button>
+            <el-button :disabled="scope.row.status !== 0"
+              @click="isShowChat = true; appoimentId = scope.row.appointmentId">AI咨询</el-button>
           </template>
         </el-table-column>
         <el-table-column label="取消操作" style="flex: 1">
           <template #default="scope">
-            <el-button :disabled="scope.row.status !== 0" @click="cancelAppoiment(scope.row.appointmentId)">取消预约</el-button>
+            <el-button :disabled="scope.row.status !== 0"
+              @click="cancelAppoiment(scope.row.appointmentId)">取消预约</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -26,10 +28,10 @@
     </div>
 
     <!-- Ai助手界面 -->
-     <div v-if="isShowChat" style="width: 100%; height: 100%">
-        <el-button style="margin: 1rem;" @click="isShowChat = false">返回</el-button>
-       <ChatView :could-send="true" :appoiment-id="appoimentId" ></ChatView>
-     </div>
+    <div v-if="isShowChat" style="width: 100%; height: 100%">
+      <el-button style="margin: 1rem;" @click="isShowChat = false">返回</el-button>
+      <ChatView :could-send="true" :appoiment-id="appoimentId"></ChatView>
+    </div>
   </div>
 </template>
 
@@ -69,34 +71,44 @@ const appoimentId = ref(0);
 const appoimentList = reactive(<AppointmentType[]>[]);
 
 const getAppoimentList = () => {
-    isLoading.value = true;
-    appoimentList.splice(0,appoimentList.length)
-    DoAxiosWithErro(`/appointment/patient/${patientId}`,'get',{},true)
+  isLoading.value = true;
+  appoimentList.splice(0, appoimentList.length)
+  DoAxiosWithErro(
+    '/appointment/patient',
+    'get',
+    { patientId },
+    true,
+    false
+  )
     .then((res) => {
-        appoimentList.splice(0,appoimentList.length,...res)
+      appoimentList.splice(0, appoimentList.length, ...res)
     })
     .finally(() => {
-        isLoading.value = false;
+      isLoading.value = false;
     })
 }
 
 const cancelAppoiment = (id: number) => {
-    DoAxiosWithErro(`/appointment/cancel?appointmentId=${id}&patientId=${patientId}`,'post',{},true)
+  DoAxiosWithErro(
+    '/appointment/cancel',
+    'post',
+    { appointmentId: id, patientId },
+    true,
+    true
+  )
     .then((res) => {
-        getAppoimentList();
+      getAppoimentList();
     })
     .finally(() => {
-        isLoading.value = false;
+      isLoading.value = false;
     })
 }
 
 onMounted(() => {
 
-    getAppoimentList();
+  getAppoimentList();
 })
 
 </script>
 
-<style>
-
-</style>
+<style></style>

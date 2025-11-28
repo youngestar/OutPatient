@@ -45,7 +45,7 @@ export const getChartsDataDoctor = async (doctorId: number) => {
 export const getChartsDataFrequency = async (doctorId: number) => {
   try {
     const res = await DoAxiosWithErro(
-      "/data-analysis/patient-visit-frequency",
+      "/data-analysis/patient/visit/frequency",
       "get",
       { doctorId },
       true,
