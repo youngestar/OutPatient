@@ -77,7 +77,7 @@ export const useComunicationStore = defineStore("comunication", () => {
     sockt.value = new SockJS("/ws");
     stompClient.value = new Client({ webSocketFactory: () => sockt.value });
     stompClient.value.connectHeaders = {
-      "sa-token-authorization": userToken,
+      satoken: userToken,
     };
     stompClient.value.onConnect = () => {
       isConnected.value = true;

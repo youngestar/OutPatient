@@ -169,7 +169,7 @@ onMounted(() => {
   //   }
   // });
   // stompClient.connectHeaders = {
-  //   "sa-token-authorization":  userStore.userToken
+  //   "satoken":  userStore.userToken
   // };
 
   // stompClient.onConnect = (frame) => {

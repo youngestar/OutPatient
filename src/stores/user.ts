@@ -58,6 +58,10 @@ export const useUserStore = defineStore("user", {
       } catch (err) {
         // 可忽略登出接口错误（如 token 失效）
       }
+      this.clearSession();
+    },
+
+    clearSession() {
       this.userInfo = null;
       this.userToken = "";
       this.isLoggedIn = false;

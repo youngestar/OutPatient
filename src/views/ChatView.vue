@@ -173,7 +173,7 @@ const initFetchES = () => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'sa-token-authorization': userStore.userToken
+      satoken: userStore.userToken
     },
     body: JSON.stringify({
       patientId: userStore?.userInfo!.patientId as number,
