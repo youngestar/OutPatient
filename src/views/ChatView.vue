@@ -3,7 +3,7 @@
     <div class="chat-header">
       <h2>AI助手</h2>
       <el-button v-if="couldSend && !hasRecorded" class="over-button"
-        @click="overAichat(chatHistoryStore.getId(appoimentId))" type="danger" size="big">停止对话</el-button>
+        @click="overAichat(chatHistoryStore.getId(appoimentId))" type="danger" size="large">停止对话</el-button>
     </div>
     <div class="chat-messages" ref="chatMessages">
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.sender]">
@@ -28,12 +28,18 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, reactive } from 'vue';
+import { reactive, ref, onMounted, onUnmounted } from 'vue';
 import { DoAxios, DoAxiosWithErro } from '@/api/index';
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from '@/stores/user';
 import { useChatHistoryStore } from '@/stores/ChatHistory';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { ElMessage, } from 'element-plus';
+import { ElMessage } from 'element-plus';
+
+const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+type ChatHistoryEntry = {
+  role: string;
+  content: string;
+};
 
 const props = defineProps({
   appoimentId: {
@@ -43,74 +49,26 @@ const props = defineProps({
   couldSend: {
     type: Boolean,
     default: true,
-  }
-})
+  },
+});
 
-const avatars = ['/src/assets/me.png', '/src/assets/AIavator.png']
+const avatars = ['/src/assets/me.png', '/src/assets/AIavator.png'];
 
 const messages = reactive([
   {
     sender: 'ai',
-    text: '你好！有什么我可以帮助你的吗？'
+    text: '你好！有什么我可以帮助你的吗？',
   },
 ]);
 
 const userStore = useUserStore();
 const chatHistoryStore = useChatHistoryStore();
 
-const isLoading = ref<boolean>(false);
-const hasRecorded = ref<boolean>(false);
+const isLoading = ref(false);
+const hasRecorded = ref(false);
 const newMessage = ref('');
-
 const chatMessages = ref<HTMLElement | null>(null);
-const sessionId = ref<string | null>(null);
-const fetchsource = ref<AbortController | null>(new AbortController());
-
-const sendMessage = async () => {
-  if (newMessage.value.trim() === '') {
-    ElMessage({
-      message: '消息不能为空',
-      type: 'warning',
-    })
-    return
-  };
-
-  const userMessae = {
-    sender: 'user',
-    text: newMessage.value,
-  }
-
-  messages.push(userMessae);
-
-  isLoading.value = true;
-  DoAxios('/appointment/ai-consult/send', 'post', {
-    patientId: userStore.userInfo!.patientId as number,
-    question: newMessage.value,
-    appointmentId: props.appoimentId,
-    sessionId: chatHistoryStore.getId(props.appoimentId)
-  }, true).then(() => {
-    // 清空输入框
-    newMessage.value = '';
-    messages.push({
-      sender: 'ai',
-      text: newMessage.value,
-    })
-
-    scrollToBottom();
-
-    ElMessage({
-      message: '发送成功',
-      type: 'success',
-    })
-  }).catch(() => {
-    isLoading.value = false;
-    ElMessage({
-      message: '发送失败，请重新发送',
-      type: 'error',
-    })
-    messages.pop();
-  })
-};
+const fetchSource = ref<AbortController | null>(null);
 
 const scrollToBottom = () => {
   if (chatMessages.value) {
@@ -118,214 +76,184 @@ const scrollToBottom = () => {
   }
 };
 
+const pushHistory = (historyList: ChatHistoryEntry[]) => {
+  historyList.forEach((item, index) => {
+    if (index === 0) {
+      return;
+    }
+    messages.push({
+      sender: item.role === 'user' ? 'user' : 'ai',
+      text: item.content,
+    });
+  });
+  scrollToBottom();
+};
+
 const handleStreamMessage = (value: string) => {
-  if (messages[messages.length - 1].sender === 'user') {
+  const last = messages[messages.length - 1];
+  if (!last || last.sender === 'user') {
     messages.push({
       sender: 'ai',
-      text: newMessage.value,
-    })
-    return
+      text: value,
+    });
+  } else {
+    last.text += value;
   }
-  messages[messages.length - 1].text = messages[messages.length - 1].text + value;
   scrollToBottom();
-}
+};
+
+const sendMessage = async () => {
+  const trimmed = newMessage.value.trim();
+  if (!trimmed) {
+    ElMessage.warning('消息不能为空');
+    return;
+  }
+
+  messages.push({
+    sender: 'user',
+    text: trimmed,
+  });
+  scrollToBottom();
+
+  isLoading.value = true;
+  try {
+    await DoAxios(
+      '/appointment/ai-consult/send',
+      'post',
+      {
+        patientId: userStore.userInfo!.patientId as number,
+        question: trimmed,
+        appointmentId: props.appoimentId,
+        sessionId: chatHistoryStore.getId(props.appoimentId),
+      },
+      true,
+      true
+    );
+    newMessage.value = '';
+    ElMessage.success('发送成功');
+  } catch {
+    messages.pop();
+    ElMessage.error('发送失败，请重新发送');
+  } finally {
+    isLoading.value = false;
+  }
+};
 
 const getHistory = (sessionId: string) => {
-  DoAxiosWithErro('/appointment/ai-consult/history', 'get', {
-    sessionId: sessionId
-  }, true).then((res) => {
-    const history = res.messageHistory
-    history.map((item: any, index: number) => {
-      if (index === 0) {
-        return
-      }
-      if (item.role === 'user') {
-        messages.push({
-          sender: 'user',
-          text: item.content
-        })
-        scrollToBottom();
-      } else {
-        messages.push({
-          sender: 'ai',
-          text: item.content
-        })
-      }
-    })
-  }).then(() => {
-    scrollToBottom();
-  })
-}
+  DoAxiosWithErro(
+    '/appointment/ai-consult/history',
+    'get',
+    { sessionId },
+    true
+  ).then((res) => {
+    const history: ChatHistoryEntry[] = Array.isArray(res?.messageHistory) ? res.messageHistory : [];
+    pushHistory(history);
+  });
+};
 
-const checkHasRecod = async (appointmentId: number) => {
-  const res = await DoAxiosWithErro(`/appointment/ai-consult/exists?appointmentId=${appointmentId}`, 'get', {}, true)
-  if (res) {
-    hasRecorded.value = true;
-    return true
-  } else {
-    hasRecorded.value = false;
-    return false
-  }
-}
+const loadMessageHistory = () => {
+  DoAxiosWithErro(
+    '/appointment/message/history',
+    'get',
+    { appointmentId: props.appoimentId },
+    true
+  ).then((res) => {
+    const historyList: ChatHistoryEntry[] = Array.isArray(res) ? res : [];
+    pushHistory(historyList);
+  });
+};
+
+const checkHasRecord = async (appointmentId: number) => {
+  const res = await DoAxiosWithErro(
+    `/appointment/ai-consult/exists?appointmentId=${appointmentId}`,
+    'get',
+    {},
+    true
+  );
+  hasRecorded.value = !!res;
+  return hasRecorded.value;
+};
 
 const initFetchES = () => {
-  fetchEventSource('/api/appointment/ai-consult/connect', {
+  fetchSource.value?.abort();
+  const controller = new AbortController();
+  fetchSource.value = controller;
+
+  fetchEventSource(`${API_BASE}/appointment/ai-consult/connect`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      satoken: userStore.userToken
+      satoken: userStore.userToken,
     },
     body: JSON.stringify({
-      patientId: userStore?.userInfo!.patientId as number,
+      patientId: userStore.userInfo!.patientId as number,
       appointmentId: props.appoimentId,
       question: newMessage.value,
-      sessionId: chatHistoryStore.getId(props.appoimentId)
+      sessionId: chatHistoryStore.getId(props.appoimentId),
     }),
-    signal: fetchsource.value?.signal,
-    onmessage(ev) {
-      const data = JSON.parse(ev.data);
-      if (data.content === "连接已建立") {
-        chatHistoryStore.addId(props.appoimentId, data.sessionId)
-        return
+    signal: controller.signal,
+    onmessage(event) {
+      const data = JSON.parse(event.data);
+      if (data.content === '连接已建立') {
+        chatHistoryStore.addId(props.appoimentId, data.sessionId);
+        return;
       }
-      if (data.event === "message") {
-        handleStreamMessage(data.content)
+      if (data.event === 'message') {
+        handleStreamMessage(data.content);
       }
-      if (data.event === "complete") {
+      if (data.event === 'complete') {
         isLoading.value = false;
-        return
       }
     },
-    onopen(response) {
-      // 连接建立时的回调
+    async onopen(response) {
       if (response.ok) {
-        ElMessage({
-          message: '连接成功',
-          type: 'success',
-        })
+        ElMessage.success('连接成功');
       } else {
-        ElMessage({
-          message: '连接失败',
-          type: 'error',
-        })
+        ElMessage.error('连接失败');
       }
     },
-    onerror(err) {
-      // 连接出现异常时的回调
-      ElMessage({
-        message: '连接失败',
-        type: 'error',
-      })
-    }
+    onerror() {
+      ElMessage.error('连接失败');
+      controller.abort();
+    },
   });
-}
+};
 
 const overAichat = (sessionId: string | null) => {
   if (!sessionId) {
     ElMessage.warning('会话尚未建立');
     return;
   }
-  DoAxios('/appointment/ai-consult/end', 'post', { sessionId }, true, true).then(() => {
-    ElMessage({
-      message: '聊天记录保存成功',
-      type: 'success',
+  DoAxios('/appointment/ai-consult/end', 'post', { sessionId }, true, true)
+    .then(() => {
+      ElMessage.success('聊天记录保存成功');
     })
-  }).catch(() => {
-    ElMessage({
-      message: '聊天记录保存失败',
-      type: 'error',
-    })
-  })
-}
+    .catch(() => {
+      ElMessage.error('聊天记录保存失败');
+    });
+};
 
 onMounted(async () => {
-  // if(props.couldSend){
-  //   initFetchES();
-  //   if(chatHistoryStore.getId(props.appoimentId)){
-  //     getHistory(chatHistoryStore.getId(props.appoimentId))
-  //   }
-  // } else {
-  //   DoAxiosWithErro('/appointment/message/history', 'get', { appointmentId: props.appoimentId }, true).then((res) =>{
-  //     console.log(res)
-  //   })
-  // }
-  console.log(props)
-
   if (!props.couldSend) {
-    DoAxiosWithErro(
-      '/appointment/message/history',
-      'get',
-      { appointmentId: props.appoimentId },
-      true,
-      false
-    ).then((res) => {
-      res.map((item: any, index: number) => {
-        if (index === 0) {
-          return
-        }
-        if (item.role === 'user') {
-          messages.push({
-            sender: 'user',
-            text: item.content
-          })
-          scrollToBottom();
-        } else {
-          messages.push({
-            sender: 'ai',
-            text: item.content
-          })
-        }
-      })
-    }).then(() => {
-      scrollToBottom();
-    })
+    loadMessageHistory();
     return;
   }
 
-  checkHasRecod(props.appoimentId).then((res) => {
-    if (!res) {
-      initFetchES();
-      if (chatHistoryStore.getId(props.appoimentId)) {
-        getHistory(chatHistoryStore.getId(props.appoimentId))
-      }
-    } else {
-      DoAxiosWithErro(
-        '/appointment/message/history',
-        'get',
-        { appointmentId: props.appoimentId },
-        true,
-        false
-      ).then((res) => {
-        res.map((item: any, index: number) => {
-          if (index === 0) {
-            return
-          }
-          if (item.role === 'user') {
-            messages.push({
-              sender: 'user',
-              text: item.content
-            })
-            scrollToBottom();
-          } else {
-            messages.push({
-              sender: 'ai',
-              text: item.content
-            })
-          }
-        })
-      }).then(() => {
-        scrollToBottom();
-      })
+  const recorded = await checkHasRecord(props.appoimentId);
+  if (!recorded) {
+    initFetchES();
+    const existingSession = chatHistoryStore.getId(props.appoimentId);
+    if (existingSession) {
+      getHistory(existingSession);
     }
-  })
+  } else {
+    loadMessageHistory();
+  }
 });
 
-
 onUnmounted(() => {
-  if (fetchsource.value) {
-    fetchsource.value.abort();
-  }
-})
+  fetchSource.value?.abort();
+});
 </script>
 
 <style lang="scss" scoped>

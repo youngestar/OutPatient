@@ -7,8 +7,10 @@ import { useUserStore } from "@/stores/user";
 type Method = "get" | "post" | "put" | "delete";
 
 // 创建 Axios 实例
+const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+
 const myApi = axios.create({
-  baseURL: "/api",
+  baseURL: API_BASE,
   timeout: 10000,
 });
 
