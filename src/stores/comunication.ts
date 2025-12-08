@@ -78,12 +78,15 @@ export const useComunicationStore = defineStore("comunication", () => {
   };
 
   const getunreadCounters = () => {
-    DoAxiosWithErro<Record<string, number>>("/medical/feedback/unread/counts", "get", {}, true).then(
-      (res) => {
-        Object.assign(unreadCounters, res);
-        console.log("unreadCounters", unreadCounters);
-      }
-    );
+    DoAxiosWithErro<Record<string, number>>(
+      "/medical/feedback/unread/counts",
+      "get",
+      {},
+      true
+    ).then((res) => {
+      Object.assign(unreadCounters, res);
+      console.log("unreadCounters", unreadCounters);
+    });
   };
 
   const init = async (userToken: string, doctorId: string, patientId: string) => {

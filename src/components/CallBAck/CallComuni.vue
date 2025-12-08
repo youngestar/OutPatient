@@ -15,8 +15,8 @@
       </div>
     </div>
     <div class="chat-input">
-      <textarea v-model="newMessage" @keypress.enter.prevent="sendMessage" placeholder="输入消息..."
-        class="textarea-field" rows="3"></textarea>
+      <textarea v-model="newMessage" @keypress.enter.prevent="sendMessage" placeholder="输入消息..." class="textarea-field"
+        rows="3"></textarea>
       <button @click="sendMessage" class="send-button">发送</button>
     </div>
   </div>
