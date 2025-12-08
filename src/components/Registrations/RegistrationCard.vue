@@ -7,7 +7,7 @@
         <p><span class="label">病历号:</span><span class="detail">{{ scheduleId }}</span></p>
         <p><span class="label">病人姓名:</span><span class="detail">{{ patientName }}</span></p>
         <p><span class="label">是否初诊:</span><el-tag class="detail" type="warning">{{ isRevisit === 0 ? "是" : "否"
-            }}</el-tag></p>
+        }}</el-tag></p>
         <p><span class="label">就诊状态:</span><el-tag class="detail" type="warning">{{ status === 0 ? "待就诊" : status === 1
           ? "已就诊" : status === 2 ? "已取消" : "出错了"
             }}</el-tag></p>
@@ -29,9 +29,9 @@ import { ElTag, } from "element-plus";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
   appointmentId: {
-    type: Number,
+    type: String,
     required: true,
-    default: 1,
+    default: "1",
   },
   scheduleId: {
     type: String,

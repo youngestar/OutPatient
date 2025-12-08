@@ -42,8 +42,18 @@ import { ElScrollbar } from 'element-plus'
 const isDetail = ref(false)
 const isLoading = ref(false)
 
-const digList = reactive([])
-const digItem = reactive({
+type DiagnoseItem = {
+  diagId: string
+  doctorId: string
+  doctorName: string
+  diagnosisResult: string
+  createTime: string
+  canFeedback: boolean
+  patientName?: string
+}
+
+const digList = reactive<DiagnoseItem[]>([])
+const digItem = reactive<DiagnoseItem>({
   diagId: '',
   doctorId: '',
   doctorName: '',
@@ -55,7 +65,7 @@ const digItem = reactive({
 const userStore = useUserStore()
 const comunicationStore = useComunicationStore()
 
-const unreadCounters = reactive(Object.assign({}, comunicationStore.unreadCounters));
+const unreadCounters = reactive<Record<string, number>>(Object.assign({}, comunicationStore.unreadCounters));
 
 watch(comunicationStore.unreadCounters, () => {
   Object.assign(unreadCounters, comunicationStore.unreadCounters)
@@ -64,10 +74,15 @@ watch(comunicationStore.unreadCounters, () => {
 
 const getList = async () => {
   isLoading.value = true
-  DoAxiosWithErro(
+  const doctorId = userStore.userInfo?.doctorId
+  if (!doctorId) {
+    isLoading.value = false
+    return
+  }
+  DoAxiosWithErro<DiagnoseItem[]>(
     '/medical/doctor/diagnoses-list',
     'get',
-    { doctorId: userStore.userInfo!.doctorId },
+    { doctorId },
     true,
     false
   )
@@ -78,7 +93,7 @@ const getList = async () => {
       isLoading.value = false
     })
 }
-const gotoDetail = (item) => {
+const gotoDetail = (item: DiagnoseItem) => {
   Object.assign(digItem, item)
   isDetail.value = true
 }

@@ -54,11 +54,10 @@ const handleT = (mess: 'login' | 'register') => {
 }
 
 .login {
-  width: 600px;
-  height: 450px;
+  width: 500px;
   padding: 1rem;
   background: vars.$card-bg;
-  border-radius: 1rem;
+  border-radius: 2rem;
   position: absolute;
   top: 40%;
   left: 50%;

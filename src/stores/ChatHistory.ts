@@ -7,9 +7,9 @@ interface SessionIdObj {
 }
 
 export const useChatHistoryStore = defineStore("chatHistory", () => {
-  const sessionIdMap = reactive(new Map<number, SessionIdObj>());
+  const sessionIdMap = reactive(new Map<string, SessionIdObj>());
 
-  const addId = (appoimentId: number, sessionId: string) => {
+  const addId = (appoimentId: string, sessionId: string) => {
     const newId: SessionIdObj = {
       sessionId,
       time: new Date().getTime(),
@@ -17,7 +17,7 @@ export const useChatHistoryStore = defineStore("chatHistory", () => {
     sessionIdMap.set(appoimentId, newId);
   };
 
-  const getId = (appoimentId: number) => {
+  const getId = (appoimentId: string) => {
     const idObj = sessionIdMap.get(appoimentId);
     if (!idObj) {
       return "";

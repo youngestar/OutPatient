@@ -51,10 +51,24 @@ defineOptions({
   name: 'PatientMyInfoView',
 });
 
+interface MyInfoState {
+  avatar: string;
+  name: string;
+  gender: number;
+  age: number;
+  region: string;
+  address: string;
+  phone: string;
+  email: string;
+  idCard: string;
+}
+
+type EditableInfo = Pick<MyInfoState, 'name' | 'gender' | 'age' | 'region' | 'address' | 'phone' | 'idCard'>;
+
 const dialogTableVisible = ref(false);
 const loading = ref(true);
 const newAvatar = ref(false);
-const myInfo = reactive({
+const myInfo = reactive<MyInfoState>({
   avatar: '/src/assets/me.png',
   name: '默认患者',
   gender: 1,
@@ -99,7 +113,7 @@ const uploadAvatar = async () => {
   });
 }
 
-const changeInfo = (formData) => {
+const changeInfo = (formData: EditableInfo) => {
   Object.assign(myInfo, formData);
 }
 

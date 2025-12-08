@@ -71,11 +71,11 @@ const props = defineProps({
     required: true,
   },
   doctorId: {
-    type: Number,
+    type: String,
     required: true,
   },
   userId: {
-    type: Number,
+    type: String,
     required: true,
   },
 })
@@ -117,7 +117,7 @@ const getCrudSchedule = () => {
   })
 }
 
-const deleteDoctor = async (doctorId: number) => {
+const deleteDoctor = async (doctorId: string) => {
   const res = await hospitalStore.deleteDoctor(doctorId)
   if (res) {
     ElMessage({

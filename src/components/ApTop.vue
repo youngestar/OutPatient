@@ -14,7 +14,7 @@
         </el-button>
       </div>
     </div>
-    <div id="admin" v-if="props.cardType === 'admin'">
+    <div id="admin" v-if="effectiveCardType === 'admin'">
       <el-button type="primary" @click="createNewItem">添加</el-button>
     </div>
   </div>
@@ -22,34 +22,53 @@
     <DoctorForm :optionType="optionType"></DoctorForm>
   </el-dialog>
   <el-dialog v-model="scheduleDialogTableVisible" title="请填写排班信息" width="800">
-    <ScheduleForm :optionType="optionType" :clinicId="route.query.clinicId" :doctorId="route.query.doctorId">
+    <ScheduleForm :optionType="optionType" :clinicId="clinicId" :doctorId="doctorId">
     </ScheduleForm>
   </el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import DoctorForm from '@/components/Admin/DoctorForm.vue';
 import ScheduleForm from './Admin/ScheduleForm.vue';
 import { ElButton, ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue';
 import { useRouter, useRoute } from 'vue-router'
 import { useHospitalStore } from '@/stores/hospitalData'
+import { useUserStore } from '@/stores/user'
 
 const props = defineProps({
   cardType: {
     type: String,
-    required: true
+    required: false,
+    default: undefined
   }
 })
 const emit = defineEmits(['changeLoading'])
 const hospitalStore = useHospitalStore();
+const userStore = useUserStore();
 const router = useRouter()
 const route = useRoute()
 const doctorDialogTableVisible = ref(false);
 const scheduleDialogTableVisible = ref(false);
 const optionType = ref("create")
 const searchContent = ref('')
+const departmentId = computed(() => (typeof route.query.departmentId === 'string' ? route.query.departmentId : ''))
+const clinicId = computed(() => (typeof route.query.clinicId === 'string' ? route.query.clinicId : ''))
+const doctorId = computed(() => (typeof route.query.doctorId === 'string' ? route.query.doctorId : ''))
+const effectiveCardType = computed(() => {
+  if (props.cardType) {
+    return props.cardType
+  }
+  const role = userStore.userInfo?.role
+  if (role === 2) {
+    return 'admin'
+  }
+  if (role === 1) {
+    return 'doctor'
+  }
+  return 'patient'
+})
 const backpage = () => {
   if (route.params.department) {
     router.back()
@@ -62,10 +81,10 @@ const backpage = () => {
 const handleSearch = async () => {
   emit('changeLoading')
   try {
-    if (route.query.clinicId) {
+    if (clinicId.value) {
       await hospitalStore.searchForDoctor(searchContent.value)
     }
-    else if (route.query.departmentId) {
+    else if (departmentId.value) {
       await hospitalStore.searchForClinic(searchContent.value)
     }
   } catch (error) {
@@ -77,7 +96,7 @@ const handleSearch = async () => {
 
 // 添加处理函数
 const createNewItem = async () => {
-  if (!route.query.departmentId && !route.query.clinicId && !route.query.doctorId) {
+  if (!departmentId.value && !clinicId.value && !doctorId.value) {
     const newName = prompt('请输入新科室的名称')
     if (!newName) {
       return
@@ -87,24 +106,24 @@ const createNewItem = async () => {
       message: '添加科室成功',
       type: 'success',
     })
-  } else if (!route.query.clinicId && route.query.departmentId) {
+  } else if (!clinicId.value && departmentId.value) {
     const newName = prompt('请输入新门诊的名称')
     if (!newName) {
       return
     }
-    await hospitalStore.createClinic(route.query.departmentId as string, newName)
+    await hospitalStore.createClinic(departmentId.value, newName)
     ElMessage({
       message: '添加门诊成功',
       type: 'success',
     })
   }
   // 新增医生
-  else if (route.query.clinicId && route.query.departmentId) {
+  else if (clinicId.value && departmentId.value) {
     optionType.value = "create"
     doctorDialogTableVisible.value = true
   }
   // 新增排班
-  else if (route.query.doctorId) {
+  else if (doctorId.value) {
     optionType.value = "create"
     scheduleDialogTableVisible.value = true
   }

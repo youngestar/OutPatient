@@ -9,13 +9,12 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits, computed } from 'vue';
-import { ref } from 'vue';
+import { type Component, type PropType, computed, defineEmits, defineProps, ref } from 'vue';
 
 // 分页组件相关
 const currentPage = ref(1);
 const pageSize = ref(12); // 每页显示的数量
-const paginatedData = computed(() => {
+const paginatedData = computed<CardPayload[]>(() => {
   const start = (currentPage.value - 1) * pageSize.value;
   const end = start + pageSize.value;
   return props.cardsprops.slice(start, end);
@@ -23,11 +22,11 @@ const paginatedData = computed(() => {
 
 const props = defineProps({
   myCard: {
-    type: Object,
+    type: Object as PropType<Component>,
     required: true
   },
   cardsprops: {
-    type: Array,
+    type: Array as PropType<CardPayload[]>,
     required: true
   },
 });

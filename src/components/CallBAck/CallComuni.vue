@@ -15,15 +15,15 @@
       </div>
     </div>
     <div class="chat-input">
-      <textarea v-model="newMessage" @keypress.enter="sendMessage" placeholder="输入消息..." class="textarea-field"
-        rows="3"></textarea>
-      <button @click="sendMessage(diagId)" class="send-button">发送</button>
+      <textarea v-model="newMessage" @keypress.enter.prevent="sendMessage" placeholder="输入消息..."
+        class="textarea-field" rows="3"></textarea>
+      <button @click="sendMessage" class="send-button">发送</button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, nextTick, watch } from 'vue';
+import { ref, onMounted, nextTick, watch, computed } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { useComunicationStore } from '@/stores/comunication';
 import { ElMessage } from 'element-plus';
@@ -34,12 +34,18 @@ const sender = ['patient', 'doctor'];
 
 const props = defineProps({
   diagId: {
-    type: Number,
+    type: String,
     required: true,
   },
 })
 
-const messages = ref([
+type Message = {
+  sender: string;
+  text: string;
+  avatar: string;
+};
+
+const messages = ref<Message[]>([
   {
     sender: 'doctor',
     text: '您好！请问有什么可以帮助您的吗？',
@@ -52,28 +58,30 @@ const comunicationStore = useComunicationStore();
 const newMessage = ref('');
 const chatMessages = ref<HTMLElement | null>(null);
 
-const [doctorId, patientId] = [userStore.userInfo.doctorId, userStore.userInfo.patientId];
+const doctorId = computed(() => userStore.userInfo?.doctorId ?? '');
+const patientId = computed(() => userStore.userInfo?.patientId ?? '');
 
 
 // 获取消息记录
-// const getHistory = (diagId: number) => {
+// const getHistory = (diagId: string) => {
 //   DoAxiosWithErro(`/medical/diagnoses/${diagId}/feedback`, 'get', {}, true).then((res) => {
 //     console.log(res);
 //     });
 // }
 
 const addMessage = (message: string, senderType: number) => {
-  const newMessage = {
+  const nextMessage: Message = {
     sender: sender[senderType],
     text: message,
     avatar: avatarUrl[senderType],
   };
-  messages.value.push(newMessage);
+  messages.value.push(nextMessage);
   scrollToBottom();
 };
 
 // 发送消息
-const sendMessage = (diagId: number = 1) => {
+const sendMessage = () => {
+  const diagId = props.diagId;
   if (newMessage.value.trim() === '') {
     ElMessage.warning('请输入消息内容');
     return;
@@ -90,7 +98,7 @@ const sendMessage = (diagId: number = 1) => {
     true
   ).then(() => {
     ElMessage.success('发送成功');
-    addMessage(newMessage.value, +(!patientId));
+    addMessage(newMessage.value, patientId.value ? 0 : 1);
     // 清空输入框
     newMessage.value = '';
     scrollToBottom();
@@ -106,14 +114,18 @@ const scrollToBottom = () => {
   });
 };
 
-watch(comunicationStore.messagemMap.get(props.diagId), () => {
-  console.log('watch');
-  const historylist = comunicationStore.messagemMap.get(props.diagId);
-  messages.value = [];
-  historylist?.forEach((item) => {
-    addMessage(item.content, item.senderType);
-  })
-});
+watch(
+  () => comunicationStore.messagemMap.get(props.diagId),
+  (historylist) => {
+    if (!historylist) {
+      return;
+    }
+    messages.value = [];
+    historylist.forEach((item) => {
+      addMessage(item.content, item.senderType);
+    });
+  }
+);
 
 const init = async () => {
   // 获取历史消息
@@ -123,8 +135,8 @@ const init = async () => {
 
   console.log(historylist);
 
-  if (!historylist || historylist.length === 0) {
-    await comunicationStore.initMessageMap(doctorId, patientId);
+  if ((!historylist || historylist.length === 0) && (doctorId.value || patientId.value)) {
+    await comunicationStore.initMessageMap(doctorId.value, patientId.value);
     historylist = comunicationStore.messagemMap.get(props.diagId);
   }
 

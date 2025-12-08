@@ -13,15 +13,15 @@ interface MedicalForm {
 
 const props = defineProps({
   appointmentId: {
-    type: Number,
+    type: String,
     required: true
   },
   doctorId: {
-    type: Number,
+    type: String,
     required: true
   },
   patientId: {
-    type: Number,
+    type: String,
     required: true
   }
 })

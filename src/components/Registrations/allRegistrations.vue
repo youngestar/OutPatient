@@ -10,7 +10,7 @@ import type { Registration } from '@/api/doctor/registrations';
 const loading = ref(true);
 const router = useRouter();
 const registrations: Reactive<Registration[]> = reactive([])
-const goToDetail = (name: string, doctorId: number, appointmentId: number) => {
+const goToDetail = (name: string, doctorId: string, appointmentId: string) => {
   router.push({
     name: "detailRegistrations",
     params: {
@@ -25,8 +25,14 @@ const goToDetail = (name: string, doctorId: number, appointmentId: number) => {
 onMounted(async () => {
   const userInfo = await getUesrInfo();
   const doctorId = userInfo?.doctorId;
+  if (!doctorId) {
+    loading.value = false;
+    return;
+  }
   const getRegistrations = await doctorGetRegistrations(doctorId);
-  registrations.splice(0, registrations.length, ...getRegistrations);
+  if (getRegistrations) {
+    registrations.splice(0, registrations.length, ...getRegistrations);
+  }
   loading.value = false;
 })
 </script>

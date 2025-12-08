@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref, watch, computed } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { useHospitalStore } from '@/stores/hospitalData'
@@ -70,15 +70,15 @@ const props = defineProps({
     required: true
   },
   doctorId: {
-    type: Number,
+    type: String,
     required: true
   },
   clinicId: {
-    type: Number,
+    type: String,
     required: true
   },
   scheduleId: {
-    type: Number,
+    type: String,
     required: false
   }
 })
@@ -139,6 +139,11 @@ const rules = reactive<FormRules<ScheduleForm>>({
 })
 
 const formRef = ref<FormInstance>()
+const toQueryString = (value: unknown) => (typeof value === 'string' ? value : '')
+const doctorName = computed(() => toQueryString(route.query.name))
+const doctorTitle = computed(() => toQueryString(route.query.title))
+const doctorIntroduction = computed(() => toQueryString(route.query.introduction))
+const doctorAvatar = computed(() => toQueryString(route.query.avatar))
 
 const resetForm = () => {
   formRef.value?.resetFields()
@@ -171,10 +176,10 @@ const handleSubmit = async () => {
           submitData.maxPatients,
           submitData.currentPatients,
           submitData.status,
-          route.query.name,
-          route.query.title,
-          route.query.introduction,
-          route.query.avatar,
+          doctorName.value,
+          doctorTitle.value,
+          doctorIntroduction.value,
+          doctorAvatar.value,
         )
         if (res) {
           ElMessage.success('排班设置保存成功')

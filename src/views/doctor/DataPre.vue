@@ -18,13 +18,20 @@ import { getChartsDataAge, getChartsDataFrequency, getChartsDataGender } from '@
 import { getUesrInfo } from '@/api/patient/myInfo';
 
 const loading = ref(true);
-const chartsAge = ref(null);
-const chartsGender = ref(null);
-const chartsFrequency = ref(null);
+type AgeChartExpose = { updateOption: (data: { value: number; name: string }[]) => void }
+type BarChartExpose = { updateOption: (names: string[], values: number[]) => void }
+const chartsAge = ref<AgeChartExpose | null>(null);
+const chartsGender = ref<BarChartExpose | null>(null);
+const chartsFrequency = ref<BarChartExpose | null>(null);
 
 
 onMounted(async () => {
-  const doctorId = (await getUesrInfo()).doctorId;
+  const userInfo = await getUesrInfo();
+  const doctorId = userInfo?.doctorId;
+  if (!doctorId) {
+    loading.value = false;
+    return;
+  }
 
   // 创建所有需要并行执行的 Promise
   const [ageData, frequencyData, genderData] = await Promise.all([
@@ -34,9 +41,15 @@ onMounted(async () => {
   ]);
 
   // 分别更新图表
-  chartsAge.value?.updateOption(ageData);
-  chartsFrequency.value?.updateOption(frequencyData?.keys, frequencyData?.values);
-  chartsGender.value?.updateOption(genderData?.keys, genderData?.values);
+  if (ageData) {
+    chartsAge.value?.updateOption(ageData);
+  }
+  if (frequencyData) {
+    chartsFrequency.value?.updateOption(frequencyData.keys, frequencyData.values);
+  }
+  if (genderData) {
+    chartsGender.value?.updateOption(genderData.keys, genderData.values);
+  }
   loading.value = false;
 })
 </script>

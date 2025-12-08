@@ -1,25 +1,23 @@
 import { DoAxiosWithErro } from "..";
 
+type ChartDistribution = Record<string, number>;
+
+const toPieSeries = (distribution: ChartDistribution) => {
+  const entries = Object.entries(distribution);
+  return entries.map(([name, value]) => ({ name, value }));
+};
+
 // 患者年龄分布
 export const getChartsDataAge = async (doctorId: string) => {
   try {
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<ChartDistribution>(
       "/data-analysis/patient-age-distribution",
       "get",
       { doctorId },
       true,
       false
     );
-    const keys = Object.keys(res);
-    const values = Object.values(res);
-    const options = [];
-    for (let i = 0; i < keys.length; i++) {
-      options.push({
-        value: values[i],
-        name: keys[i],
-      });
-    }
-    return options;
+    return toPieSeries(res);
   } catch (err) {
     console.error(err);
   }
@@ -44,7 +42,7 @@ export const getChartsDataDoctor = async (doctorId: string) => {
 // 患者就诊频率统计
 export const getChartsDataFrequency = async (doctorId: string) => {
   try {
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<ChartDistribution>(
       "/data-analysis/patient/visit/frequency",
       "get",
       { doctorId },
@@ -65,7 +63,7 @@ export const getChartsDataFrequency = async (doctorId: string) => {
 // 患者性别分布
 export const getChartsDataGender = async (doctorId: string) => {
   try {
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<ChartDistribution>(
       "/data-analysis/patient-gender-ratio",
       "get",
       { doctorId },

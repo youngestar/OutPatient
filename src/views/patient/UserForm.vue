@@ -80,7 +80,7 @@ const handleSubmit = async () => {
       formData.phone,
       formData.idCard
     ).then((res) => {
-      if (res.name) {
+      if (res && res.name) {
         ElMessage.success('信息提交成功')
         emit('submit', formData)
       } else {

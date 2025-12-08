@@ -43,7 +43,7 @@ type ChatHistoryEntry = {
 
 const props = defineProps({
   appoimentId: {
-    type: Number,
+    type: String,
     required: true,
   },
   couldSend: {
@@ -102,10 +102,18 @@ const handleStreamMessage = (value: string) => {
   scrollToBottom();
 };
 
+const getPatientId = () => Number(userStore.userInfo?.patientId ?? 0);
+
 const sendMessage = async () => {
   const trimmed = newMessage.value.trim();
   if (!trimmed) {
     ElMessage.warning('消息不能为空');
+    return;
+  }
+
+  const patientId = getPatientId();
+  if (!patientId) {
+    ElMessage.error('缺少患者信息');
     return;
   }
 
@@ -121,7 +129,7 @@ const sendMessage = async () => {
       '/appointment/ai-consult/send',
       'post',
       {
-        patientId: userStore.userInfo!.patientId as number,
+        patientId,
         question: trimmed,
         appointmentId: props.appoimentId,
         sessionId: chatHistoryStore.getId(props.appoimentId),
@@ -140,7 +148,7 @@ const sendMessage = async () => {
 };
 
 const getHistory = (sessionId: string) => {
-  DoAxiosWithErro(
+  DoAxiosWithErro<{ messageHistory?: ChatHistoryEntry[] }>(
     '/appointment/ai-consult/history',
     'get',
     { sessionId },
@@ -152,7 +160,7 @@ const getHistory = (sessionId: string) => {
 };
 
 const loadMessageHistory = () => {
-  DoAxiosWithErro(
+  DoAxiosWithErro<ChatHistoryEntry[]>(
     '/appointment/message/history',
     'get',
     { appointmentId: props.appoimentId },
@@ -163,8 +171,8 @@ const loadMessageHistory = () => {
   });
 };
 
-const checkHasRecord = async (appointmentId: number) => {
-  const res = await DoAxiosWithErro(
+const checkHasRecord = async (appointmentId: string) => {
+  const res = await DoAxiosWithErro<boolean>(
     `/appointment/ai-consult/exists?appointmentId=${appointmentId}`,
     'get',
     {},
@@ -178,6 +186,12 @@ const initFetchES = () => {
   fetchSource.value?.abort();
   const controller = new AbortController();
   fetchSource.value = controller;
+  const patientId = getPatientId();
+  if (!patientId) {
+    ElMessage.error('缺少患者信息');
+    controller.abort();
+    return;
+  }
 
   fetchEventSource(`${API_BASE}/appointment/ai-consult/connect`, {
     method: 'POST',
@@ -186,7 +200,7 @@ const initFetchES = () => {
       satoken: userStore.userToken,
     },
     body: JSON.stringify({
-      patientId: userStore.userInfo!.patientId as number,
+      patientId,
       appointmentId: props.appoimentId,
       question: newMessage.value,
       sessionId: chatHistoryStore.getId(props.appoimentId),

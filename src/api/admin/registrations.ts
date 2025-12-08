@@ -1,8 +1,15 @@
 import { DoAxiosWithErro } from "..";
+import type { getDepartment, getClinic, doctor, schedule } from "@/api/patient/registrations";
 //科室相关操作
 export const createDepartRegistration = async (deptName: string) => {
   try {
-    const res = await DoAxiosWithErro("/admin/department/add", "post", { deptName }, true, true);
+    const res = await DoAxiosWithErro<getDepartment>(
+      "/admin/department/add",
+      "post",
+      { deptName },
+      true,
+      true
+    );
 
     return res;
   } catch (err) {
@@ -12,7 +19,7 @@ export const createDepartRegistration = async (deptName: string) => {
 
 export const updeteDepartRegistration = async (deptId: string, updetedDepartName: string) => {
   try {
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<getDepartment>(
       "/admin/department/update",
       "post",
       { deptId, deptName: updetedDepartName },
@@ -28,7 +35,13 @@ export const updeteDepartRegistration = async (deptId: string, updetedDepartName
 
 export const deleteDepartRegistration = async (deptId: string) => {
   try {
-    const res = await DoAxiosWithErro("/admin/department/delete", "post", { deptId }, true, true);
+    const res = await DoAxiosWithErro<boolean>(
+      "/admin/department/delete",
+      "post",
+      { deptId },
+      true,
+      true
+    );
 
     return res;
   } catch (err) {
@@ -39,7 +52,7 @@ export const deleteDepartRegistration = async (deptId: string) => {
 // 门诊相关操作
 export const createClinicRegistration = async (deptId: string, clinicName: string) => {
   try {
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<getClinic>(
       "/admin/clinic/add",
       "post",
       { deptId, clinicName },
@@ -54,7 +67,7 @@ export const createClinicRegistration = async (deptId: string, clinicName: strin
 
 export const updeteClinicRegistration = async (clinicId: string, updetedClinicName: string) => {
   try {
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<getClinic>(
       "/admin/clinic/update",
       "post",
       { clinicId, clinicName: updetedClinicName },
@@ -69,7 +82,13 @@ export const updeteClinicRegistration = async (clinicId: string, updetedClinicNa
 
 export const deleteClinicRegistration = async (clinicId: string) => {
   try {
-    const res = await DoAxiosWithErro("/admin/clinic/delete", "post", { clinicId }, true, true);
+    const res = await DoAxiosWithErro<boolean>(
+      "/admin/clinic/delete",
+      "post",
+      { clinicId },
+      true,
+      true
+    );
 
     return res;
   } catch (err) {
@@ -113,7 +132,7 @@ export const createDoctorRegistration = async (
     );
     formData.append("avatarFile", avatarFile);
 
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<doctor>(
       "/admin/doctor/Doctor-add",
       "post",
       formData, // 直接传递 FormData 对象
@@ -165,7 +184,7 @@ export const updateDoctorRegistration = async (
     );
     formData.append("avatarFile", avatarFile);
 
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<doctor>(
       "/admin/doctor/Doctor-update",
       "post",
       formData, // 直接传递 FormData 对象
@@ -182,7 +201,7 @@ export const updateDoctorRegistration = async (
 
 export const deleteDoctorRegistration = async (doctorId: string) => {
   try {
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<boolean>(
       "/admin/doctor/Doctor-delete",
       "post",
       { doctorId },
@@ -211,7 +230,7 @@ export const createScheduleRegistration = async (
   doctorAvatar: string
 ) => {
   try {
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<string>(
       "/admin/schedule/add",
       "post",
       { doctorId, clinicId, scheduleDate, timeSlot, maxPatients, currentPatients, status },
@@ -219,18 +238,17 @@ export const createScheduleRegistration = async (
       true
     );
     const scheduleId = res as string;
-    const newSchedule = {
+    const newSchedule: schedule = {
       scheduleId,
       doctorId,
-      clinicId,
-      scheduleDate,
-      timeSlot,
-      remainingQuota: maxPatients - currentPatients,
-      canBook: maxPatients - currentPatients > 0,
       doctorName,
       doctorTitle,
       doctorIntroduction,
       doctorAvatar,
+      scheduleDate,
+      timeSlot,
+      remainingQuota: maxPatients - currentPatients,
+      canBook: maxPatients - currentPatients > 0,
     };
     return newSchedule;
   } catch (err) {
@@ -253,7 +271,7 @@ export const updateScheduleRegistration = async (
   doctorAvatar: string
 ) => {
   try {
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<boolean>(
       "/admin/schedule/update",
       "post",
       {
@@ -272,19 +290,17 @@ export const updateScheduleRegistration = async (
     if (!res) {
       return null;
     }
-    const newSchedule = {
-      scheduleId: scheduleId,
-      doctorId: doctorId,
-      clinicId: clinicId,
-      scheduleDate: scheduleDate,
-      timeSlot: timeSlot,
+    const newSchedule: schedule = {
+      scheduleId,
+      doctorId,
+      doctorName,
+      doctorTitle,
+      doctorIntroduction,
+      doctorAvatar,
+      scheduleDate,
+      timeSlot,
       remainingQuota: maxPatients - currentPatients,
-      canBook: maxPatients - currentPatients > 0 ? true : false,
-      // 请求提供部分
-      doctorName: doctorName,
-      doctorTitle: doctorTitle,
-      doctorIntroduction: doctorIntroduction,
-      doctorAvatar: doctorAvatar,
+      canBook: maxPatients - currentPatients > 0,
     };
     return newSchedule;
   } catch (err) {
@@ -294,7 +310,13 @@ export const updateScheduleRegistration = async (
 
 export const deleteScheduleRegistration = async (scheduleId: string) => {
   try {
-    const res = await DoAxiosWithErro("/admin/schedule/delete", "post", { scheduleId }, true, true);
+    const res = await DoAxiosWithErro<boolean>(
+      "/admin/schedule/delete",
+      "post",
+      { scheduleId },
+      true,
+      true
+    );
     return res;
   } catch (err) {
     console.error(err);

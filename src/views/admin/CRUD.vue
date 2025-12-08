@@ -1,7 +1,7 @@
 <template>
   <el-scrollbar>
     <div class="medical-ap">
-      <ApTop @changeLoading="changeLoading" cardType="admin"></ApTop>
+      <ApTop @changeLoading="changeLoading" card-type="admin"></ApTop>
       <div style="flex: 1;">
         <RouterView v-loading="loading"></RouterView>
       </div>

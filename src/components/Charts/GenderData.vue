@@ -43,11 +43,7 @@ const option: EChartsOption = {
         color: 'rgba(180, 180, 180, 0.2)'
       },
       itemStyle: {
-        normal: {
-          color: function (params) {
-            return barColors[params.dataIndex];
-          }
-        }
+        color: (params: { dataIndex: number }) => barColors[params.dataIndex % barColors.length]
       }
     }
   ]
@@ -62,12 +58,21 @@ onMounted(() => {
 
 // 修改 frequencyOption 函数的参数类型为数组
 const updateOption = (names: string[], values: number[]) => {
-  if (myChart) {
-    option.yAxis.data = names;
-    option.series[0].data = values;
-    // 直接使用已初始化的 ECharts 实例更新配置
-    myChart.setOption(option);
+  if (!myChart) {
+    return;
   }
+  myChart.setOption({
+    yAxis: {
+      type: 'category',
+      data: names,
+    },
+    series: [
+      {
+        type: 'bar',
+        data: values,
+      },
+    ],
+  });
 };
 
 defineExpose({

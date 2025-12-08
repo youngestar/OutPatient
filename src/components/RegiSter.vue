@@ -297,102 +297,189 @@ const sendMessage = async () => {
 </script>
 
 <template>
-  <div class="login">
-    <h3>注册</h3>
-    <el-form ref="ruleFormRef" style="max-width: 600px; padding: 0 2rem;" :model="ruleForm" status-icon :rules="rules"
-      label-width="auto" class="demo-ruleForm">
-      <el-form-item v-show="!isdetailed" label="姓名" prop="name">
-        <el-input v-model="ruleForm.name" autocomplete="off" />
-      </el-form-item>
-      <el-form-item v-show="!isdetailed" label="年龄" prop="age">
-        <el-input-number v-model="ruleForm.age" :min="0" :max="150" />
-      </el-form-item>
-      <el-form-item v-show="!isdetailed" label="身份证号" prop="idCard">
-        <el-input v-model="ruleForm.idCard" autocomplete="off" />
-      </el-form-item>
-      <el-form-item v-show="!isdetailed" label="地区" prop="region">
-        <el-input v-model="ruleForm.region" autocomplete="off" />
-      </el-form-item>
-      <el-form-item v-show="!isdetailed" label="详细地址" prop="address">
-        <el-input v-model="ruleForm.address" autocomplete="off" />
-      </el-form-item>
-      <el-form-item v-show="!isdetailed" label="邮箱" prop="email">
-        <el-input v-model="ruleForm.email" autocomplete="off" />
-      </el-form-item>
-      <el-form-item v-show="!isdetailed" class="checkcode" label="验证码" prop="checkcode">
-        <el-input class="code" v-model="ruleForm.checkcode" autocomplete="off" />
-        <el-button class="but" @click="sendMessage" :disabled="sendButton.disable">
-          <span v-show="sendButton.disable && sendButton.refresh">{{ sendButton.refresh }}秒后</span>
-          {{ sendButton.value }}
-        </el-button>
-      </el-form-item>
-      <el-form-item v-show="isdetailed" label="昵称" prop="username">
-        <el-input v-model="ruleForm.username" autocomplete="off" />
-      </el-form-item>
-      <el-form-item v-show="isdetailed" label="性别" prop="gender">
-        <el-radio-group v-model="ruleForm.gender">
-          <el-radio label=1>男</el-radio>
-          <el-radio label=2>女</el-radio>
-          <el-radio label=0>未知</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item v-show="isdetailed" label="密码" prop="pass">
-        <el-input v-model="ruleForm.pass" type="password" show-password autocomplete="off" />
-      </el-form-item>
-      <el-form-item v-show="isdetailed" label="密码确认" prop="checkPass">
-        <el-input v-model="ruleForm.checkPass" type="password" show-password autocomplete="off" />
-      </el-form-item>
-      <el-form-item v-show="isdetailed" label="手机号" prop="phone">
-        <el-input v-model="ruleForm.phone" autocomplete="off" />
-      </el-form-item>
-      <el-form-item class="sub">
-        <el-button v-if="!isdetailed" type="primary" @click="submitForm" :disabled="isfetching">
-          注册
-        </el-button>
-        <el-button v-if="isdetailed" type="primary" @click="isdetailed = !isdetailed">完成</el-button>
-        <el-button @click="resetForm(ruleFormRef)">重置</el-button>
-      </el-form-item>
+  <section class="auth-panel register-panel">
+    <header class="panel-head">
+      <h3>注册</h3>
+      <div class="step-indicator">
+        <span :class="{ active: isdetailed }">账号信息</span>
+        <span :class="{ active: !isdetailed }">个人资料</span>
+      </div>
+    </header>
+    <el-form ref="ruleFormRef" :model="ruleForm" status-icon :rules="rules" label-width="0" class="auth-form">
+      <transition name="fade" mode="out-in">
+        <div v-if="isdetailed" key="account" class="grid-wrapper">
+          <el-form-item label="" prop="username">
+            <el-input v-model="ruleForm.username" placeholder="昵称 / 登录账号" autocomplete="off" />
+          </el-form-item>
+          <el-form-item label="" prop="gender">
+            <el-radio-group v-model="ruleForm.gender">
+              <el-radio-button :label="1">男</el-radio-button>
+              <el-radio-button :label="2">女</el-radio-button>
+              <el-radio-button :label="0">未知</el-radio-button>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="" prop="pass">
+            <el-input v-model="ruleForm.pass" type="password" placeholder="设置登录密码" show-password />
+          </el-form-item>
+          <el-form-item label="" prop="checkPass">
+            <el-input v-model="ruleForm.checkPass" type="password" placeholder="再次输入密码" show-password />
+          </el-form-item>
+          <el-form-item label="" prop="phone">
+            <el-input v-model="ruleForm.phone" placeholder="常用手机号" />
+          </el-form-item>
+          <el-form-item class="full-width">
+            <el-button class="cta" type="primary" @click="isdetailed = !isdetailed">下一步</el-button>
+          </el-form-item>
+        </div>
+        <div v-else key="profile" class="grid-wrapper">
+          <el-form-item label="" prop="name">
+            <el-input v-model="ruleForm.name" placeholder="真实姓名" />
+          </el-form-item>
+          <el-form-item label="" prop="age">
+            <el-input-number v-model="ruleForm.age" :min="0" :max="150" placeholder="年龄" />
+          </el-form-item>
+          <el-form-item label="" prop="idCard">
+            <el-input v-model="ruleForm.idCard" placeholder="身份证号" />
+          </el-form-item>
+          <el-form-item label="" prop="region">
+            <el-input v-model="ruleForm.region" placeholder="所在地区" />
+          </el-form-item>
+          <el-form-item label="" prop="address">
+            <el-input v-model="ruleForm.address" placeholder="详细地址" />
+          </el-form-item>
+          <el-form-item label="" prop="email">
+            <el-input v-model="ruleForm.email" placeholder="绑定邮箱" />
+          </el-form-item>
+          <el-form-item class="full-width checkcode" label="" prop="checkcode">
+            <el-input class="code" v-model="ruleForm.checkcode" placeholder="邮箱验证码" />
+            <el-button class="but" @click="sendMessage" :disabled="sendButton.disable">
+              <span v-show="sendButton.disable && sendButton.refresh">{{ sendButton.refresh }}秒后</span>
+              {{ sendButton.value }}
+            </el-button>
+          </el-form-item>
+          <el-form-item class="full-width">
+            <el-button type="primary" class="cta" @click="submitForm" :disabled="isfetching">
+              {{ isfetching ? '提交中...' : '完成注册' }}
+            </el-button>
+          </el-form-item>
+          <el-form-item class="full-width secondary">
+            <el-button text @click="isdetailed = true">返回上一步</el-button>
+            <el-button text type="danger" @click="resetForm(ruleFormRef)">重置</el-button>
+          </el-form-item>
+        </div>
+      </transition>
     </el-form>
-    <div class="turn">已有账号，请前往<el-link @click="handleturn" class="link" type="primary">登录</el-link></div>
-  </div>
+    <footer class="panel-foot">
+      <span>已有账号？</span>
+      <el-link @click="handleturn" type="primary">直接登录</el-link>
+    </footer>
+  </section>
 </template>
 
 <style lang="scss" scoped>
-.login {
-  font-weight: bolder;
-  text-shadow: 1px 1px 1px rgb(232, 230, 228);
+.auth-panel {
+  padding: 1.5rem 2rem;
+  border-radius: 24px;
+  background: var(--card-bg, #fff);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
 
+.panel-head {
   h3 {
-    font-size: 2rem;
-    font-weight: bold;
-    margin: 0.5rem 0 1rem 0;
-    text-align: center;
+    margin: 0;
+    font-size: 1.75rem;
+    color: var(--text-strong, #1f2933);
   }
 
-  .sub {
-    padding: 0.5rem 32%;
+  p {
+    margin: 0.35rem 0 0;
+    color: var(--text-muted, #5f6b7c);
   }
+}
 
-  .turn {
-    position: absolute;
-    right: 1rem;
-    bottom: 1rem;
-  }
+.step-indicator {
+  display: inline-flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.05);
 
-  .link {
-    margin: 0 0 5px 2px;
-    font-size: 1rem;
-  }
+  span {
+    padding: 0.35rem 1rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    color: var(--text-muted, #5f6b7c);
 
-  .checkcode {
-    .but {
-      position: absolute;
-      right: 5rem;
+    &.active {
+      background: var(--primary-soft, rgba(59, 130, 246, 0.15));
+      color: var(--primary, #2563eb);
     }
-
-    .code {
-      width: 200px;
-    }
   }
+}
+
+.auth-form {
+  :deep(.el-form-item) {
+    margin-bottom: 1rem;
+  }
+
+  .grid-wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.25rem;
+  }
+
+  .full-width {
+    grid-column: span 2;
+  }
+
+  :deep(.el-input__wrapper) {
+    border-radius: 6px;
+  }
+
+  :deep(.el-input-number) {
+    width: 100%;
+  }
+}
+
+.checkcode {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+
+  .code {
+    flex: 1;
+    margin-right: 20px;
+  }
+}
+
+.cta {
+  width: 100%;
+}
+
+.secondary {
+  display: flex;
+  justify-content: space-between;
+}
+
+.panel-foot {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  color: var(--text-muted, #5f6b7c);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
 }
 </style>
