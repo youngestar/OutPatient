@@ -71,7 +71,7 @@ const handleSubmit = async () => {
       ElMessage.error('病历提交失败，请稍后重试')
     })
     resetForm()
-  } catch (error) {
+  } catch {
     ElMessage.error('请正确填写所有必填项')
   }
 }

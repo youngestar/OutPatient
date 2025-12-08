@@ -38,7 +38,7 @@ function getCurrentAndSevenDaysLaterDate(): {
 }
 
 onMounted(async () => {
-  hospitalStore.getSchedules(Number(route.query.doctorId), route.query.title, getCurrentAndSevenDaysLaterDate().currentDate, getCurrentAndSevenDaysLaterDate().sevenDaysLater).then(() => {
+  hospitalStore.getSchedules(route.query.doctorId as string, route.query.title as string, getCurrentAndSevenDaysLaterDate().currentDate, getCurrentAndSevenDaysLaterDate().sevenDaysLater).then(() => {
     loading.value = false;
     ElMessage.success('获取排班成功');
   }).catch(() => {

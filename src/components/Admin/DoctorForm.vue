@@ -92,7 +92,7 @@ const handleSubmit = async () => {
   if (valid) {
     // 这里处理提交逻辑
     if (props.optionType === "create") {
-      const res = await hospitalStore.createDoctor(formData.username, formData.password, formData.email, formData.phone, Number(route.query.clinicId), formData.name, formData.title, formData.introduction, formData.avatar, URL.createObjectURL(formData.avatar))
+      const res = await hospitalStore.createDoctor(formData.username, formData.password, formData.email, formData.phone, route.query.clinicId as string, formData.name, formData.title, formData.introduction, formData.avatar, URL.createObjectURL(formData.avatar))
       if (res) {
         ElMessage({
           message: '添加医生成功',
@@ -109,7 +109,7 @@ const handleSubmit = async () => {
         })
         return
       }
-      const res = await hospitalStore.updateDoctor(props.doctorId, props.userId, formData.username, formData.password, formData.email, formData.phone, Number(route.query.clinicId), formData.name, formData.title, formData.introduction, formData.avatar, URL.createObjectURL(formData.avatar))
+      const res = await hospitalStore.updateDoctor(props.doctorId, props.userId, formData.username, formData.password, formData.email, formData.phone, route.query.clinicId as string, formData.name, formData.title, formData.introduction, formData.avatar, URL.createObjectURL(formData.avatar))
       if (res) {
         ElMessage({
           message: '更新医生信息成功',

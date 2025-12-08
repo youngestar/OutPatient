@@ -35,12 +35,12 @@ import { useUserStore } from '@/stores/user'
 import { useComunicationStore } from '@/stores/comunication'
 
 type DiagnosticType = {
-  diagId: number;
-  appointmentId: number;
-  doctorId: number;
+  diagId: string;
+  appointmentId: string;
+  doctorId: string;
   doctorName: string;
   doctorTitle: string; // 这个字段看起来可能是误写，正常医生职称不会写成“太太”
-  patientId: number;
+  patientId: string;
   patientName: string;
   diagnosisResult: string;
   examination: string; // 体温12度显然不符合人体正常体温，可能是数据录入错误

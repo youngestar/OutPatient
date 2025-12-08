@@ -1,46 +1,68 @@
 <template>
-  <div id="card" class="light-shadow cardHover">
-    <h2>号源信息</h2>
-    <el-avatar id="avatar" :size="120" :src="props.doctorAvatar ? props.doctorAvatar : '/src/assets/doctor.png'">
-    </el-avatar>
-    <div id="main-msg">
-      <div class="left">
-        <p><span class="label">医生编号:</span><span class="detail">{{ props.doctorId }}</span></p>
-        <p><span class="label">医生名:</span><span class="detail">{{ props.doctorName
-            }}</span></p>
-        <p><span class="label">挂号序号:</span><span class="detail">{{ props.scheduleId }}</span></p>
-        <p><span class="label">是否可预约:</span><span class="detail"><el-tag class="detail" size="large" type="warning">{{
-          props.canBook
-            === true ? '是' : '否'
-              }} </el-tag></span></p>
+  <article class="schedule-card surface-card">
+    <header class="schedule-card__header">
+      <div class="schedule-card__title">
+        <p class="eyebrow">号源信息 · 编号 {{ props.scheduleId }}</p>
+        <h3>{{ props.doctorName }}</h3>
+        <p class="subtitle">{{ props.doctorTitle }}</p>
       </div>
-      <div class="right">
-        <p><span class="label">医生职称:</span><span class="detail">{{ props.doctorTitle }}</span></p>
-        <p><span class="label">剩余号源:</span><span class="detail">{{ props.remainingQuota }}</span></p>
-        <!-- <p><span class="label">诊室名:</span><span class="detail">{{ props.doctorIntroduction }}</span></p> -->
-        <p><span class="label">挂号日期:</span><span class="detail">{{ props.scheduleDate }}</span></p>
-        <p><span class="label">时间段:</span><span class="detail">{{ props.timeSlot }}</span></p>
-        <div id="btn" v-if="props.cardType === 'doctor'">
-          <el-button type="info" size="large" @click="createSchedule" :disabled="!props.canBook">
-            立即预约
-          </el-button>
+      <div class="schedule-card__quota">
+        <span class="status-pill" :class="props.canBook ? 'is-success' : 'is-warning'">
+          {{ props.canBook ? '可预约' : '不可预约' }}
+        </span>
+        <strong>{{ props.remainingQuota }}</strong>
+        <small>剩余号源</small>
+      </div>
+    </header>
+
+    <div class="schedule-card__body">
+      <el-avatar class="schedule-card__avatar" :size="96"
+        :src="props.doctorAvatar ? props.doctorAvatar : '/src/assets/doctor.png'" />
+      <div class="schedule-card__info-grid">
+        <div class="info-row">
+          <span class="label">医生编号</span>
+          <span class="value">{{ props.doctorId }}</span>
         </div>
-        <div id="btn" v-else-if="props.cardType === 'admin'">
-          <el-button type="primary" size="large" @click="updateSchedule">
-            更新排班
-          </el-button>
-          <el-dialog v-model="scheduleDialogTableVisible" title="请填写排班信息" width="800">
-            <ScheduleForm @submit="adminUpdateSchedule" :optionType="optionType" :clinicId="route.query.clinicId"
-              :doctorId="route.query.doctorId" :scheduleId="props.scheduleId">
-            </ScheduleForm>
-          </el-dialog>
-          <el-button type="danger" size="large" @click="deleteSchedule">
-            取消排班
-          </el-button>
+        <div class="info-row">
+          <span class="label">挂号日期</span>
+          <span class="value">{{ props.scheduleDate }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">时间段</span>
+          <span class="value">{{ props.timeSlot }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">职称</span>
+          <span class="value">{{ props.doctorTitle }}</span>
+        </div>
+        <div class="info-row" v-if="props.doctorIntroduction">
+          <span class="label">简介</span>
+          <span class="value muted">{{ props.doctorIntroduction }}</span>
         </div>
       </div>
     </div>
-  </div>
+
+    <footer class="schedule-card__actions" v-if="props.cardType === 'doctor'">
+      <el-button type="primary" size="large" @click="createSchedule" :disabled="!props.canBook">
+        立即预约
+      </el-button>
+    </footer>
+    <footer class="schedule-card__actions" v-else-if="props.cardType === 'admin'">
+      <div class="admin-actions">
+        <el-button type="primary" size="large" @click="updateSchedule">
+          更新排班
+        </el-button>
+        <el-button type="danger" size="large" @click="deleteSchedule">
+          取消排班
+        </el-button>
+      </div>
+      <el-dialog v-model="scheduleDialogTableVisible" title="请填写排班信息" width="800">
+        <ScheduleForm @submit="adminUpdateSchedule" :optionType="optionType" :clinicId="route.query.clinicId"
+          :doctorId="route.query.doctorId" :scheduleId="props.scheduleId">
+        </ScheduleForm>
+      </el-dialog>
+    </footer>
+  </article>
 </template>
 
 <script lang="ts" setup>
@@ -125,13 +147,13 @@ const optionType = ref('update');
 
 const createSchedule = async () => {
   try {
-    const res = await createRegistrations(user.value.patientId, props.scheduleId)
+    const res = await createRegistrations(user.value.patientId, props.scheduleId);
     if (res) {
-      ElMessage.success('预约成功')
+      ElMessage.success('预约成功');
     }
-  }
-  catch (error) {
-    throw error
+  } catch (error) {
+    ElMessage.error('预约失败，请稍后重试');
+    console.error(error);
   }
 }
 
@@ -180,56 +202,115 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-#card {
-  float: left;
-  min-height: 200px;
-  width: 95%;
-  margin: 10px 5%;
-  min-width: 400px;
-  padding: 20px;
-  background: vars.$card-bg-depart;
-  border-radius: 10px;
-  color: #303133;
+.schedule-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
 
-  h2 {
-    border-bottom: 1px solid black;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
+.schedule-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.schedule-card__title h3 {
+  margin: 4px 0;
+  font-size: 24px;
+  color: var(--color-text);
+}
+
+.schedule-card__title .subtitle {
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.schedule-card__quota {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: flex-end;
+}
+
+.schedule-card__quota strong {
+  font-size: 28px;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.schedule-card__quota small {
+  color: var(--color-text-muted);
+}
+
+.schedule-card__body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.schedule-card__avatar {
+  border: 4px solid var(--color-primary-soft);
+}
+
+.schedule-card__info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
+}
+
+.info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.value.muted {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.schedule-card__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.admin-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+@media (max-width: 640px) {
+  .schedule-card__body {
+    grid-template-columns: 1fr;
   }
 
-  #avatar {
-    float: left;
-    margin: 40px;
-  }
-
-  #main-msg {
-    display: flex;
-    justify-content: space-between;
-    width: 75%;
-  }
-
-  p {
-    display: flex;
-    margin: 10px 0;
-    font-size: 20px;
-
-    .label {
-      width: 150px;
-      font-weight: bolder;
-      text-align: left;
-    }
-
-    .detail {
-      font-weight: bold;
-      margin-left: 20px;
-      color: #606266;
-    }
-  }
-
-  #btn {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
+  .schedule-card__quota {
+    align-items: flex-start;
+    text-align: left;
   }
 }
 </style>

@@ -1,11 +1,11 @@
 <template>
-  <div class="card-view">
-    <component v-for="(card) in paginatedData" :key="card" :is="props.myCard"
+  <section class="card-view">
+    <component v-for="card in paginatedData" :key="card" :is="props.myCard"
       v-bind="typeof card === 'object' ? card : {}" @click="handleclick(card)" />
-    <el-pagination class="add-card" layout="prev, pager, next" background size="large"
+    <el-pagination class="card-pagination" layout="prev, pager, next" background size="large"
       v-model:current-page="currentPage" :total="props.cardsprops.length" :page-size="pageSize"
       v-show="props.cardsprops.length >= pageSize" />
-  </div>
+  </section>
 </template>
 
 <script lang="ts" setup>
@@ -32,8 +32,10 @@ const props = defineProps({
   },
 });
 
+type CardPayload = Record<string, unknown> | string | number | boolean | null | undefined;
+
 const emit = defineEmits(['backpage', 'nextpage', 'handleclick']);
-const handleclick = (item: any) => {
+const handleclick = (item: CardPayload) => {
   emit('handleclick', item);
 }
 
@@ -42,22 +44,15 @@ const handleclick = (item: any) => {
 <style lang="scss" scoped>
 .card-view {
   width: 100%;
-  height: 100%;
   display: flex;
   flex-wrap: wrap;
-  row-gap: 20px;
-  column-gap: 4%;
+  gap: var(--space-4);
 }
 
-.add-card {
+.card-pagination {
   width: 100%;
-  position: relative;
-  right: 60px;
   display: flex;
   justify-content: center;
-  align-items: center;
-  margin: 50px auto;
-  margin-bottom: 10px;
-  gap: 5%;
+  margin-top: var(--space-4);
 }
 </style>

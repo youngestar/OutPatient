@@ -17,11 +17,9 @@ import CardView from '@/views/CardView.vue'
 import { useHospitalStore } from '@/stores/hospitalData'
 import { ElInput, ElIcon } from 'element-plus'
 import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router'
 const doctorName = ref('');
 const hospitalStore = useHospitalStore();
 const loading = ref(true);
-const route = useRoute();
 const doctors = hospitalStore.doctors;
 
 const searchDoctor = () => {

@@ -5,6 +5,7 @@ import { useUserStore } from "@/stores/user";
 
 // 支持的请求方法类型
 type Method = "get" | "post" | "put" | "delete";
+type RequestPayload = Record<string, unknown> | FormData;
 
 // 创建 Axios 实例
 const API_BASE = import.meta.env.VITE_API_BASE || "/api";
@@ -40,17 +41,18 @@ myApi.interceptors.response.use(
 );
 
 // 核心请求函数（简洁）
-export const DoAxios = async (
+export const DoAxios = async <TResponse = unknown>(
   path: string,
   method: Method,
-  requestInfo: any = {},
+  requestInfo: RequestPayload | null | undefined = {},
   withToken: boolean = false,
   hasBody: boolean = false
-): Promise<any> => {
+): Promise<TResponse> => {
   const requestConfig: AxiosRequestConfig = {
     url: path,
     method,
   };
+  const payload: RequestPayload = (requestInfo ?? {}) as RequestPayload;
 
   // 如果需要 Token，就添加 token 头
   if (withToken) {
@@ -66,39 +68,43 @@ export const DoAxios = async (
 
   // 判断是 query 参数还是 body 参数
   if ((method === "get" || method === "delete") && !hasBody) {
-    requestConfig.params = requestInfo;
+    requestConfig.params = payload as Record<string, unknown>;
   } else {
-    requestConfig.data = requestInfo;
+    requestConfig.data = payload;
   }
 
   // 请求并返回数据
   try {
     const resp = await myApi(requestConfig);
     if (resp.data.code === 200) {
-      return resp.data.data;
+      return resp.data.data as TResponse;
     }
     throw new Error(resp.data.message || "请求失败");
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
       const message = error.response?.data?.message || error.message || "请求失败";
       throw new Error(message);
     }
-    throw new Error(error?.message || "未知错误");
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("未知错误");
   }
 };
 
 // 包含统一 UI 错误提示的请求函数
-export const DoAxiosWithErro = async (
+export const DoAxiosWithErro = async <TResponse = unknown>(
   path: string,
   method: Method,
-  requestInfo: any = {},
+  requestInfo: RequestPayload | null | undefined = {},
   withToken: boolean = false,
   hasBody: boolean = false
-): Promise<any> => {
+): Promise<TResponse> => {
   try {
-    return await DoAxios(path, method, requestInfo, withToken, hasBody);
-  } catch (e: any) {
-    ElMessage.error(e.message || String(e));
+    return await DoAxios<TResponse>(path, method, requestInfo, withToken, hasBody);
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    ElMessage.error(message);
     throw e;
   }
 };

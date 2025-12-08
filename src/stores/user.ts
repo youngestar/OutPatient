@@ -3,8 +3,9 @@ import { DoAxiosWithErro, DoAxios } from "@/api";
 
 // 定义用户信息类型（根据实际接口返回结构调整）
 export interface UserInfo {
-  userId: number;
-  patientId: number;
+  userId: string;
+  patientId: string;
+  doctorId?: string;
   username: string;
   email: string;
   phone: string;
@@ -48,14 +49,14 @@ export const useUserStore = defineStore("user", {
         localStorage.setItem("userToken", this.userToken);
         localStorage.setItem("userInfo", JSON.stringify(info));
       } catch (err) {
-        throw err;
+        console.error(err);
       }
     },
 
     async logout() {
       try {
         await DoAxios("/auth/logout", "post", {}, true);
-      } catch (err) {
+      } catch {
         // 可忽略登出接口错误（如 token 失效）
       }
       this.clearSession();

@@ -117,7 +117,7 @@ const handleSubmit = async () => {
         ElMessage.error("意外操作")
         break;
     }
-  } catch (error) {
+  } catch {
     ElMessage.error({
       message: '请正确填写表单内容',
       duration: 2000

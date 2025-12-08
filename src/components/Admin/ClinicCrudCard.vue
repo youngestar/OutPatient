@@ -33,7 +33,7 @@ const handleclick = (clinic: clinic) => {
 }
 
 onMounted(async () => {
-  await hospitalStore.getClinics(Number(route.query.departmentId))
+  await hospitalStore.getClinics(route.query.departmentId as string);
   loading.value = false;
 
 })

@@ -2,11 +2,12 @@
 
 import { DoAxios, DoAxiosWithErro } from '@/api';
 import { reactive, ref, defineEmits } from 'vue'
-import { ElMessage } from 'element-plus';
-import axios from 'axios';
+import { ElMessage, type FormInstance } from 'element-plus';
 //   import { FormInstance, FormRules } from 'element-plus' // 不需要类型导入
 
-const ruleFormRef = ref('')
+type ValidatorCallback = (error?: Error) => void;
+
+const ruleFormRef = ref<FormInstance | null>(null)
 const isfetching = ref(false);
 const isdetailed = ref(true);
 
@@ -27,7 +28,8 @@ const ruleForm = reactive({
   name: '',
   address: '',
   gender: '',
-  region: ''
+  region: '',
+  age: 0,
 })
 const emit = defineEmits(["turnLoR"])
 
@@ -59,13 +61,13 @@ const handleSend = async () => {
   } catch (e) {
     sendButton.disable = false;
     ElMessage({
-      message: e,
+      message: e instanceof Error ? e.message : String(e),
       type: 'error'
     })
   }
 }
 
-const checkUserName = (rule, value, callback) => {
+const checkUserName = (_rule: unknown, value: string, callback: ValidatorCallback) => {
   if (!value) {
     return callback(new Error("请输入昵称"))
   }
@@ -82,7 +84,7 @@ const checkUserName = (rule, value, callback) => {
   })
 }
 
-const checkEmail = (rule, value, callback) => {
+const checkEmail = (_rule: unknown, value: string, callback: ValidatorCallback) => {
   const reg = /^[0-9A-Za-z._%]+@[a-zA-Z0-9._-]+\.[a-zA-Z]{2,}$/;
 
   // 如果没有输入值，提示“请输入绑定邮箱”
@@ -112,14 +114,14 @@ const checkEmail = (rule, value, callback) => {
 
 
 
-const checkCode = (rule, value, callback) => {
+const checkCode = (_rule: unknown, value: string, callback: ValidatorCallback) => {
   if (value === '') {
     return callback(new Error("请输入验证码"))
   }
   callback();
 }
 
-const checkPhone = (rule, value, callback) => {
+const checkPhone = (_rule: unknown, value: string, callback: ValidatorCallback) => {
   const reg = /^1[23456789]\d{9}$/;
   if (value === '') {
     return callback(new Error("请输入手机号"))
@@ -130,7 +132,7 @@ const checkPhone = (rule, value, callback) => {
   callback();
 }
 
-const checkIDcard = (rule, value, callback) => {
+const checkIDcard = (_rule: unknown, value: string, callback: ValidatorCallback) => {
   const reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
   if (value === '') {
     return callback(new Error("请输入身份证号"))
@@ -141,45 +143,45 @@ const checkIDcard = (rule, value, callback) => {
   callback();
 }
 
-const checkName = (rule, value, callback) => {
+const checkName = (_rule: unknown, value: string, callback: ValidatorCallback) => {
   if (value === '') {
     return callback(new Error("请输入姓名"))
   }
   callback();
 }
 
-const checkAddress = (rule, value, callback) => {
+const checkAddress = (_rule: unknown, value: string, callback: ValidatorCallback) => {
   if (value === '') {
     return callback(new Error("请输入地址"))
   }
   callback();
 }
 
-const checkGender = (rule, value, callback) => {
+const checkGender = (_rule: unknown, value: string | number, callback: ValidatorCallback) => {
   if (value === '') {
     return callback(new Error("请选择性别"))
   }
   callback();
 }
 
-const checkRegion = (rule, value, callback) => {
+const checkRegion = (_rule: unknown, value: string, callback: ValidatorCallback) => {
   if (value === '') {
     return callback(new Error("请选择地区"))
   }
   callback();
 }
 
-const checkAge = (rule, value, callback) => {
+const checkAge = (_rule: unknown, value: number | '', callback: ValidatorCallback) => {
   if (value === '') {
     return callback(new Error("请输入年龄"))
   }
-  if (value > 200 && value < 0) {
-    return callback(new Error("请输入正确的"))
+  if (value > 200 || value < 0) {
+    return callback(new Error("请输入正确的年龄"))
   }
   callback();
 }
 
-const validatePass = (rule, value, callback) => {
+const validatePass = (_rule: unknown, value: string, callback: ValidatorCallback) => {
   const reg = /^(?=.*[a-zA-Z])(?=.*[\d])[a-zA-Z\d]{6,10}$/;
   if (value === '') {
     return callback(new Error('请输入密码'));
@@ -194,7 +196,7 @@ const validatePass = (rule, value, callback) => {
 };
 
 
-const validatePass2 = (rule, value, callback) => {
+const validatePass2 = (_rule: unknown, value: string, callback: ValidatorCallback) => {
   if (value === '') {
     callback(new Error('请再次输入密码'))
   } else if (value !== ruleForm.pass) {
@@ -227,7 +229,7 @@ const submitForm = () => {
     console.log("undefind is err");
     return;
   }
-  formEl.validate(async (valid) => {
+  formEl.validate(async (valid: boolean) => {
     if (valid) {
       const formdata = {
         username: ruleForm.username,
@@ -256,7 +258,7 @@ const submitForm = () => {
   })
 }
 
-const resetForm = (formEl) => {
+const resetForm = (formEl: FormInstance | null) => {
   if (!formEl) return
   isdetailed.value = true;
   formEl.resetFields()
@@ -264,12 +266,16 @@ const resetForm = (formEl) => {
 
 const sendMessage = async () => {
   const formEl = ruleFormRef.value;
+  if (!formEl) {
+    ElMessage.warning('表单尚未初始化');
+    return;
+  }
   const validateList = ['email', 'name'];
 
   const validationPromises = validateList.map(item => {
     return new Promise((resolve, reject) => {
-      formEl.validateField(item, (validata) => {
-        if (validata) {
+      formEl.validateField(item, (isValid: boolean) => {
+        if (isValid) {
           resolve(true);
         } else {
           reject(false);

@@ -20,7 +20,7 @@
             : myInfo.gender === 2
               ? '女'
               : '错误'
-        }}</span></p>
+            }}</span></p>
         <p><span class="label">年龄:</span><span class="detail">{{ myInfo.age }}</span></p>
         <p><span class="label">地区:</span><span class="detail">{{ myInfo.region }}</span></p>
         <p><span class="label">详细住址:</span><span class="detail">{{ myInfo.address }}</span></p>
@@ -46,6 +46,10 @@ import { ref, onMounted, reactive } from 'vue';
 import { getUesrInfo, updateUserAvatar } from '@/api/patient/myInfo';
 import { ElAvatar, ElMessage } from 'element-plus';
 import UserForm from './UserForm.vue';
+
+defineOptions({
+  name: 'PatientMyInfoView',
+});
 
 const dialogTableVisible = ref(false);
 const loading = ref(true);

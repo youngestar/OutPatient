@@ -1,7 +1,7 @@
 import { DoAxiosWithErro } from "..";
 
 // 患者年龄分布
-export const getChartsDataAge = async (doctorId: number) => {
+export const getChartsDataAge = async (doctorId: string) => {
   try {
     const res = await DoAxiosWithErro(
       "/data-analysis/patient-age-distribution",
@@ -26,7 +26,7 @@ export const getChartsDataAge = async (doctorId: number) => {
 };
 
 // 医生工作量统计
-export const getChartsDataDoctor = async (doctorId: number) => {
+export const getChartsDataDoctor = async (doctorId: string) => {
   try {
     const res = await DoAxiosWithErro(
       "/data-analysis/doctor-workload",
@@ -42,7 +42,7 @@ export const getChartsDataDoctor = async (doctorId: number) => {
 };
 
 // 患者就诊频率统计
-export const getChartsDataFrequency = async (doctorId: number) => {
+export const getChartsDataFrequency = async (doctorId: string) => {
   try {
     const res = await DoAxiosWithErro(
       "/data-analysis/patient/visit/frequency",
@@ -63,7 +63,7 @@ export const getChartsDataFrequency = async (doctorId: number) => {
 };
 
 // 患者性别分布
-export const getChartsDataGender = async (doctorId: number) => {
+export const getChartsDataGender = async (doctorId: string) => {
   try {
     const res = await DoAxiosWithErro(
       "/data-analysis/patient-gender-ratio",

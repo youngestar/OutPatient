@@ -26,8 +26,6 @@
 import { ref, onMounted, nextTick, watch } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { useComunicationStore } from '@/stores/comunication';
-import SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
 import { ElMessage } from 'element-plus';
 import { DoAxiosWithErro } from '@/api';
 

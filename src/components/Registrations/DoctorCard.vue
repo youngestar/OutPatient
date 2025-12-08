@@ -17,7 +17,7 @@ const route = useRoute();
 const doctors = hospitalStore.doctors;
 
 onMounted(async () => {
-  await hospitalStore.getDoctors(Number(route.query.departmentId), Number(route.query.clinicId));
+  await hospitalStore.getDoctors(route.query.departmentId as string, route.query.clinicId as string);
   loading.value = false;
 })
 </script>

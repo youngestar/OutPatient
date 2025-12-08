@@ -2,13 +2,13 @@ import { DoAxiosWithErro } from "..";
 
 // 获取数据接口
 export interface getDepartment {
-  deptId: number;
+  deptId: string;
   deptName: string;
   isActive: number;
 }
 
 export interface getClinic {
-  clinicId: number;
+  clinicId: string;
   clinicName: string;
   isActive: number;
 }
@@ -17,18 +17,18 @@ export interface getClinic {
 export interface department {
   name: string;
   state: number;
-  id: number;
+  id: string;
 }
 
 export interface clinic {
   name: string;
   state: number;
-  id: number;
+  id: string;
 }
 
 export interface doctor {
-  doctorId: number;
-  userId: number;
+  doctorId: string;
+  userId: string;
   name: string;
   title: string;
 
@@ -40,8 +40,8 @@ export interface doctor {
 }
 
 export interface schedule {
-  scheduleId: number;
-  doctorId: number;
+  scheduleId: string;
+  doctorId: string;
   doctorName: string;
   doctorTitle: string;
   doctorIntroduction: string;
@@ -69,7 +69,7 @@ export const getDepartmentRegistrations = async () => {
   }
 };
 
-export const getClinicRegistrations = async (departmentId: number) => {
+export const getClinicRegistrations = async (departmentId: string) => {
   try {
     const res = await DoAxiosWithErro(
       "/appointment/clinics",
@@ -91,7 +91,7 @@ export const getClinicRegistrations = async (departmentId: number) => {
   }
 };
 
-export const getDoctorRegistrations = async (departmentId: number, clinicId: number) => {
+export const getDoctorRegistrations = async (departmentId: string, clinicId: string) => {
   try {
     const res = await DoAxiosWithErro(
       "/appointment/doctors",
@@ -106,7 +106,7 @@ export const getDoctorRegistrations = async (departmentId: number, clinicId: num
   }
 };
 export const getDoctorSchedule = async (
-  doctorId: number,
+  doctorId: string,
   title: string,
   startDate: string,
   endDate: string
@@ -126,7 +126,7 @@ export const getDoctorSchedule = async (
 };
 
 //挂号相关函数
-export const createRegistrations = async (patientId: number, scheduleId: number) => {
+export const createRegistrations = async (patientId: string, scheduleId: string) => {
   try {
     const res = await DoAxiosWithErro(
       "/appointment/create",
@@ -141,7 +141,7 @@ export const createRegistrations = async (patientId: number, scheduleId: number)
   }
 };
 
-export const cancelRegistrations = async (appointmentId: number, patientId: number) => {
+export const cancelRegistrations = async (appointmentId: string, patientId: string) => {
   try {
     const res = await DoAxiosWithErro(
       "/appointment/cancel",

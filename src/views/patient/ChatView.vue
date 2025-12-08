@@ -42,16 +42,16 @@ import { useUserStore } from '@/stores/user';
 import { onMounted, reactive, ref } from 'vue';
 
 type AppointmentType = {
-  appointmentId: number;
-  patientId: number;
+  appointmentId: string;
+  patientId: string;
   patientName: string;
-  doctorId: number;
+  doctorId: string;
   doctorName: string;
-  deptId: number | null; // 允许 deptId 为 null
+  deptId: string | null; // 允许 deptId 为 null
   deptName: string;
-  clinicId: number | null; // 允许 clinicId 为 null
+  clinicId: string | null; // 允许 clinicId 为 null
   clinicName: string;
-  scheduleId: number;
+  scheduleId: string;
   appointmentDate: string; // 格式为 'YYYY-MM-DD'
   timeSlot: string; // 格式为 'HH:MM-HH:MM'
   isRevisit: 0 | 1; // 是否复诊，0 表示否，1 表示是
@@ -67,7 +67,7 @@ const isShowChat = ref(false);
 const userStore = useUserStore();
 const patientId = userStore.userInfo!.patientId;
 
-const appoimentId = ref(0);
+const appoimentId = ref('');
 const appoimentList = reactive(<AppointmentType[]>[]);
 
 const getAppoimentList = () => {
@@ -88,7 +88,7 @@ const getAppoimentList = () => {
     })
 }
 
-const cancelAppoiment = (id: number) => {
+const cancelAppoiment = (id: string) => {
   DoAxiosWithErro(
     '/appointment/cancel',
     'post',
@@ -96,7 +96,7 @@ const cancelAppoiment = (id: number) => {
     true,
     true
   )
-    .then((res) => {
+    .then(() => {
       getAppoimentList();
     })
     .finally(() => {

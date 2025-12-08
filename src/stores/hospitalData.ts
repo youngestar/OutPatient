@@ -77,7 +77,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     departs.splice(0, departs.length, ...newDepartments);
   };
 
-  const getClinics = async (departmentId: number) => {
+  const getClinics = async (departmentId: string) => {
     const newClinics = await getClinicRegistrations(departmentId);
     if (!newClinics) {
       console.error("获取门诊列表失败");
@@ -86,7 +86,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     clinics.splice(0, clinics.length, ...newClinics);
   };
 
-  const getDoctors = async (departmentId: number, clinicId: number) => {
+  const getDoctors = async (departmentId: string, clinicId: string) => {
     const newDoctors = await getDoctorRegistrations(departmentId, clinicId);
     if (!newDoctors) {
       console.error("获取医生列表失败");
@@ -96,7 +96,7 @@ export const useHospitalStore = defineStore("hospital", () => {
   };
 
   const getSchedules = async (
-    doctorId: number,
+    doctorId: string,
     title: string,
     startDate: string,
     endDate: string
@@ -152,7 +152,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     departs.push(newDepart);
   };
 
-  const updateDepart = async (deptId: number, updetedDepartName: string) => {
+  const updateDepart = async (deptId: string, updetedDepartName: string) => {
     const getDepart: getDepartment = await updeteDepartRegistration(deptId, updetedDepartName);
     if (!getDepart) {
       console.error("更新科室失败");
@@ -162,7 +162,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     departs[index].name = updetedDepartName;
   };
 
-  const deleteDepart = async (deptId: number) => {
+  const deleteDepart = async (deptId: string) => {
     const res = await deleteDepartRegistration(deptId);
     if (!res) {
       console.error("删除科室失败");
@@ -172,7 +172,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     departs.splice(index, 1);
   };
   // 门诊相关操作
-  const createClinic = async (deptId: number, newName: string) => {
+  const createClinic = async (deptId: string, newName: string) => {
     const getClinic: getClinic = await createClinicRegistration(deptId, newName);
     const newClinic: clinic = {
       id: getClinic.clinicId,
@@ -186,7 +186,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     clinics.push(newClinic);
   };
 
-  const updateClinic = async (clinicId: number, updetedClinicName: string) => {
+  const updateClinic = async (clinicId: string, updetedClinicName: string) => {
     const getClinic: getClinic = await updeteClinicRegistration(clinicId, updetedClinicName);
     if (!getClinic) {
       console.error("更新门诊失败");
@@ -196,7 +196,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     clinics[index].name = updetedClinicName;
   };
 
-  const deleteClinic = async (clinicId: number) => {
+  const deleteClinic = async (clinicId: string) => {
     const res = await deleteClinicRegistration(clinicId);
     if (!res) {
       console.error("删除门诊失败");
@@ -211,7 +211,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     password: string,
     email: string,
     phone: string,
-    clinicId: number,
+    clinicId: string,
     name: string,
     title: string,
     introduction: string,
@@ -239,13 +239,13 @@ export const useHospitalStore = defineStore("hospital", () => {
   };
 
   const updateDoctor = async (
-    doctorId: number,
-    userId: number,
+    doctorId: string,
+    userId: string,
     username: string,
     password: string,
     email: string,
     phone: string,
-    clinicId: number,
+    clinicId: string,
     name: string,
     title: string,
     introduction: string,
@@ -285,7 +285,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     return msg;
   };
 
-  const deleteDoctor = async (doctorId: number) => {
+  const deleteDoctor = async (doctorId: string) => {
     const msg = await deleteDoctorRegistration(doctorId);
     if (!msg) {
       console.error("删除医生失败");
@@ -300,8 +300,8 @@ export const useHospitalStore = defineStore("hospital", () => {
 
   // 排班相关操作
   const createSchedule = async (
-    doctorId: number,
-    clinicId: number,
+    doctorId: string,
+    clinicId: string,
     scheduleDate: string,
     timeSlot: string,
     maxPatients: number,
@@ -334,9 +334,9 @@ export const useHospitalStore = defineStore("hospital", () => {
   };
 
   const updateSchedule = async (
-    scheduleId: number,
-    doctorId: number,
-    clinicId: number,
+    scheduleId: string,
+    doctorId: string,
+    clinicId: string,
     scheduleDate: string,
     timeSlot: string,
     maxPatients: number,
@@ -372,7 +372,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     return true;
   };
 
-  const deleteSchedule = async (scheduleId: number) => {
+  const deleteSchedule = async (scheduleId: string) => {
     const res = await deleteScheduleRegistration(scheduleId);
     if (!res) {
       console.error("删除排班失败");

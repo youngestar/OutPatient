@@ -88,7 +88,7 @@ const handleSubmit = async () => {
       }
     })
     resetForm()
-  } catch (error) {
+  } catch {
     ElMessage.error('请完善表单信息')
   }
 }

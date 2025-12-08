@@ -10,7 +10,7 @@ export const createDepartRegistration = async (deptName: string) => {
   }
 };
 
-export const updeteDepartRegistration = async (deptId: number, updetedDepartName: string) => {
+export const updeteDepartRegistration = async (deptId: string, updetedDepartName: string) => {
   try {
     const res = await DoAxiosWithErro(
       "/admin/department/update",
@@ -26,7 +26,7 @@ export const updeteDepartRegistration = async (deptId: number, updetedDepartName
   }
 };
 
-export const deleteDepartRegistration = async (deptId: number) => {
+export const deleteDepartRegistration = async (deptId: string) => {
   try {
     const res = await DoAxiosWithErro("/admin/department/delete", "post", { deptId }, true, true);
 
@@ -37,7 +37,7 @@ export const deleteDepartRegistration = async (deptId: number) => {
 };
 
 // 门诊相关操作
-export const createClinicRegistration = async (deptId: number, clinicName: string) => {
+export const createClinicRegistration = async (deptId: string, clinicName: string) => {
   try {
     const res = await DoAxiosWithErro(
       "/admin/clinic/add",
@@ -52,7 +52,7 @@ export const createClinicRegistration = async (deptId: number, clinicName: strin
   }
 };
 
-export const updeteClinicRegistration = async (clinicId: number, updetedClinicName: string) => {
+export const updeteClinicRegistration = async (clinicId: string, updetedClinicName: string) => {
   try {
     const res = await DoAxiosWithErro(
       "/admin/clinic/update",
@@ -67,7 +67,7 @@ export const updeteClinicRegistration = async (clinicId: number, updetedClinicNa
   }
 };
 
-export const deleteClinicRegistration = async (clinicId: number) => {
+export const deleteClinicRegistration = async (clinicId: string) => {
   try {
     const res = await DoAxiosWithErro("/admin/clinic/delete", "post", { clinicId }, true, true);
 
@@ -83,7 +83,7 @@ export const createDoctorRegistration = async (
   password: string,
   email: string,
   phone: string,
-  clinicId: number,
+  clinicId: string,
   name: string,
   title: string,
   introduction: string,
@@ -103,6 +103,7 @@ export const createDoctorRegistration = async (
       title,
       introduction,
     };
+
     // 更替为二进制文件符合 form-data 形式
     formData.append(
       "doctorRequest",
@@ -127,13 +128,13 @@ export const createDoctorRegistration = async (
 };
 
 export const updateDoctorRegistration = async (
-  doctorId: number,
-  userId: number,
+  doctorId: string,
+  userId: string,
   username: string,
   password: string,
   email: string,
   phone: string,
-  clinicId: number,
+  clinicId: string,
   name: string,
   title: string,
   introduction: string,
@@ -179,7 +180,7 @@ export const updateDoctorRegistration = async (
   }
 };
 
-export const deleteDoctorRegistration = async (doctorId: number) => {
+export const deleteDoctorRegistration = async (doctorId: string) => {
   try {
     const res = await DoAxiosWithErro(
       "/admin/doctor/Doctor-delete",
@@ -197,8 +198,8 @@ export const deleteDoctorRegistration = async (doctorId: number) => {
 
 // 排班相关操作
 export const createScheduleRegistration = async (
-  doctorId: number,
-  clinicId: number,
+  doctorId: string,
+  clinicId: string,
   scheduleDate: string,
   timeSlot: string,
   maxPatients: number,
@@ -217,7 +218,7 @@ export const createScheduleRegistration = async (
       true,
       true
     );
-    const scheduleId = Number(res);
+    const scheduleId = res as string;
     const newSchedule = {
       scheduleId,
       doctorId,
@@ -238,9 +239,9 @@ export const createScheduleRegistration = async (
 };
 
 export const updateScheduleRegistration = async (
-  scheduleId: number,
-  doctorId: number,
-  clinicId: number,
+  scheduleId: string,
+  doctorId: string,
+  clinicId: string,
   scheduleDate: string,
   timeSlot: string,
   maxPatients: number,
@@ -291,7 +292,7 @@ export const updateScheduleRegistration = async (
   }
 };
 
-export const deleteScheduleRegistration = async (scheduleId: number) => {
+export const deleteScheduleRegistration = async (scheduleId: string) => {
   try {
     const res = await DoAxiosWithErro("/admin/schedule/delete", "post", { scheduleId }, true, true);
     return res;
@@ -304,10 +305,10 @@ export const deleteScheduleRegistration = async (scheduleId: number) => {
 export const autoUpdateSchedules = async (
   startDate: string,
   endDate: string,
-  clinicId?: number
+  clinicId?: string
 ) => {
   try {
-    const payload: Record<string, string | number | undefined> = {
+    const payload: Record<string, string | undefined> = {
       startDate,
       endDate,
       clinicId,

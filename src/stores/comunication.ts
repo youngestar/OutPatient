@@ -1,18 +1,29 @@
 import { defineStore } from "pinia";
 
 import { reactive, ref } from "vue";
-import { Client } from "@stomp/stompjs";
+import { Client, type IMessage, type IStompSocket } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { DoAxiosWithErro } from "@/api";
 
 export const useComunicationStore = defineStore("comunication", () => {
-  const sockt = ref<any>(null);
-  const stompClient = ref<any1>(null);
+  interface FeedbackMessage {
+    content: string;
+    senderType: number;
+    [key: string]: unknown;
+  }
+
+  interface DiagnoseSummary {
+    diagId: number;
+    [key: string]: unknown;
+  }
+
+  const sockt = ref<IStompSocket | null>(null);
+  const stompClient = ref<Client | null>(null);
   const isConnected = ref<boolean>(false);
 
-  const messagemMap = reactive(new Map<number, any>());
-  const digList = reactive([]);
-  const unreadCounters = reactive({});
+  const messagemMap = reactive(new Map<number, FeedbackMessage[]>());
+  const digList = reactive<DiagnoseSummary[]>([]);
+  const unreadCounters = reactive<Record<number, number>>({});
 
   const getDiagnosticos = async (doctorId: number, patientId: number) => {
     if (!doctorId && !patientId) return;
@@ -41,8 +52,14 @@ export const useComunicationStore = defineStore("comunication", () => {
     }
   };
 
-  const getHistory = async (diagId: number) => {
-    return await DoAxiosWithErro("/medical/get-feedback-diagnoses", "post", { diagId }, true, true);
+  const getHistory = async (diagId: number): Promise<FeedbackMessage[]> => {
+    return (await DoAxiosWithErro(
+      "/medical/get-feedback-diagnoses",
+      "post",
+      { diagId },
+      true,
+      true
+    )) as FeedbackMessage[];
   };
 
   const initMessageMap = async (doctorId: number, patientId: number) => {
@@ -54,12 +71,10 @@ export const useComunicationStore = defineStore("comunication", () => {
     }
   };
 
-  const pushMessage = (diagId: number, message: any) => {
-    if (messagemMap.has(diagId)) {
-      messagemMap.get(diagId).push(message);
-    } else {
-      messagemMap.set(diagId, [message]);
-    }
+  const pushMessage = (diagId: number, message: FeedbackMessage) => {
+    const existing = messagemMap.get(diagId) ?? [];
+    existing.push(message);
+    messagemMap.set(diagId, existing);
   };
 
   const getunreadCounters = () => {
@@ -75,14 +90,14 @@ export const useComunicationStore = defineStore("comunication", () => {
     getunreadCounters();
 
     sockt.value = new SockJS("/ws");
-    stompClient.value = new Client({ webSocketFactory: () => sockt.value });
+    stompClient.value = new Client({ webSocketFactory: () => sockt.value as IStompSocket });
     stompClient.value.connectHeaders = {
       satoken: userToken,
     };
     stompClient.value.onConnect = () => {
       isConnected.value = true;
       console.log("conectado", stompClient.value);
-      stompClient.value.subscribe("/user/queue/feedback", (message) => {
+      stompClient.value?.subscribe("/user/queue/feedback", (message: IMessage) => {
         const body = JSON.parse(message.body);
         if (body.type === "message") {
           const message = body.message;
@@ -107,7 +122,7 @@ export const useComunicationStore = defineStore("comunication", () => {
     stompClient.value.activate();
   };
 
-  const subscribe = (callback: any) => {
+  const subscribe = (callback: (message: IMessage) => void) => {
     if (stompClient.value && isConnected.value) {
       stompClient.value.subscribe("/user/queue/feedback", callback);
     }

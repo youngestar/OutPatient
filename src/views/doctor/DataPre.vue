@@ -14,12 +14,11 @@ import AgeData from '@/components/Charts/AgeData.vue';
 import GenderData from '@/components/Charts/GenderData.vue';
 import { ElScrollbar } from 'element-plus';
 import { onMounted } from 'vue';
-import { getChartsDataAge, getChartsDataDoctor, getChartsDataFrequency, getChartsDataGender } from '@/api/doctor/charts';
+import { getChartsDataAge, getChartsDataFrequency, getChartsDataGender } from '@/api/doctor/charts';
 import { getUesrInfo } from '@/api/patient/myInfo';
 
 const loading = ref(true);
 const chartsAge = ref(null);
-const chartsDoctor = ref(null);
 const chartsGender = ref(null);
 const chartsFrequency = ref(null);
 

@@ -62,8 +62,8 @@ import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 
 interface ScheduleForm {
-  scheduleId: number | null
-  doctorId: number | null
+  scheduleId: string | null
+  doctorId: string | null
   doctorName: string
   doctorTitle: string
   doctorIntroduction: string
@@ -74,13 +74,7 @@ interface ScheduleForm {
   canBook: boolean
 }
 
-const props = defineProps({
-  optionType: {
-    type: String,
-    required: true,
-    validator: (value: string) => ['create', 'update'].includes(value)
-  }
-})
+
 
 const formData = reactive<ScheduleForm>({
   scheduleId: null,
@@ -163,7 +157,7 @@ const handleSubmit = async () => {
     console.log('排班数据:', Object.fromEntries(form))
     ElMessage.success('排班信息保存成功')
     resetForm()
-  } catch (error) {
+  } catch {
     ElMessage.error('请完善表单信息')
   }
 }

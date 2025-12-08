@@ -1,5 +1,5 @@
 <template>
-  <div class="department-card" @click="$emit('click')">
+  <div class="department-card" @click="emit('click')">
     <h3 class="department-title">{{ props.name }}</h3>
     <div class="department-content">
       <p v-if="props.state === 0" style="color:#FF3B30; font-weight: bold;">暂时关闭</p>
@@ -21,7 +21,7 @@
 
 <script lang="ts" setup>
 import TimeForm from './TimeForm.vue';
-import { ref, } from 'vue';
+import { ref } from 'vue';
 import { useHospitalStore } from '@/stores/hospitalData';
 import { ElMessage, ElDialog } from 'element-plus';
 import { useRoute } from 'vue-router';
@@ -30,7 +30,7 @@ import { autoUpdateSchedules } from '@/api/admin/registrations';
 const route = useRoute();
 const hospitalStore = useHospitalStore();
 const timeTableVisible = ref(false);
-const emits = defineEmits(['click']);
+const emit = defineEmits(['click']);
 const props = defineProps({
   cardType: {
     type: String,

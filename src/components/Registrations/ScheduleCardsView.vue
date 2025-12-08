@@ -1,13 +1,20 @@
 <template>
-  <CardView v-loading="loading" :cardsprops="schedules.map((item) => { return { ...item, cardType: 'doctor' } })"
-    :myCard="ScheduleCard" style="text-align: center; height: 100%; min-height: 72vh;">
-  </CardView>
+  <section class="schedule-list main-shell utility-gap" v-loading="loading">
+    <header class="section-header">
+      <p class="eyebrow">未来七日排班</p>
+      <h2 class="section-title">{{ doctorTitle || '医生排班' }}</h2>
+      <p class="helper-text">展示当前医生未来一周内的可预约号源，并支持实时更新</p>
+    </header>
+    <CardView class="schedule-list__cards"
+      :cardsprops="schedules.map((item) => { return { ...item, cardType: 'doctor' } })" :myCard="ScheduleCard">
+    </CardView>
+  </section>
 </template>
 
 <script lang="ts" setup>
 import ScheduleCard from './ScheduleCard.vue';
 import CardView from '@/views/CardView.vue'
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useHospitalStore } from '@/stores/hospitalData';
 import { ElMessage } from 'element-plus';
@@ -16,6 +23,7 @@ const loading = ref(true);
 const hospitalStore = useHospitalStore();
 const route = useRoute();
 const schedules = hospitalStore.schedules;
+const doctorTitle = computed(() => typeof route.query.title === 'string' ? route.query.title : '');
 function getCurrentAndSevenDaysLaterDate(): {
   currentDate: string;
   sevenDaysLater: string;
@@ -37,23 +45,44 @@ function getCurrentAndSevenDaysLaterDate(): {
 }
 
 onMounted(async () => {
-  hospitalStore.getSchedules(Number(route.query.doctorId), route.query.title, getCurrentAndSevenDaysLaterDate().currentDate, getCurrentAndSevenDaysLaterDate().sevenDaysLater).then(() => {
-    console.log(schedules);
-    loading.value = false;
-    ElMessage.success('获取排班成功');
-  }).catch(() => {
-    loading.value = false;
-    ElMessage.error('获取排班失败');
-  })
+  hospitalStore.getSchedules(route.query.doctorId as string, doctorTitle.value,
+    getCurrentAndSevenDaysLaterDate().currentDate,
+    getCurrentAndSevenDaysLaterDate().sevenDaysLater).then(() => {
+      loading.value = false;
+      ElMessage.success('获取排班成功');
+    }).catch(() => {
+      loading.value = false;
+      ElMessage.error('获取排班失败');
+    })
 });
 
 </script>
 
 <style lang="scss" scoped>
-.medical-ap {
+.schedule-list {
+  min-height: 72vh;
+}
+
+.section-header {
+  text-align: center;
+  background: var(--color-surface);
+  padding: var(--space-6) var(--space-4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.helper-text {
+  color: var(--color-text-muted);
+  margin-top: var(--space-2);
+}
+
+.schedule-list__cards {
   width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .schedule-list {
+    padding: var(--space-6) var(--space-3);
+  }
 }
 </style>

@@ -1,14 +1,13 @@
-<script setup>
-import { RouterLink, useRouter } from 'vue-router';
+<script setup lang="ts">
 import LogIn from '@/components/LogIn.vue';
-import { reactive, onMounted } from 'vue';
+import { reactive } from 'vue';
 import RegiSter from '@/components/RegiSter.vue';
 // import {useUserStore} from '@/stores/user'
 const data = reactive({
-  isShow:'login'
+  isShow: 'login'
 })
-const handleT = (mess) =>{
-    data.isShow = mess
+const handleT = (mess: 'login' | 'register') => {
+  data.isShow = mess
 }
 
 // const router = useRouter();
@@ -43,25 +42,26 @@ const handleT = (mess) =>{
     <router-link to="/admin">admin</router-link>
     <div class="login">
       <log-in @turnLoR="handleT" v-show="data.isShow === 'login'"></log-in>
-       <regi-ster @turnLoR="handleT" v-show="data.isShow === 'register'" ></regi-ster>
+      <regi-ster @turnLoR="handleT" v-show="data.isShow === 'register'"></regi-ster>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.Index{
+.Index {
   width: 100vw;
   height: 100vh;
 }
-.login{
+
+.login {
   width: 600px;
   height: 450px;
-  padding:1rem;
+  padding: 1rem;
   background: vars.$card-bg;
   border-radius: 1rem;
   position: absolute;
   top: 40%;
   left: 50%;
-  transform: translate(-50%,-40%);
+  transform: translate(-50%, -40%);
 }
 </style>

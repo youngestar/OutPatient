@@ -13,7 +13,6 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, reactive } from 'vue'
-import { ElMessage } from 'element-plus'
 import { DoAxiosWithErro } from '@/api'
 
 interface DiagnosisDetail {

@@ -92,7 +92,7 @@ const createNewItem = async () => {
     if (!newName) {
       return
     }
-    await hospitalStore.createClinic(Number(route.query.departmentId), newName)
+    await hospitalStore.createClinic(route.query.departmentId as string, newName)
     ElMessage({
       message: '添加门诊成功',
       type: 'success',

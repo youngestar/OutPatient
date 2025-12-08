@@ -22,10 +22,9 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref } from 'vue';
-import { Clock, ShoppingCart, Delete } from '@element-plus/icons-vue';
-import { ElTag, } from 'element-plus';
-const props = defineProps({
+import { defineProps } from 'vue';
+import { ElTag } from 'element-plus';
+defineProps({
   num: {
     type: Number,
     required: true,

@@ -184,7 +184,7 @@ const handleSubmit = async () => {
         emits('submit', submitData)
       }
     }
-  } catch (error) {
+  } catch {
     ElMessage.error('请完善必填项')
   }
 }
