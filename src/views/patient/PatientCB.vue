@@ -20,8 +20,8 @@
 
     <div v-if="isDetail">
       <el-button style="margin: 1rem;" @click="isDetail = false; Object.assign(detaileDig, {})">返回</el-button>
-      <CallComuni :diag-id="detaileDig.diagId"></CallComuni>
-      <MedicalAdvice :diag-id="detaileDig.diagId"></MedicalAdvice>
+      <CallComuni :diag-id="detaileDig.diagId.toString()"></CallComuni>
+      <MedicalAdvice :diag-id="detaileDig.diagId.toString()"></MedicalAdvice>
     </div>
   </div>
 </template>
@@ -61,7 +61,7 @@ const digList = reactive(<DiagnosticType[]>[])
 const userStore = useUserStore()
 const comunicationStore = useComunicationStore()
 
-const unreadCounters = reactive(Object.assign({}, comunicationStore.unreadCounters));
+const unreadCounters = reactive<Record<string, number>>(Object.assign({}, comunicationStore.unreadCounters));
 
 watch(comunicationStore.unreadCounters, () => {
   Object.assign(unreadCounters, comunicationStore.unreadCounters)
@@ -71,7 +71,7 @@ watch(comunicationStore.unreadCounters, () => {
 //  获取患者诊断记录列表
 const getPatientDiagnosis = async () => {
   isLoading.value = true
-  await DoAxiosWithErro(
+  await DoAxiosWithErro<DiagnosticType[]>(
     '/medical/patient/diagnoses-list',
     'get',
     { patientId: userStore.userInfo!.patientId },
@@ -83,7 +83,6 @@ const getPatientDiagnosis = async () => {
     })
     .finally(() => {
       isLoading.value = false
-      console.log(digList)
     })
 }
 
@@ -91,11 +90,9 @@ const getPatientDiagnosis = async () => {
 const gotoDetail = (item: DiagnosticType) => {
   Object.assign(detaileDig, item);
   isDetail.value = true
-  console.log(detaileDig)
 }
 
 onMounted(() => {
-  console.log('mounted')
   getPatientDiagnosis()
 })
 

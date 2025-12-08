@@ -14,6 +14,7 @@
 <script lang="ts" setup>
 import { Search } from '@element-plus/icons-vue'
 import CardView from '@/views/CardView.vue'
+import DoctorCard from '@/components/DoctorCard.vue'
 import { useHospitalStore } from '@/stores/hospitalData'
 import { ElInput, ElIcon } from 'element-plus'
 import { onMounted, ref } from 'vue';

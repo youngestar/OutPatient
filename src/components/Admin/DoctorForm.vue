@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useHospitalStore } from '@/stores/hospitalData'
 import { useRoute } from 'vue-router'
-import { reactive, ref, type Ref } from 'vue'
+import { reactive, ref, computed, type Ref } from 'vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import defaultAvatarUrl from "@/assets/doctor.png"
 
@@ -14,11 +14,11 @@ const props = defineProps({
     required: true
   },
   doctorId: {
-    type: Number,
+    type: String,
     required: false,
   },
   userId: {
-    type: Number,
+    type: String,
     required: false,
   }
 })
@@ -32,7 +32,7 @@ interface FormData {
   name: string
   title: string
   introduction: string
-  avatar: File
+  avatar: File | null
 }
 
 // 表单数据
@@ -44,7 +44,7 @@ const formData = reactive<FormData>({
   name: '',
   title: '',
   introduction: '',
-  avatar: defaultAvatar,
+  avatar: defaultAvatar.value,
 })
 
 // 预览用户头像
@@ -84,6 +84,7 @@ const rules = reactive<FormRules<FormData>>({
 })
 
 const formRef = ref<FormInstance>()
+const clinicId = computed(() => (typeof route.query.clinicId === 'string' ? route.query.clinicId : ''))
 
 // 提交处理
 const handleSubmit = async () => {
@@ -91,8 +92,27 @@ const handleSubmit = async () => {
   const valid = await formRef.value.validate()
   if (valid) {
     // 这里处理提交逻辑
+    if (!formData.avatar) {
+      ElMessage.error('请先上传头像');
+      return;
+    }
+    if (!clinicId.value) {
+      ElMessage.error('缺少门诊信息，无法创建医生');
+      return;
+    }
     if (props.optionType === "create") {
-      const res = await hospitalStore.createDoctor(formData.username, formData.password, formData.email, formData.phone, route.query.clinicId as string, formData.name, formData.title, formData.introduction, formData.avatar, URL.createObjectURL(formData.avatar))
+      const res = await hospitalStore.createDoctor(
+        formData.username,
+        formData.password,
+        formData.email,
+        formData.phone,
+        clinicId.value,
+        formData.name,
+        formData.title,
+        formData.introduction,
+        formData.avatar,
+        URL.createObjectURL(formData.avatar)
+      )
       if (res) {
         ElMessage({
           message: '添加医生成功',
@@ -109,7 +129,20 @@ const handleSubmit = async () => {
         })
         return
       }
-      const res = await hospitalStore.updateDoctor(props.doctorId, props.userId, formData.username, formData.password, formData.email, formData.phone, route.query.clinicId as string, formData.name, formData.title, formData.introduction, formData.avatar, URL.createObjectURL(formData.avatar))
+      const res = await hospitalStore.updateDoctor(
+        props.doctorId,
+        props.userId,
+        formData.username,
+        formData.password,
+        formData.email,
+        formData.phone,
+        clinicId.value,
+        formData.name,
+        formData.title,
+        formData.introduction,
+        formData.avatar,
+        URL.createObjectURL(formData.avatar)
+      )
       if (res) {
         ElMessage({
           message: '更新医生信息成功',

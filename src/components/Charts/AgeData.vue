@@ -86,11 +86,18 @@ onMounted(() => {
 
 // 修改 updateOption 函数的参数类型为数组
 const updateOption = (data: { value: number; name: string }[]) => {
-  if (myChart) {
-    option.series[0].data = data;
-    // 直接使用已初始化的 ECharts 实例更新配置
-    myChart.setOption(option);
+  if (!myChart) {
+    return;
   }
+  myChart.setOption({
+    series: [
+      {
+        type: 'pie',
+        radius: '50%',
+        data,
+      },
+    ],
+  });
 };
 
 defineExpose({

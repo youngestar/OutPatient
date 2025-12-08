@@ -13,7 +13,7 @@ export const useComunicationStore = defineStore("comunication", () => {
   }
 
   interface DiagnoseSummary {
-    diagId: number;
+    diagId: string;
     [key: string]: unknown;
   }
 
@@ -21,14 +21,14 @@ export const useComunicationStore = defineStore("comunication", () => {
   const stompClient = ref<Client | null>(null);
   const isConnected = ref<boolean>(false);
 
-  const messagemMap = reactive(new Map<number, FeedbackMessage[]>());
+  const messagemMap = reactive(new Map<string, FeedbackMessage[]>());
   const digList = reactive<DiagnoseSummary[]>([]);
-  const unreadCounters = reactive<Record<number, number>>({});
+  const unreadCounters = reactive<Record<string, number>>({});
 
-  const getDiagnosticos = async (doctorId: number, patientId: number) => {
+  const getDiagnosticos = async (doctorId: string, patientId: string) => {
     if (!doctorId && !patientId) return;
     if (doctorId) {
-      const res = await DoAxiosWithErro(
+      const res = await DoAxiosWithErro<DiagnoseSummary[]>(
         "/medical/doctor/diagnoses-list",
         "get",
         { doctorId },
@@ -40,7 +40,7 @@ export const useComunicationStore = defineStore("comunication", () => {
       return;
     }
     if (patientId) {
-      const res = await DoAxiosWithErro(
+      const res = await DoAxiosWithErro<DiagnoseSummary[]>(
         "/medical/patient/diagnoses-list",
         "get",
         { patientId },
@@ -52,17 +52,17 @@ export const useComunicationStore = defineStore("comunication", () => {
     }
   };
 
-  const getHistory = async (diagId: number): Promise<FeedbackMessage[]> => {
-    return (await DoAxiosWithErro(
+  const getHistory = async (diagId: string): Promise<FeedbackMessage[]> => {
+    return await DoAxiosWithErro<FeedbackMessage[]>(
       "/medical/get-feedback-diagnoses",
       "post",
       { diagId },
       true,
       true
-    )) as FeedbackMessage[];
+    );
   };
 
-  const initMessageMap = async (doctorId: number, patientId: number) => {
+  const initMessageMap = async (doctorId: string, patientId: string) => {
     await getDiagnosticos(doctorId, patientId);
 
     for (let i = 0; i < digList.length; i++) {
@@ -71,20 +71,25 @@ export const useComunicationStore = defineStore("comunication", () => {
     }
   };
 
-  const pushMessage = (diagId: number, message: FeedbackMessage) => {
+  const pushMessage = (diagId: string, message: FeedbackMessage) => {
     const existing = messagemMap.get(diagId) ?? [];
     existing.push(message);
     messagemMap.set(diagId, existing);
   };
 
   const getunreadCounters = () => {
-    DoAxiosWithErro("/medical/feedback/unread/counts", "get", {}, true).then((res) => {
+    DoAxiosWithErro<Record<string, number>>(
+      "/medical/feedback/unread/counts",
+      "get",
+      {},
+      true
+    ).then((res) => {
       Object.assign(unreadCounters, res);
       console.log("unreadCounters", unreadCounters);
     });
   };
 
-  const init = async (userToken: string, doctorId: number, patientId: number) => {
+  const init = async (userToken: string, doctorId: string, patientId: string) => {
     await initMessageMap(doctorId, patientId);
 
     getunreadCounters();

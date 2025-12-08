@@ -57,8 +57,8 @@
         </el-button>
       </div>
       <el-dialog v-model="scheduleDialogTableVisible" title="请填写排班信息" width="800">
-        <ScheduleForm @submit="adminUpdateSchedule" :optionType="optionType" :clinicId="route.query.clinicId"
-          :doctorId="route.query.doctorId" :scheduleId="props.scheduleId">
+        <ScheduleForm @submit="adminUpdateSchedule" :optionType="optionType" :clinicId="routeClinicId"
+          :doctorId="routeDoctorId" :scheduleId="props.scheduleId">
         </ScheduleForm>
       </el-dialog>
     </footer>
@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, type Ref, defineProps, onMounted } from 'vue';
+import { ref, type Ref, defineProps, onMounted, computed } from 'vue';
 import { ElAvatar, ElMessage, ElDialog } from 'element-plus';
 import { createRegistrations } from '@/api/patient/registrations';
 import type { UserInfo } from '@/stores/user';
@@ -75,8 +75,8 @@ import { useRoute } from 'vue-router';
 import ScheduleForm from '@/components/Admin/ScheduleForm.vue';
 
 const user: Ref<UserInfo> = ref({
-  userId: 0,
-  patientId: 0,
+  userId: '',
+  patientId: '',
   username: '',
   email: '',
   phone: '',
@@ -99,11 +99,11 @@ const props = defineProps({
     required: true,
   },
   scheduleId: {
-    type: Number,
+    type: String,
     required: true,
   },
   doctorId: {
-    type: Number,
+    type: String,
     required: true,
   },
   doctorName: {
@@ -144,9 +144,19 @@ const route = useRoute();
 const hospitalStore = useHospitalStore();
 const scheduleDialogTableVisible = ref(false);
 const optionType = ref('update');
+const routeClinicId = computed(() => (typeof route.query.clinicId === 'string' ? route.query.clinicId : ''))
+const routeDoctorId = computed(() => (typeof route.query.doctorId === 'string' ? route.query.doctorId : ''))
+const routeDoctorName = computed(() => (typeof route.query.name === 'string' ? route.query.name : ''))
+const routeDoctorTitle = computed(() => (typeof route.query.title === 'string' ? route.query.title : ''))
+const routeDoctorIntro = computed(() => (typeof route.query.introduction === 'string' ? route.query.introduction : ''))
+const routeDoctorAvatar = computed(() => (typeof route.query.avatar === 'string' ? route.query.avatar : ''))
 
 const createSchedule = async () => {
   try {
+    if (!user.value.patientId) {
+      ElMessage.error('请先登录后再预约');
+      return;
+    }
     const res = await createRegistrations(user.value.patientId, props.scheduleId);
     if (res) {
       ElMessage.success('预约成功');
@@ -162,21 +172,28 @@ const updateSchedule = () => {
   scheduleDialogTableVisible.value = true
 }
 
-const adminUpdateSchedule = async (submitData) => {
-  console.log(props)
+type ScheduleFormPayload = {
+  scheduleDate: string;
+  timeSlot: string;
+  maxPatients: number;
+  currentPatients: number;
+  status: number;
+}
+
+const adminUpdateSchedule = async (submitData: ScheduleFormPayload) => {
   const res = await hospitalStore.updateSchedule(
     props.scheduleId,
     props.doctorId,
-    route.query.clinicId,
+    routeClinicId.value,
     submitData.scheduleDate,
     submitData.timeSlot,
     submitData.maxPatients,
     submitData.currentPatients,
     submitData.status,
-    route.query.name,
-    route.query.title,
-    route.query.introduction,
-    route.query.avatar,
+    routeDoctorName.value,
+    routeDoctorTitle.value,
+    routeDoctorIntro.value,
+    routeDoctorAvatar.value,
   )
   if (res) {
     ElMessage.success('排班设置更新成功')

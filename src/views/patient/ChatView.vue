@@ -73,7 +73,7 @@ const appoimentList = reactive(<AppointmentType[]>[]);
 const getAppoimentList = () => {
   isLoading.value = true;
   appoimentList.splice(0, appoimentList.length)
-  DoAxiosWithErro(
+  DoAxiosWithErro<AppointmentType[]>(
     '/appointment/patient',
     'get',
     { patientId },

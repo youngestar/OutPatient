@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, type Reactive, ref } from 'vue';
+import { onMounted, reactive, type Reactive, ref, computed } from 'vue';
 import { doctorGetDetailRegistration } from '@/api/doctor/registrations';
 import { useRoute, useRouter } from 'vue-router';
 import { ElTag, ElButton } from 'element-plus';
@@ -11,12 +11,12 @@ import { ElDialog } from 'element-plus';
 const patientData: Reactive<detailRegistration> = reactive({
   deptName: "无",
   clinicName: "无",
-  appointmentId: 0,
+  appointmentId: "",
   scheduleId: "无",
   doctorName: "无",
-  doctorId: 0,
+  doctorId: "",
   patientName: "无",
-  patientId: 0,
+  patientId: "",
   isRevisit: 0,
   status: 0,
   description: "无",
@@ -28,11 +28,24 @@ const dialogTableVisible = ref(false);
 const loading = ref(true);
 const route = useRoute();
 const router = useRouter();
+const doctorId = computed(() => (typeof route.query.doctorId === 'string' ? route.query.doctorId : ''))
+const appointmentId = computed(() => (typeof route.query.appointmentId === 'string' ? route.query.appointmentId : ''))
 
 onMounted(async () => {
-  const newPatientData = await doctorGetDetailRegistration(route.query.doctorId, route.query.appointmentId);
+<<<<<<< HEAD
+  const newPatientData = await doctorGetDetailRegistration(route.query.doctorId as string, route.query.appointmentId as string);
   Object.assign(patientData, newPatientData);
   console.log(newPatientData, patientData)
+=======
+  if (!doctorId.value || !appointmentId.value) {
+    loading.value = false;
+    return;
+  }
+  const newPatientData = await doctorGetDetailRegistration(doctorId.value, appointmentId.value);
+  if (newPatientData) {
+    Object.assign(patientData, newPatientData);
+  }
+>>>>>>> 1add95f6ae00358a3bcfe1bd651114acffb4ef55
   loading.value = false;
 })
 </script>
@@ -79,7 +92,11 @@ onMounted(async () => {
         </div>
         <div class="right">
           <h3 style="font-size: 30px;">对话历史</h3>
-          <chat-view style="margin-top: 20px; height: 62.5vh;" :appoimentId="+(route.query.appointmentId)"
+<<<<<<< HEAD
+          <chat-view style="margin-top: 20px; height: 62.5vh;" :appoimentId="+(route.query.appointmentId as string)"
+=======
+          <chat-view style="margin-top: 20px; height: 62.5vh;" :appoimentId="appointmentId"
+>>>>>>> 1add95f6ae00358a3bcfe1bd651114acffb4ef55
             :couldSend="false"></chat-view>
         </div>
       </div>

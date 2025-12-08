@@ -16,12 +16,12 @@ import { ref, onMounted, reactive } from 'vue'
 import { DoAxiosWithErro } from '@/api'
 
 interface DiagnosisDetail {
-  diagId: number
-  appointmentId: number
-  doctorId: number
+  diagId: string
+  appointmentId: string
+  doctorId: string
   doctorName: string
   doctorTitle: string
-  patientId: number
+  patientId: string
   patientName: string
   diagnosisResult: string
   examination: string
@@ -34,7 +34,7 @@ interface DiagnosisDetail {
 
 const props = defineProps({
   diagId: {
-    type: Number,
+    type: String,
     required: true
   }
 })
@@ -46,17 +46,18 @@ const detail = reactive(<DiagnosisDetail[]>[])
 // 获取诊断详情
 const getDetal = async () => {
   isLoading.value = true
-  DoAxiosWithErro(
-    '/medical/diagnosis-detail',
-    'get',
-    { diagId: props.diagId },
-    true,
-    false
-  ).then(res => {
+  try {
+    const res = await DoAxiosWithErro<DiagnosisDetail>(
+      '/medical/diagnosis-detail',
+      'get',
+      { diagId: props.diagId },
+      true,
+      false
+    )
     detail.push(res)
-  }).finally(() => {
+  } finally {
     isLoading.value = false
-  })
+  }
 }
 
 onMounted(() => {

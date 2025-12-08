@@ -101,15 +101,15 @@ export const useHospitalStore = defineStore("hospital", () => {
     startDate: string,
     endDate: string
   ) => {
-    const getSchedules = await getDoctorSchedule(doctorId, title, startDate, endDate);
-    if (!getSchedules) {
+    const scheduleList = await getDoctorSchedule(doctorId, title, startDate, endDate);
+    if (!scheduleList) {
       console.error("获取医生排班失败");
       return;
     }
     const toDay = getCurrentDate().currentDate;
     const nowHour = getRoundedUpCurrentHour();
 
-    const newSchedules = getSchedules.filter((schedule: schedule) => {
+    const newSchedules = scheduleList.filter((schedule: schedule) => {
       return (
         schedule.scheduleDate !== toDay ||
         (schedule.scheduleDate === toDay && Number(schedule.timeSlot.split("-")[1]) <= nowHour)
@@ -139,7 +139,7 @@ export const useHospitalStore = defineStore("hospital", () => {
 
   // 科室相关操作
   const createDepart = async (newName: string) => {
-    const getDepart: getDepartment = await createDepartRegistration(newName);
+    const getDepart = await createDepartRegistration(newName);
     if (!getDepart) {
       console.error("创建科室失败");
       return;
@@ -153,7 +153,7 @@ export const useHospitalStore = defineStore("hospital", () => {
   };
 
   const updateDepart = async (deptId: string, updetedDepartName: string) => {
-    const getDepart: getDepartment = await updeteDepartRegistration(deptId, updetedDepartName);
+    const getDepart = await updeteDepartRegistration(deptId, updetedDepartName);
     if (!getDepart) {
       console.error("更新科室失败");
       return;
@@ -173,21 +173,21 @@ export const useHospitalStore = defineStore("hospital", () => {
   };
   // 门诊相关操作
   const createClinic = async (deptId: string, newName: string) => {
-    const getClinic: getClinic = await createClinicRegistration(deptId, newName);
+    const getClinic = await createClinicRegistration(deptId, newName);
+    if (!getClinic) {
+      console.error("创建门诊失败");
+      return;
+    }
     const newClinic: clinic = {
       id: getClinic.clinicId,
       name: getClinic.clinicName,
       state: getClinic.isActive,
     };
-    if (!getClinic) {
-      console.error("创建门诊失败");
-      return;
-    }
     clinics.push(newClinic);
   };
 
   const updateClinic = async (clinicId: string, updetedClinicName: string) => {
-    const getClinic: getClinic = await updeteClinicRegistration(clinicId, updetedClinicName);
+    const getClinic = await updeteClinicRegistration(clinicId, updetedClinicName);
     if (!getClinic) {
       console.error("更新门诊失败");
       return;
@@ -218,7 +218,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     avatar: File,
     avatarUrl: string
   ) => {
-    const getDoctor: doctor = await createDoctorRegistration(
+    const getDoctor = await createDoctorRegistration(
       username,
       password,
       email,
@@ -229,11 +229,11 @@ export const useHospitalStore = defineStore("hospital", () => {
       introduction,
       avatar
     );
-    getDoctor.avatar = avatarUrl;
     if (!getDoctor) {
       console.error("创建医生失败");
       return;
     }
+    getDoctor.avatar = avatarUrl;
     doctors.push(getDoctor);
     return getDoctor;
   };
@@ -252,16 +252,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     avatar: File,
     avatarUrl: string
   ) => {
-    const newDoctor: doctor = {
-      doctorId,
-      userId,
-      name,
-      title,
-      introduction,
-      avatar: avatarUrl,
-      deptName: "",
-    };
-    const msg: doctor = await updateDoctorRegistration(
+    const msg = await updateDoctorRegistration(
       doctorId,
       userId,
       username,
@@ -278,6 +269,15 @@ export const useHospitalStore = defineStore("hospital", () => {
       console.error("更新医生失败");
       return;
     }
+    const newDoctor: doctor = {
+      doctorId,
+      userId,
+      name,
+      title,
+      introduction,
+      avatar: avatarUrl,
+      deptName: "",
+    };
     const index = doctors.findIndex((doctor) => {
       return doctor.doctorId === doctorId;
     });

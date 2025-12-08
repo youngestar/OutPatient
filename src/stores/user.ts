@@ -38,8 +38,7 @@ export const useUserStore = defineStore("user", {
   actions: {
     async login(userData: { account: string; password: string }) {
       try {
-        const res = await DoAxiosWithErro("/auth/login", "post", userData);
-        const info = res;
+        const info = await DoAxiosWithErro<UserInfo>("/auth/login", "post", userData);
         // 登录成功，保存用户信息
         this.userToken = info.token;
         this.userInfo = info;

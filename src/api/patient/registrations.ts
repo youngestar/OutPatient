@@ -53,10 +53,16 @@ export interface schedule {
 }
 
 // 加载页面函数
-export const getDepartmentRegistrations = async () => {
+export const getDepartmentRegistrations = async (): Promise<department[] | undefined> => {
   try {
-    const res = await DoAxiosWithErro("/appointment/department/list", "get", {}, true, false);
-    const departmentsData = res.map((department: getDepartment) => {
+    const res = await DoAxiosWithErro<getDepartment[]>(
+      "/appointment/department/list",
+      "get",
+      {},
+      true,
+      false
+    );
+    const departmentsData = res.map((department) => {
       return {
         name: department.deptName,
         state: department.isActive,
@@ -69,16 +75,18 @@ export const getDepartmentRegistrations = async () => {
   }
 };
 
-export const getClinicRegistrations = async (departmentId: string) => {
+export const getClinicRegistrations = async (
+  departmentId: string
+): Promise<clinic[] | undefined> => {
   try {
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<getClinic[]>(
       "/appointment/clinics",
       "get",
       { deptId: departmentId },
       true,
       false
     );
-    const clinicsData = res.map((clinic: getClinic) => {
+    const clinicsData = res.map((clinic) => {
       return {
         name: clinic.clinicName,
         state: clinic.isActive,
@@ -91,9 +99,12 @@ export const getClinicRegistrations = async (departmentId: string) => {
   }
 };
 
-export const getDoctorRegistrations = async (departmentId: string, clinicId: string) => {
+export const getDoctorRegistrations = async (
+  departmentId: string,
+  clinicId: string
+): Promise<doctor[] | undefined> => {
   try {
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<doctor[]>(
       "/appointment/doctors",
       "get",
       { deptId: departmentId, clinicId: clinicId },
@@ -110,9 +121,9 @@ export const getDoctorSchedule = async (
   title: string,
   startDate: string,
   endDate: string
-) => {
+): Promise<schedule[] | undefined> => {
   try {
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<schedule[]>(
       "/appointment/doctor/schedules",
       "post",
       { doctorId, title, startDate, endDate },
@@ -157,10 +168,16 @@ export const cancelRegistrations = async (appointmentId: string, patientId: stri
 };
 
 // 搜索相关函数
-export const searchClinic = async (name: string) => {
+export const searchClinic = async (name: string): Promise<clinic[] | undefined> => {
   try {
-    const res = await DoAxiosWithErro("/appointment/clinics/search", "get", { name }, true, false);
-    const clinicsData = res.map((clinic: getClinic) => {
+    const res = await DoAxiosWithErro<getClinic[]>(
+      "/appointment/clinics/search",
+      "get",
+      { name },
+      true,
+      false
+    );
+    const clinicsData = res.map((clinic) => {
       return {
         name: clinic.clinicName,
         state: clinic.isActive,
@@ -173,9 +190,15 @@ export const searchClinic = async (name: string) => {
   }
 };
 
-export const searchDoctor = async (name: string) => {
+export const searchDoctor = async (name: string): Promise<doctor[] | undefined> => {
   try {
-    const res = await DoAxiosWithErro("/appointment/doctors", "get", { name }, true, false);
+    const res = await DoAxiosWithErro<doctor[]>(
+      "/appointment/doctors",
+      "get",
+      { name },
+      true,
+      false
+    );
     return res;
   } catch (err) {
     console.error(err);

@@ -16,5 +16,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  background-image: url(./assets/bg.png);
+  background-size: cover;
 }
 </style>

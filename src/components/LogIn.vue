@@ -13,7 +13,7 @@ const comunication = useComunicationStore();
 // do not use same name with ref
 const form = reactive({
   name: '',
-  password: undefined,
+  password: '',
 })
 const emit = defineEmits(['turnLoR'])
 
@@ -30,15 +30,15 @@ const handleLogin = async () => {
     };
     logining.value = true;
     await userstor.login(userInfo);
-    if (userstor.isLoggedIn && userstor.userInfo.role === 0) {
+    if (userstor.isLoggedIn && userstor.userInfo?.role === 0) {
       router.push({ path: '/patient' });
       return
     }
-    if (userstor.isLoggedIn && userstor.userInfo.role === 1) {
+    if (userstor.isLoggedIn && userstor.userInfo?.role === 1) {
       router.push({ path: '/doctor' });
       return
     }
-    if (userstor.isLoggedIn && userstor.userInfo.role === 2) {
+    if (userstor.isLoggedIn && userstor.userInfo?.role === 2) {
       router.push({ path: '/admin' });
       return
     }
@@ -56,59 +56,82 @@ const handleLogin = async () => {
 }
 </script>
 <template>
-  <div class="login">
-    <h3>登录</h3>
-    <el-form ref="Login" :model="form" label-width="auto" style="max-width: 600px; padding: 0 2rem;">
-      <el-form-item label="昵称">
-        <el-input v-model="form.name" />
+  <section class="auth-panel">
+    <header class="panel-head">
+      <h3>登录</h3>
+    </header>
+    <el-form ref="Login" :model="form" label-width="auto" class="auth-form">
+      <el-form-item label="账号">
+        <el-input v-model="form.name" placeholder="请输入昵称/用户名" autocomplete="username" />
       </el-form-item>
-      <el-form-item label="密码" prop="pass">
-        <el-input show-password v-model="form.password" type="password" />
+      <el-form-item label="密码">
+        <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password />
       </el-form-item>
-      <div class="button">
-        <el-button :disabled="logining" @click="handleLogin" class="sub" type="primary" :loading="false">
-          Submit
+      <div class="actions">
+        <el-button :disabled="logining" @click="handleLogin" type="primary" class="wide">
+          {{ logining ? '登录中...' : '登录' }}
         </el-button>
       </div>
     </el-form>
-    <div class="turn">还没有账号？请前往<el-link @click="handelturn" class="link" type="primary">注册</el-link></div>
-  </div>
+    <footer class="panel-foot">
+      <span>还没有账号？</span>
+      <el-link @click="handelturn" type="primary">去注册</el-link>
+    </footer>
+  </section>
 </template>
 
 
 <style lang="scss" scoped>
-.login {
-  // padding: 4rem;
-  font-weight: bolder;
-  text-shadow: 1px 1px 1px rgb(232, 230, 228);
+.auth-panel {
+  height: 100%;
+  width: 100%;
+  padding: 1.5rem 2rem;
+  border-radius: 24px;
+  background: var(--card-bg, #fff);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
+.panel-head {
   h3 {
-    font-size: 2rem;
-    font-weight: bold;
-    margin: 2rem 0;
-    text-align: center;
+    margin: 0;
+    font-size: 1.75rem;
+    color: var(--text-strong, #1f2933);
   }
 
-  .button {
+  p {
+    margin: 0.35rem 0 0;
+    color: var(--text-muted, #5f6b7c);
+    font-size: 0.95rem;
+  }
+}
+
+.auth-form {
+  :deep(.el-form-item) {
+    margin-bottom: 1rem;
+  }
+
+  :deep(.el-input__wrapper) {
+    border-radius: 12px;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+
+  .wide {
     width: 100%;
-    display: flex;
-    justify-content: center;
   }
+}
 
-  .sub {
-    width: 6rem;
-    height: 2rem;
-  }
-
-  .turn {
-    position: absolute;
-    right: 1rem;
-    bottom: 1rem;
-  }
-
-  .link {
-    margin: 0 0 5px 2px;
-    font-size: 1rem;
-  }
+.panel-foot {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+  color: var(--text-muted, #5f6b7c);
 }
 </style>

@@ -1,5 +1,19 @@
 import { DoAxiosWithErro } from "..";
 
+export interface CurrentUserInfo {
+  avatar: string;
+  name: string;
+  gender: number;
+  age: number;
+  region: string;
+  address: string;
+  phone: string;
+  email: string;
+  idCard: string;
+  userId: string;
+  doctorId?: string;
+}
+
 // 头像修改
 export const updateUserAvatar = async (avatar: File) => {
   try {
@@ -12,23 +26,10 @@ export const updateUserAvatar = async (avatar: File) => {
   }
 };
 
-export const getUesrInfo = async () => {
+export const getUesrInfo = async (): Promise<CurrentUserInfo | undefined> => {
   try {
-    const res = await DoAxiosWithErro("/auth/currentUser", "get", {}, true, false);
-    const userInfo = {
-      avatar: res.avatar,
-      name: res.name,
-      gender: res.gender,
-      age: res.age,
-      region: res.region,
-      address: res.address,
-      phone: res.phone,
-      email: res.email,
-      idCard: res.idCard,
-      userId: res.userId,
-      doctorId: res.doctorId,
-    };
-    return userInfo;
+    const res = await DoAxiosWithErro<CurrentUserInfo>("/auth/currentUser", "get", {}, true, false);
+    return res;
   } catch (err) {
     console.error(err);
   }
@@ -44,7 +45,7 @@ export const updateUserInfo = async (
   idCard: string
 ) => {
   try {
-    const res = await DoAxiosWithErro(
+    const res = await DoAxiosWithErro<CurrentUserInfo>(
       "/auth/updateInfo",
       "post",
       {
