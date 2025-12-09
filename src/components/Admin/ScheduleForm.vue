@@ -144,6 +144,20 @@ const doctorName = computed(() => toQueryString(route.query.name))
 const doctorTitle = computed(() => toQueryString(route.query.title))
 const doctorIntroduction = computed(() => toQueryString(route.query.introduction))
 const doctorAvatar = computed(() => toQueryString(route.query.avatar))
+const getScheduleWindow = () => {
+  const currentDate = new Date();
+  const sevenDaysLaterDate = new Date(currentDate.getTime() + 7 * 86400000);
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  return {
+    startDate: formatDate(currentDate),
+    endDate: formatDate(sevenDaysLaterDate)
+  }
+}
 
 const resetForm = () => {
   formRef.value?.resetFields()
@@ -180,6 +194,11 @@ const handleSubmit = async () => {
           doctorTitle.value,
           doctorIntroduction.value,
           doctorAvatar.value,
+          {
+            title: doctorTitle.value,
+            startDate: getScheduleWindow().startDate,
+            endDate: getScheduleWindow().endDate,
+          }
         )
         if (res) {
           ElMessage.success('排班设置保存成功')

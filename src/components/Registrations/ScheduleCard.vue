@@ -150,6 +150,20 @@ const routeDoctorName = computed(() => (typeof route.query.name === 'string' ? r
 const routeDoctorTitle = computed(() => (typeof route.query.title === 'string' ? route.query.title : ''))
 const routeDoctorIntro = computed(() => (typeof route.query.introduction === 'string' ? route.query.introduction : ''))
 const routeDoctorAvatar = computed(() => (typeof route.query.avatar === 'string' ? route.query.avatar : ''))
+const getScheduleWindow = () => {
+  const currentDate = new Date();
+  const sevenDaysLaterDate = new Date(currentDate.getTime() + 7 * 86400000);
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  return {
+    startDate: formatDate(currentDate),
+    endDate: formatDate(sevenDaysLaterDate),
+  };
+};
 
 const createSchedule = async () => {
   try {
@@ -194,6 +208,11 @@ const adminUpdateSchedule = async (submitData: ScheduleFormPayload) => {
     routeDoctorTitle.value,
     routeDoctorIntro.value,
     routeDoctorAvatar.value,
+    {
+      title: routeDoctorTitle.value,
+      startDate: getScheduleWindow().startDate,
+      endDate: getScheduleWindow().endDate,
+    }
   )
   if (res) {
     ElMessage.success('排班设置更新成功')
@@ -201,7 +220,12 @@ const adminUpdateSchedule = async (submitData: ScheduleFormPayload) => {
 }
 
 const deleteSchedule = async () => {
-  const res = await hospitalStore.deleteSchedule(props.scheduleId)
+  const window = getScheduleWindow();
+  const res = await hospitalStore.deleteSchedule(props.scheduleId, props.doctorId, {
+    title: routeDoctorTitle.value,
+    startDate: window.startDate,
+    endDate: window.endDate,
+  })
   if (res) {
     ElMessage.success('删除排班成功')
   } else {
