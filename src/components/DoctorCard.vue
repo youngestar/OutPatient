@@ -1,7 +1,7 @@
 <template>
   <div class="doctor-card">
     <div class="doctor-avatar">
-      <img :src="avatar" alt="医生头像" />
+      <img :src="avatarSrc" alt="医生头像" />
     </div>
     <div class="doctor-info">
       <h3 class="doctor-name">{{ name }}</h3>
@@ -34,17 +34,25 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { ElButton, ElScrollbar } from 'element-plus';
 import DoctorForm from '@/components/Admin/DoctorForm.vue';
 import { useHospitalStore } from '@/stores/hospitalData';
 import { ElMessage } from 'element-plus';
 import { useRoute } from 'vue-router';
 import router from '@/router';
+import defaultAvatar from '@/assets/doctor.png';
 const dialogTableVisible = ref(false);
 const optionType = ref("update")
 const hospitalStore = useHospitalStore();
 const route = useRoute();
+const getQueryString = (value: unknown): string => {
+  if (Array.isArray(value)) {
+    const [first] = value;
+    return typeof first === 'string' ? first : '';
+  }
+  return typeof value === 'string' ? value : '';
+};
 const props = defineProps({
   cardType: {
     type: String,
@@ -68,7 +76,7 @@ const props = defineProps({
   },
   avatar: {
     type: String,
-    required: true,
+    default: '',
   },
   doctorId: {
     type: String,
@@ -79,6 +87,10 @@ const props = defineProps({
     required: true,
   },
 })
+
+const departmentId = computed(() => getQueryString(route.query.departmentId));
+const clinicId = computed(() => getQueryString(route.query.clinicId));
+const avatarSrc = computed(() => props.avatar || defaultAvatar);
 
 const getSchedule = () => {
   router.push({
@@ -118,7 +130,14 @@ const getCrudSchedule = () => {
 }
 
 const deleteDoctor = async (doctorId: string) => {
-  const res = await hospitalStore.deleteDoctor(doctorId)
+  if (!departmentId.value || !clinicId.value) {
+    ElMessage({
+      message: '缺少科室或门诊信息，无法删除医生',
+      type: 'error',
+    })
+    return;
+  }
+  const res = await hospitalStore.deleteDoctor(doctorId, departmentId.value, clinicId.value)
   if (res) {
     ElMessage({
       message: '删除医生成功',

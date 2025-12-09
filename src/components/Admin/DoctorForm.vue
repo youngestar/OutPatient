@@ -84,7 +84,16 @@ const rules = reactive<FormRules<FormData>>({
 })
 
 const formRef = ref<FormInstance>()
-const clinicId = computed(() => (typeof route.query.clinicId === 'string' ? route.query.clinicId : ''))
+const getQueryString = (value: unknown): string => {
+  if (Array.isArray(value)) {
+    const [first] = value;
+    return typeof first === 'string' ? first : '';
+  }
+  return typeof value === 'string' ? value : '';
+}
+
+const clinicId = computed(() => getQueryString(route.query.clinicId))
+const departmentId = computed(() => getQueryString(route.query.departmentId))
 
 // 提交处理
 const handleSubmit = async () => {
@@ -100,12 +109,17 @@ const handleSubmit = async () => {
       ElMessage.error('缺少门诊信息，无法创建医生');
       return;
     }
+    if (!departmentId.value) {
+      ElMessage.error('缺少科室信息，无法创建医生');
+      return;
+    }
     if (props.optionType === "create") {
       const res = await hospitalStore.createDoctor(
         formData.username,
         formData.password,
         formData.email,
         formData.phone,
+        departmentId.value,
         clinicId.value,
         formData.name,
         formData.title,
@@ -129,6 +143,20 @@ const handleSubmit = async () => {
         })
         return
       }
+      if (!departmentId.value) {
+        ElMessage({
+          message: '缺少科室信息，无法更新医生',
+          type: 'error',
+        })
+        return
+      }
+      if (!clinicId.value) {
+        ElMessage({
+          message: '缺少门诊信息，无法更新医生',
+          type: 'error',
+        })
+        return
+      }
       const res = await hospitalStore.updateDoctor(
         props.doctorId,
         props.userId,
@@ -136,6 +164,7 @@ const handleSubmit = async () => {
         formData.password,
         formData.email,
         formData.phone,
+        departmentId.value,
         clinicId.value,
         formData.name,
         formData.title,

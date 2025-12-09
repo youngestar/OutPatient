@@ -76,7 +76,7 @@ const router = createRouter({
             {
               path: "",
               name: "allRegistrations",
-              component: () => import("@/components/Registrations/AllRegistrations.vue"),
+              component: () => import("@/components/Registrations/allRegistrations.vue"),
             },
             {
               path: ":name",

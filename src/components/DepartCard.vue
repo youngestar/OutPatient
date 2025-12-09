@@ -49,6 +49,15 @@ const props = defineProps({
     required: true
   }
 })
+
+const resolveDepartmentId = (): string | undefined => {
+  const deptId = route.query.departmentId;
+  if (Array.isArray(deptId)) {
+    const firstValue = deptId[0];
+    return typeof firstValue === 'string' && firstValue.length > 0 ? firstValue : undefined;
+  }
+  return typeof deptId === 'string' && deptId.length > 0 ? deptId : undefined;
+};
 const autoUpdate = async (startDate: string, endDate: string) => {
   const res = await autoUpdateSchedules(startDate, endDate, props.id);
   if (res) {
@@ -63,10 +72,11 @@ const updateName = async () => {
   if (!newName) {
     return;
   }
-  if (!route.query.departmentId) {
+  const departmentId = resolveDepartmentId();
+  if (!departmentId) {
     await hospitalStore.updateDepart(props.id, newName);
   } else {
-    await hospitalStore.updateClinic(props.id, newName);
+    await hospitalStore.updateClinic(props.id, newName, departmentId);
   }
   ElMessage({
     message: '修改成功',
@@ -75,10 +85,11 @@ const updateName = async () => {
 }
 
 const deleteItem = async () => {
-  if (!route.query.departmentId) {
+  const departmentId = resolveDepartmentId();
+  if (!departmentId) {
     await hospitalStore.deleteDepart(props.id);
   } else {
-    await hospitalStore.deleteClinic(props.id);
+    await hospitalStore.deleteClinic(props.id, departmentId);
   }
   ElMessage({
     message: '删除成功',
