@@ -32,11 +32,6 @@ const doctorId = computed(() => (typeof route.query.doctorId === 'string' ? rout
 const appointmentId = computed(() => (typeof route.query.appointmentId === 'string' ? route.query.appointmentId : ''))
 
 onMounted(async () => {
-<<<<<<< HEAD
-  const newPatientData = await doctorGetDetailRegistration(route.query.doctorId as string, route.query.appointmentId as string);
-  Object.assign(patientData, newPatientData);
-  console.log(newPatientData, patientData)
-=======
   if (!doctorId.value || !appointmentId.value) {
     loading.value = false;
     return;
@@ -45,7 +40,6 @@ onMounted(async () => {
   if (newPatientData) {
     Object.assign(patientData, newPatientData);
   }
->>>>>>> 1add95f6ae00358a3bcfe1bd651114acffb4ef55
   loading.value = false;
 })
 </script>
@@ -92,11 +86,7 @@ onMounted(async () => {
         </div>
         <div class="right">
           <h3 style="font-size: 30px;">对话历史</h3>
-<<<<<<< HEAD
-          <chat-view style="margin-top: 20px; height: 62.5vh;" :appoimentId="+(route.query.appointmentId as string)"
-=======
           <chat-view style="margin-top: 20px; height: 62.5vh;" :appoimentId="appointmentId"
->>>>>>> 1add95f6ae00358a3bcfe1bd651114acffb4ef55
             :couldSend="false"></chat-view>
         </div>
       </div>

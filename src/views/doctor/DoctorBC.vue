@@ -82,11 +82,7 @@ const getList = async () => {
   DoAxiosWithErro<DiagnoseItem[]>(
     '/medical/doctor/diagnoses-list',
     'get',
-<<<<<<< HEAD
-    { doctorId: userStore.userInfo!.doctorId as string },
-=======
     { doctorId },
->>>>>>> 1add95f6ae00358a3bcfe1bd651114acffb4ef55
     true,
     false
   )

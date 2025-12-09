@@ -176,17 +176,10 @@ const handleSubmit = async () => {
           submitData.maxPatients,
           submitData.currentPatients,
           submitData.status,
-<<<<<<< HEAD
-          route.query.name as string,
-          route.query.title as string,
-          route.query.introduction as string,
-          route.query.avatar as string,
-=======
           doctorName.value,
           doctorTitle.value,
           doctorIntroduction.value,
           doctorAvatar.value,
->>>>>>> 1add95f6ae00358a3bcfe1bd651114acffb4ef55
         )
         if (res) {
           ElMessage.success('排班设置保存成功')

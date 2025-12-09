@@ -22,11 +22,7 @@
     <DoctorForm :optionType="optionType"></DoctorForm>
   </el-dialog>
   <el-dialog v-model="scheduleDialogTableVisible" title="请填写排班信息" width="800">
-<<<<<<< HEAD
-    <ScheduleForm :optionType="optionType" :clinicId="route.query.clinicId as  string" :doctorId="route.query.doctorId as  string">
-=======
     <ScheduleForm :optionType="optionType" :clinicId="clinicId" :doctorId="doctorId">
->>>>>>> 1add95f6ae00358a3bcfe1bd651114acffb4ef55
     </ScheduleForm>
   </el-dialog>
 </template>

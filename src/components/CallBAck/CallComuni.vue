@@ -80,12 +80,8 @@ const addMessage = (message: string, senderType: number) => {
 };
 
 // 发送消息
-<<<<<<< HEAD
-const sendMessage = (diagId: string = 1) => {
-=======
 const sendMessage = () => {
   const diagId = props.diagId;
->>>>>>> 1add95f6ae00358a3bcfe1bd651114acffb4ef55
   if (newMessage.value.trim() === '') {
     ElMessage.warning('请输入消息内容');
     return;

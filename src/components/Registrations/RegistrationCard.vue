@@ -31,11 +31,7 @@ const props = defineProps({
   appointmentId: {
     type: String,
     required: true,
-<<<<<<< HEAD
-    default: "",
-=======
     default: "1",
->>>>>>> 1add95f6ae00358a3bcfe1bd651114acffb4ef55
   },
   scheduleId: {
     type: String,
