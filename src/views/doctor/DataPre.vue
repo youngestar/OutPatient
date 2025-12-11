@@ -40,6 +40,7 @@ onMounted(async () => {
     getChartsDataGender(doctorId), // 性别数据
   ]);
 
+  console.log(ageData, frequencyData, genderData);
   // 分别更新图表
   if (ageData) {
     chartsAge.value?.updateOption(ageData);
