@@ -3,7 +3,7 @@
     <div class="chat-header">
       <h2>AI助手</h2>
       <el-button v-if="couldSend && !hasRecorded" class="over-button"
-        @click="overAichat(chatHistoryStore.getId(appoimentId))" type="danger" size="large">停止对话</el-button>
+        @click="overAichat(chatHistoryStore.getId(appoimentId))" type="primary" size="large">保存对话</el-button>
     </div>
     <div class="chat-messages" ref="chatMessages">
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.sender]">
@@ -312,7 +312,7 @@ onUnmounted(() => {
 
 .message {
   display: flex;
-  max-width: 80%;
+  max-width: 100%;
   margin-bottom: 10px;
 }
 

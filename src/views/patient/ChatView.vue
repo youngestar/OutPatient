@@ -2,29 +2,39 @@
   <div v-loading="isLoading" style="width: 100%; height: 100%">
     <!-- 预约列表 -->
     <div class="listContainer" v-if="!isShowChat">
-      <el-table v-if="appoimentList.length > 0" :data="appoimentList" style="width: 100%">
-        <el-table-column prop="appointmentId" label="预约ID" style="flex: 1" />
-        <el-table-column prop="patientName" label="患者姓名" style="flex: 1" />
-        <el-table-column prop="doctorName" label="医生姓名" style="flex: 1" />
-        <el-table-column prop="deptName" label="科室" style="flex: 1" />
-        <el-table-column prop="clinicName" label="诊所" style="flex: 1" />
-        <el-table-column prop="appointmentDate" label="预约日期" style="flex: 1" />
-        <el-table-column prop="timeSlot" label="时间段" style="flex: 1" />
-        <el-table-column prop="statusDesc" label="状态" style="flex: 1" />
-        <el-table-column label="操作" style="flex: 1">
-          <template #default="scope">
-            <el-button :disabled="scope.row.status !== 0"
-              @click="isShowChat = true; appoimentId = scope.row.appointmentId">AI咨询</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column label="取消操作" style="flex: 1">
-          <template #default="scope">
-            <el-button :disabled="scope.row.status !== 0"
-              @click="cancelAppoiment(scope.row.appointmentId)">取消预约</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-empty v-else description="暂无预约记录"></el-empty>
+      <section class="appointment-panel">
+        <header class="panel-header">
+          <div>
+            <p class="eyebrow">AI 咨询预约</p>
+            <h2>挂号记录</h2>
+          </div>
+          <el-button type="primary" plain @click="getAppoimentList" :loading="isLoading">刷新列表</el-button>
+        </header>
+        <el-card class="table-shell" shadow="never">
+          <el-table v-if="appoimentList.length > 0" :data="appoimentList">
+            <el-table-column prop="appointmentId" label="预约ID" min-width="140" />
+            <el-table-column prop="doctorName" label="医生" min-width="120" />
+            <el-table-column prop="deptName" label="科室" min-width="120" />
+            <el-table-column prop="clinicName" label="诊室" min-width="120" />
+            <el-table-column prop="appointmentDate" label="日期" min-width="130" />
+            <el-table-column prop="timeSlot" label="时间段" min-width="130" />
+            <el-table-column prop="statusDesc" label="状态" min-width="110" />
+            <el-table-column label="操作" min-width="140">
+              <template #default="scope">
+                <el-button size="small" type="primary" :disabled="scope.row.status !== 0"
+                  @click="handleAiConsult(scope.row.appointmentId)">AI 咨询</el-button>
+              </template>
+            </el-table-column>
+            <el-table-column label="取消" min-width="120">
+              <template #default="scope">
+                <el-button size="small" type="danger" plain :disabled="scope.row.status !== 0"
+                  @click="cancelAppoiment(scope.row.appointmentId)">取消预约</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-empty v-else description="暂无预约记录" />
+        </el-card>
+      </section>
     </div>
 
     <!-- Ai助手界面 -->
@@ -88,6 +98,11 @@ const getAppoimentList = () => {
     })
 }
 
+const handleAiConsult = (appointmentId: string) => {
+  isShowChat.value = true;
+  appoimentId.value = appointmentId;
+};
+
 const cancelAppoiment = (id: string) => {
   DoAxiosWithErro(
     '/appointment/cancel',
@@ -112,3 +127,79 @@ onMounted(() => {
 </script>
 
 <style></style>
+<style lang="scss" scoped>
+.listContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.appointment-panel {
+  width: 100%;
+  background: var(--color-surface, #fff);
+  border-radius: 20px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+
+  h2 {
+    margin: 0.3rem 0;
+    font-size: 1.8rem;
+    color: var(--color-text, #1f2933);
+  }
+
+  .eyebrow {
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted, #94a3b8);
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  .subtext {
+    margin: 0;
+    color: var(--color-text-muted, #64748b);
+  }
+}
+
+.table-shell {
+  border-radius: 16px;
+  overflow: hidden;
+
+  :deep(.el-table) {
+    font-size: 0.95rem;
+  }
+
+  :deep(.el-table__header-wrapper th) {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 768px) {
+  .appointment-panel {
+    padding: 1.25rem;
+  }
+
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .listContainer {
+    padding: 1rem;
+  }
+}
+</style>

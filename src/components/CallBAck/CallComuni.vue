@@ -4,7 +4,8 @@
       <h2>医患交流</h2>
     </div>
     <div class="chat-messages" ref="chatMessages">
-      <div v-for="(message, index) in messages" :key="index" :class="['message', message.sender]">
+      <div v-for="(message, index) in messages" :key="index"
+        :class="['message', message.sender, { 'is-self': message.sender === currentRole }]">
         <div class="message-avatar">
           <img :src="message.avatar" alt="头像" />
         </div>
@@ -60,6 +61,7 @@ const chatMessages = ref<HTMLElement | null>(null);
 
 const doctorId = computed(() => userStore.userInfo?.doctorId ?? '');
 const patientId = computed(() => userStore.userInfo?.patientId ?? '');
+const currentRole = computed(() => (doctorId.value ? 'doctor' : 'patient'));
 
 
 // 获取消息记录
@@ -98,7 +100,8 @@ const sendMessage = () => {
     true
   ).then(() => {
     ElMessage.success('发送成功');
-    addMessage(newMessage.value, patientId.value ? 0 : 1);
+    const senderType = currentRole.value === 'patient' ? 0 : 1;
+    addMessage(newMessage.value, senderType);
     // 清空输入框
     newMessage.value = '';
     scrollToBottom();
@@ -124,6 +127,10 @@ watch(
     historylist.forEach((item) => {
       addMessage(item.content, item.senderType);
     });
+  },
+  {
+    deep: true,
+    immediate: true,
   }
 );
 
@@ -201,8 +208,7 @@ onMounted(() => {
 
 <style scoped>
 .chat-container {
-  width: 100%;
-  max-width: 600px;
+  width: 80%;
   height: 600px;
   margin: 0 auto;
   background-color: #f5f7fa;
@@ -231,16 +237,14 @@ onMounted(() => {
 
 .message {
   display: flex;
-  max-width: 80%;
+  max-width: 100%;
   margin-bottom: 10px;
+  gap: 12px;
+  align-items: flex-end;
 }
 
-.message.patient {
-  justify-content: flex-end;
-}
-
-.message.patient .message-avatar {
-  order: 2;
+.message.is-self {
+  flex-direction: row-reverse;
 }
 
 .message-avatar {
@@ -249,6 +253,10 @@ onMounted(() => {
   border-radius: 50%;
   overflow: hidden;
   margin: 0 10px;
+}
+
+.message.is-self .message-avatar {
+  margin: 0 0 0 10px;
 }
 
 .message-avatar img {
@@ -266,10 +274,11 @@ onMounted(() => {
   word-wrap: break-word;
 }
 
-.message.patient .message-content {
+.message.is-self .message-content {
   background-color: #4a6cf7;
   color: white;
   border-radius: 18px 18px 0 18px;
+  text-align: right;
 }
 
 .message-sender {
