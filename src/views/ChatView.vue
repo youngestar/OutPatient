@@ -193,11 +193,15 @@ const initFetchES = () => {
     return;
   }
 
+  // 从 store 读取 token，若为空则回退到 localStorage（容错）
+  const tokenValue = userStore.userToken || localStorage.getItem('userToken') || '';
+
   fetchEventSource(`${API_BASE}/appointment/ai-consult/connect`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      satoken: userStore.userToken,
+      satoken: tokenValue,
+      Authorization: tokenValue ? `Bearer ${tokenValue}` : undefined, // === 新增：同时带 Authorization ===
     },
     body: JSON.stringify({
       patientId,

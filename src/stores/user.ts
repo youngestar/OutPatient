@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { DoAxiosWithErro, DoAxios } from "@/api";
+import myApi from "@/api"; // 新增：引入默认 Axios 实例，以便同步 header
 
 // 定义用户信息类型（根据实际接口返回结构调整）
 export interface UserInfo {
@@ -47,6 +48,13 @@ export const useUserStore = defineStore("user", {
         // 持久化
         localStorage.setItem("userToken", this.userToken);
         localStorage.setItem("userInfo", JSON.stringify(info));
+
+        // === 新增：将 token 同步到 Axios 实例默认 header，确保后续所有请求（包括未显式设置 header 的场景）都会携带 token ===
+        if (this.userToken) {
+          myApi.defaults.headers.common["satoken"] = this.userToken;
+          myApi.defaults.headers.common["Authorization"] = `Bearer ${this.userToken}`; // === 新增 ===
+        }
+        // === 以上为新增代码 ===
       } catch (err) {
         console.error(err);
       }
@@ -67,6 +75,15 @@ export const useUserStore = defineStore("user", {
       this.isLoggedIn = false;
       localStorage.removeItem("userToken");
       localStorage.removeItem("userInfo");
+
+      // === 新增：清除 Axios 默认 header，避免残留失效 token 导致异步请求行为异常 ===
+      try {
+        delete myApi.defaults.headers.common["satoken"];
+        delete myApi.defaults.headers.common["Authorization"]; // === 新增 ===
+      } catch (e) {
+        // ignore
+      }
+      // === 以上为新增代码 ===
     },
   },
 });

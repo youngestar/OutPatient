@@ -13,7 +13,16 @@ const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 const myApi = axios.create({
   baseURL: API_BASE,
   timeout: 10000,
+  withCredentials: true, // === 新增：在跨域场景下携带 cookie（兼容） ===
 });
+
+// === 新增：初始化 axios 默认 header，优先使用 localStorage 中持久化的 token（容错） ===
+const initialToken = localStorage.getItem("userToken") || "";
+if (initialToken) {
+  myApi.defaults.headers.common["satoken"] = initialToken;
+  myApi.defaults.headers.common["Authorization"] = `Bearer ${initialToken}`; // 同步 Authorization
+}
+// === 以上为新增代码 ===
 
 // 响应拦截器：统一处理响应和错误
 myApi.interceptors.response.use(
@@ -29,9 +38,13 @@ myApi.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // 原先这里会直接在 401 时清除前端会话，导致 token 被移除，
+    // 在 SSE/长连接与短暂失效场景下会误删 token，改为交由调用方处理。
     if (error.response.status === 401) {
-      const userStore = useUserStore();
-      userStore?.clearSession?.();
+      // 不在拦截器自动 clearSession，以免在短暂认证失效时丢失 token
+      // 可在上层页面捕获 401 后统一跳转登录或清除会话
+      // const userStore = useUserStore();
+      // userStore?.clearSession?.();
     }
 
     const fallback = error.response.statusText || "系统出错，请稍后重试";
@@ -39,6 +52,56 @@ myApi.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// === 新增函数：多来源获取 token（优先级：store -> axios.defaults -> localStorage -> cookie） ===
+function getTokenFromSources(): string | null {
+  try {
+    const userStore = useUserStore();
+    // 1. 优先取 store 中的 token
+    if (userStore && userStore.userToken) {
+      return userStore.userToken;
+    }
+
+    // 2. axios 默认 header 中的 satoken 或 Authorization
+    const headerSatoken = (myApi.defaults.headers?.common as any)?.satoken;
+    if (headerSatoken) {
+      return headerSatoken;
+    }
+    const headerAuth = (myApi.defaults.headers?.common as any)?.Authorization;
+    if (headerAuth && typeof headerAuth === 'string') {
+      // Authorization 可能为 'Bearer xxx'
+      return headerAuth.startsWith('Bearer ') ? headerAuth.substring(7) : headerAuth;
+    }
+
+    // 3. localStorage 回退
+    const ls = localStorage.getItem('userToken');
+    if (ls) {
+      return ls;
+    }
+
+    // 4. cookie 回退（查找 satoken 或 token）
+    if (typeof document !== 'undefined' && document.cookie) {
+      const matchSatoken = document.cookie.match(/(?:^|;\s*)satoken=([^;]+)/);
+      if (matchSatoken && matchSatoken[1]) {
+        return decodeURIComponent(matchSatoken[1]);
+      }
+      const matchAuth = document.cookie.match(/(?:^|;\s*)Authorization=([^;]+)/);
+      if (matchAuth && matchAuth[1]) {
+        const val = decodeURIComponent(matchAuth[1]);
+        return val.startsWith('Bearer ') ? val.substring(7) : val;
+      }
+      const matchToken = document.cookie.match(/(?:^|;\s*)token=([^;]+)/);
+      if (matchToken && matchToken[1]) {
+        return decodeURIComponent(matchToken[1]);
+      }
+    }
+  } catch (e) {
+    // 忽略读取错误，继续返回 null
+    console.warn('getTokenFromSources error', e);
+  }
+  return null;
+}
+// === 以上为新增代码 ===
 
 // 核心请求函数（简洁）
 export const DoAxios = async <TResponse = unknown>(
@@ -56,14 +119,26 @@ export const DoAxios = async <TResponse = unknown>(
 
   // 如果需要 Token，就添加 token 头
   if (withToken) {
-    const userStore = useUserStore();
-    const token = userStore?.userToken;
+    // 使用增强的多来源 token 获取
+    const token = getTokenFromSources();
     if (!token) {
+      // 当确实无法找到 token，抛出明确错误（上层捕获并处理）
       throw new Error("Token 为空，请先登录");
     }
+    // 合并 header，保证同时携带 satoken 与 Authorization 以提高兼容性
     requestConfig.headers = {
+      ...(requestConfig.headers || {}),
       satoken: token,
+      Authorization: `Bearer ${token}`,
     };
+
+    // 同步到 axios 默认 header（提前设置，避免短时状态不同步）
+    try {
+      myApi.defaults.headers.common["satoken"] = token;
+      myApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    } catch (e) {
+      // ignore
+    }
   }
 
   // 判断是 query 参数还是 body 参数
