@@ -17,6 +17,7 @@ export const getChartsDataAge = async (doctorId: string) => {
       true,
       false
     );
+
     return toPieSeries(res);
   } catch (err) {
     console.error(err);

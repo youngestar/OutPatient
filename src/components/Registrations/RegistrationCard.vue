@@ -7,7 +7,7 @@
         <p><span class="label">病历号:</span><span class="detail">{{ scheduleId }}</span></p>
         <p><span class="label">病人姓名:</span><span class="detail">{{ patientName }}</span></p>
         <p><span class="label">是否初诊:</span><el-tag class="detail" type="warning">{{ isRevisit === 0 ? "是" : "否"
-        }}</el-tag></p>
+            }}</el-tag></p>
         <p><span class="label">就诊状态:</span><el-tag class="detail" type="warning">{{ status === 0 ? "待就诊" : status === 1
           ? "已就诊" : status === 2 ? "已取消" : "出错了"
             }}</el-tag></p>
@@ -55,7 +55,7 @@ const props = defineProps({
   },
   description: {
     type: String,
-    required: true,
+    required: false,
     default: "请阐释症状,例:患者头部发热",
   },
   appointmentDate: {

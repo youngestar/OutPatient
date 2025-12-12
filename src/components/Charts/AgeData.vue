@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import * as echarts from 'echarts/core';
 import {
   TitleComponent,
@@ -75,18 +75,12 @@ const option: EChartsOption = {
 
 // 定义 ECharts 实例变量
 let myChart: echarts.ECharts | null = null;
+let pendingData: { value: number; name: string }[] | null = null;
+const FALLBACK_DATA = [{ value: 0, name: '暂无数据' }];
 
-onMounted(() => {
-  if (chartRef.value) {
-    // 仅在组件挂载时初始化一次 ECharts 实例
-    myChart = echarts.init(chartRef.value);
-    myChart.setOption(option);
-  }
-});
-
-// 修改 updateOption 函数的参数类型为数组
-const updateOption = (data: { value: number; name: string }[]) => {
+const applyDataToChart = (data: { value: number; name: string }[]) => {
   if (!myChart) {
+    pendingData = data;
     return;
   }
   myChart.setOption({
@@ -99,6 +93,45 @@ const updateOption = (data: { value: number; name: string }[]) => {
     ],
   });
 };
+
+const normalizeData = (data: unknown) => {
+  if (!Array.isArray(data)) {
+    return FALLBACK_DATA;
+  }
+  const converted = data
+    .map(item => ({
+      name: typeof item?.name === 'string' && item.name ? item.name : '未知',
+      value: typeof item?.value === 'number' ? item.value : Number(item?.value) || 0,
+    }))
+    .filter(item => item.name);
+  return converted.length ? converted : FALLBACK_DATA;
+};
+
+onMounted(() => {
+  if (!chartRef.value) {
+    return;
+  }
+  myChart = echarts.init(chartRef.value);
+  myChart.setOption(option);
+  if (pendingData) {
+    applyDataToChart(pendingData);
+    pendingData = null;
+  }
+});
+
+// 修改 updateOption 函数的参数类型为数组
+const updateOption = (data: unknown) => {
+  const normalized = normalizeData(data);
+  applyDataToChart(normalized);
+};
+
+onBeforeUnmount(() => {
+  if (myChart) {
+    myChart.dispose();
+    myChart = null;
+  }
+  pendingData = null;
+});
 
 defineExpose({
   updateOption

@@ -67,14 +67,14 @@ export const useComunicationStore = defineStore("comunication", () => {
 
     for (let i = 0; i < digList.length; i++) {
       const res = await getHistory(digList[i].diagId);
-      messagemMap.set(digList[i].diagId, res);
+      messagemMap.set(digList[i].diagId, [...res]);
     }
   };
 
   const pushMessage = (diagId: string, message: FeedbackMessage) => {
     const existing = messagemMap.get(diagId) ?? [];
-    existing.push(message);
-    messagemMap.set(diagId, existing);
+    const nextMessages = [...existing, message];
+    messagemMap.set(diagId, nextMessages);
   };
 
   const getunreadCounters = () => {
