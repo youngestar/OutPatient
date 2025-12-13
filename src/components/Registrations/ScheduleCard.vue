@@ -67,7 +67,7 @@
 
 <script lang="ts" setup>
 import { ref, type Ref, defineProps, onMounted, computed } from 'vue';
-import { ElAvatar, ElMessage, ElDialog } from 'element-plus';
+import { ElAvatar, ElMessage, ElDialog, ElMessageBox } from 'element-plus';
 import { createRegistrations } from '@/api/patient/registrations';
 import type { UserInfo } from '@/stores/user';
 import { useHospitalStore } from '@/stores/hospitalData';
@@ -220,6 +220,19 @@ const adminUpdateSchedule = async (submitData: ScheduleFormPayload) => {
 }
 
 const deleteSchedule = async () => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要取消该排班吗？\n医生：${props.doctorName}\n日期：${props.scheduleDate}（${props.timeSlot}）`,
+      '取消排班确认',
+      {
+        confirmButtonText: '确定取消',
+        cancelButtonText: '返回',
+        type: 'warning',
+      }
+    )
+  } catch {
+    return
+  }
   const window = getScheduleWindow();
   const res = await hospitalStore.deleteSchedule(props.scheduleId, props.doctorId, {
     title: routeDoctorTitle.value,

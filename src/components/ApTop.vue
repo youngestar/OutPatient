@@ -31,7 +31,7 @@
 import { computed, ref } from 'vue'
 import DoctorForm from '@/components/Admin/DoctorForm.vue';
 import ScheduleForm from './Admin/ScheduleForm.vue';
-import { ElButton, ElMessage } from 'element-plus'
+import { ElButton, ElMessage, ElMessageBox } from 'element-plus'
 import { Search } from '@element-plus/icons-vue';
 import { useRouter, useRoute } from 'vue-router'
 import { useHospitalStore } from '@/stores/hospitalData'
@@ -97,21 +97,37 @@ const handleSearch = async () => {
 // 添加处理函数
 const createNewItem = async () => {
   if (!departmentId.value && !clinicId.value && !doctorId.value) {
-    const newName = prompt('请输入新科室的名称')
-    if (!newName) {
+    try {
+      const { value } = await ElMessageBox.prompt('请输入新科室的名称', '添加科室', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputValue: '',
+        inputPlaceholder: '例如：内科',
+      })
+      const newName = value.trim()
+      if (!newName) return
+      await hospitalStore.createDepart(newName)
+    } catch {
       return
     }
-    await hospitalStore.createDepart(newName)
     ElMessage({
       message: '添加科室成功',
       type: 'success',
     })
   } else if (!clinicId.value && departmentId.value) {
-    const newName = prompt('请输入新门诊的名称')
-    if (!newName) {
+    try {
+      const { value } = await ElMessageBox.prompt('请输入新门诊的名称', '添加门诊', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputValue: '',
+        inputPlaceholder: '例如：心内科门诊',
+      })
+      const newName = value.trim()
+      if (!newName) return
+      await hospitalStore.createClinic(departmentId.value, newName)
+    } catch {
       return
     }
-    await hospitalStore.createClinic(departmentId.value, newName)
     ElMessage({
       message: '添加门诊成功',
       type: 'success',

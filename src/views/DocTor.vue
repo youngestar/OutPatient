@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import  MeNu from '@/components/MeNu.vue';
+import MeNu from '@/components/MeNu.vue';
 import { useUserStore } from '@/stores/user';
 import { useRouter } from 'vue-router';
 
@@ -45,18 +45,18 @@ const routers = [
   {
     router: '/doctor/datapre',
     name: '就诊数据'
-  }
+  },
 ]
 
 
 </script>
 
 <style lang="scss" scoped>
-.patient-container{
+.patient-container {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%,-50%);
+  transform: translate(-50%, -50%);
   width: 95%;
   height: 95%;
   background: vars.$card-bg;
@@ -64,12 +64,14 @@ const routers = [
   margin: 0 auto;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
 }
-.tip{
+
+.tip {
   font-size: 1.5rem;
   font-weight: bold;
   margin: 1rem 0;
 }
-.main-content{
+
+.main-content {
   border-radius: 1rem;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   overflow: hidden;

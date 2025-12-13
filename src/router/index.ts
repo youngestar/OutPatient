@@ -95,6 +95,11 @@ const router = createRouter({
           name: "datapre",
           component: () => import("../views/doctor/DataPre.vue"),
         },
+        {
+          path: "myinfo",
+          name: "doctorMyinfo",
+          component: () => import("../views/doctor/Myinfo.vue"),
+        },
       ],
     },
     {

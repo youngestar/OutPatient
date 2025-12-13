@@ -35,10 +35,9 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
-import { ElButton, ElScrollbar } from 'element-plus';
+import { ElButton, ElScrollbar, ElMessage, ElMessageBox } from 'element-plus';
 import DoctorForm from '@/components/Admin/DoctorForm.vue';
 import { useHospitalStore } from '@/stores/hospitalData';
-import { ElMessage } from 'element-plus';
 import { useRoute } from 'vue-router';
 import router from '@/router';
 import defaultAvatar from '@/assets/doctor.png';
@@ -137,6 +136,17 @@ const deleteDoctor = async (doctorId: string) => {
     })
     return;
   }
+
+  try {
+    await ElMessageBox.confirm(`确定要删除医生“${props.name}”吗？此操作不可恢复。`, '删除确认', {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
+  } catch {
+    return;
+  }
+
   const res = await hospitalStore.deleteDoctor(doctorId, departmentId.value, clinicId.value)
   if (res) {
     ElMessage({
@@ -161,28 +171,26 @@ const deleteDoctor = async (doctorId: string) => {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .doctor-avatar {
   width: 100px;
   height: 100px;
-  border-radius: 50%;
+  margin: 0 auto;
+  border-radius: 100%;
   overflow: hidden;
   margin-bottom: 16px;
-}
 
-.doctor-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 .doctor-info {
   text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: 20px;
   width: 100%;
 }
 
@@ -213,6 +221,10 @@ const deleteDoctor = async (doctorId: string) => {
 
 #button {
   position: absolute;
-  bottom: 20px;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
 }
 </style>

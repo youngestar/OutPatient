@@ -23,7 +23,7 @@
 import TimeForm from './TimeForm.vue';
 import { ref } from 'vue';
 import { useHospitalStore } from '@/stores/hospitalData';
-import { ElMessage, ElDialog } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { useRoute } from 'vue-router';
 import { autoUpdateSchedules } from '@/api/admin/registrations';
 
@@ -68,10 +68,20 @@ const autoUpdate = async (startDate: string, endDate: string) => {
   }
 }
 const updateName = async () => {
-  const newName = prompt('请输入新科室的名称', props.name);
-  if (!newName) {
+  let newName = '';
+  try {
+    const res = await ElMessageBox.prompt('请输入新名称', '修改名称', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputValue: props.name,
+      inputPlaceholder: '请输入名称',
+    });
+    newName = res.value.trim();
+  } catch {
     return;
   }
+  if (!newName) return;
+
   const departmentId = resolveDepartmentId();
   if (!departmentId) {
     await hospitalStore.updateDepart(props.id, newName);
@@ -86,6 +96,16 @@ const updateName = async () => {
 
 const deleteItem = async () => {
   const departmentId = resolveDepartmentId();
+  try {
+    const targetLabel = departmentId ? '门诊' : '科室';
+    await ElMessageBox.confirm(`确定要删除${targetLabel}“${props.name}”吗？此操作不可恢复。`, '删除确认', {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
+  } catch {
+    return;
+  }
   if (!departmentId) {
     await hospitalStore.deleteDepart(props.id);
   } else {
