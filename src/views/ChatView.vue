@@ -3,7 +3,7 @@
     <div class="chat-header">
       <h2>AI助手</h2>
       <el-button v-if="couldSend && !hasRecorded" class="over-button"
-        @click="overAichat(chatHistoryStore.getId(appoimentId))" type="primary" size="large">保存对话</el-button>
+        @click="overAichat(chatHistoryStore.getId(appoimentId))" type="danger" size="large">终止对话</el-button>
     </div>
     <div class="chat-messages" ref="chatMessages">
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.sender]">
@@ -33,7 +33,7 @@ import { DoAxios, DoAxiosWithErro } from '@/api/index';
 import { useUserStore } from '@/stores/user';
 import { useChatHistoryStore } from '@/stores/ChatHistory';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 type ChatHistoryEntry = {
@@ -201,7 +201,7 @@ const initFetchES = () => {
     headers: {
       'Content-Type': 'application/json',
       satoken: tokenValue,
-      Authorization: tokenValue ? `Bearer ${tokenValue}` : undefined, // === 新增：同时带 Authorization ===
+      ...(tokenValue ? { Authorization: `Bearer ${tokenValue}` } : {}), // === 新增：同时带 Authorization ===
     },
     body: JSON.stringify({
       patientId,
@@ -237,11 +237,25 @@ const initFetchES = () => {
   });
 };
 
-const overAichat = (sessionId: string | null) => {
+const overAichat = async (sessionId: string | null) => {
   if (!sessionId) {
     ElMessage.warning('会话尚未建立');
     return;
   }
+  try {
+    await ElMessageBox.confirm(
+      '确定要终止对话吗? 终止后本次咨询结束且不可以再继续',
+      '确认终止',
+      {
+        type: 'warning',
+        confirmButtonText: '终止',
+        cancelButtonText: '取消',
+      }
+    );
+  } catch {
+    return; // 用户取消
+  }
+
   DoAxios('/appointment/ai-consult/end', 'post', { sessionId }, true, true)
     .then(() => {
       ElMessage.success('聊天记录保存成功');

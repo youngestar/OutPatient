@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { updateUserInfo } from '@/api/patient/myInfo';
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 
@@ -15,6 +15,10 @@ interface PersonalInfo {
   idCard: string
 }
 
+const props = defineProps<{
+  initial?: Partial<PersonalInfo> | null
+}>()
+
 // 提交数据
 const emit = defineEmits(['submit'])
 
@@ -28,6 +32,31 @@ const formData = reactive<PersonalInfo>({
   phone: '',
   idCard: ''
 })
+
+const initialSnapshot = ref<PersonalInfo>({
+  name: '',
+  gender: 0,
+  age: 0,
+  region: '',
+  address: '',
+  phone: '',
+  idCard: ''
+})
+
+const applyInitial = (payload?: Partial<PersonalInfo> | null) => {
+  const next: PersonalInfo = {
+    name: payload?.name ?? '',
+    gender: typeof payload?.gender === 'number' ? payload!.gender : 0,
+    age: typeof payload?.age === 'number' ? payload!.age : 0,
+    region: payload?.region ?? '',
+    address: payload?.address ?? '',
+    phone: payload?.phone ?? '',
+    idCard: payload?.idCard ?? ''
+  }
+  Object.assign(formData, next)
+  initialSnapshot.value = { ...next }
+  formRef.value?.clearValidate()
+}
 
 
 // 验证规则
@@ -66,6 +95,14 @@ const rules = reactive<FormRules<PersonalInfo>>({
 
 const formRef = ref<FormInstance>()
 
+watch(
+  () => props.initial,
+  (val) => {
+    applyInitial(val)
+  },
+  { immediate: true }
+)
+
 const handleSubmit = async () => {
   if (!formRef.value) return
 
@@ -94,7 +131,8 @@ const handleSubmit = async () => {
 }
 
 const resetForm = () => {
-  formRef.value?.resetFields()
+  Object.assign(formData, initialSnapshot.value)
+  formRef.value?.clearValidate()
 }
 </script>
 
@@ -110,7 +148,8 @@ const resetForm = () => {
         <el-form-item label="性别" prop="gender">
           <el-select v-model="formData.gender" placeholder="请选择性别">
             <el-option label="男" :value="1" />
-            <el-option label="女" :value="0" />
+            <el-option label="女" :value="2" />
+            <el-option label="未知" :value="0" />
           </el-select>
         </el-form-item>
 

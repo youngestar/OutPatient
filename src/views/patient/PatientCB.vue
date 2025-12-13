@@ -2,7 +2,9 @@
   <div v-loading="isLoading" class="patient-cb">
 
     <div v-if="!isDetail" class="records-shell">
-      <h1>就诊记录</h1>
+      <header class="records-head">
+        <h2>我的诊断</h2>
+      </header>
       <section class="digCont">
         <article class="digItem" v-for="item in digList" :key="item.diagId">
           <div class="item-badge" v-if="unreadCounters[item.diagId]">
@@ -33,10 +35,20 @@
       <el-empty v-if="digList.length === 0" description="暂无诊断记录" class="records-empty" />
     </div>
 
-    <div v-if="isDetail">
-      <el-button style="margin: 1rem;" @click="isDetail = false; Object.assign(detaileDig, {})">返回</el-button>
-      <CallComuni :diag-id="detaileDig.diagId.toString()"></CallComuni>
-      <MedicalAdvice :diag-id="detaileDig.diagId.toString()"></MedicalAdvice>
+    <div v-if="isDetail" class="detail-shell">
+      <el-scrollbar class="detail-scroll">
+        <div class="detail-header">
+          <div>
+            <h3>诊断详情</h3>
+            <p class="subtext">医生：{{ detaileDig.doctorName }} · 时间：{{ detaileDig.createTime }}</p>
+          </div>
+          <el-button type="default" @click="isDetail = false; Object.assign(detaileDig, {})">返回列表</el-button>
+        </div>
+        <section class="detail-panels">
+          <CallComuni :diag-id="detaileDig.diagId.toString()"></CallComuni>
+          <MedicalAdvice :diag-id="detaileDig.diagId.toString()"></MedicalAdvice>
+        </section>
+      </el-scrollbar>
     </div>
   </div>
 </template>
@@ -135,9 +147,9 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #eff6ff, #fdf2f8);
+  background: linear-gradient(135deg, #eef2ff, #fdf2f8);
   border-radius: 20px;
-  padding: 1.5rem 2rem;
+  padding: 1.25rem 1.5rem;
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
 
   .eyebrow {
@@ -229,6 +241,45 @@ onMounted(() => {
   background: #fff;
   border-radius: 18px;
   padding: 3rem 0;
+}
+
+.detail-shell {
+  width: 100%;
+  height: 100%;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.detail-scroll {
+  max-height: 100%;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
+  padding: 1.5rem;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #1f2933;
+  }
+
+  .subtext {
+    margin: 0.4rem 0 0;
+    color: #64748b;
+  }
+}
+
+.detail-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 @media (max-width: 768px) {

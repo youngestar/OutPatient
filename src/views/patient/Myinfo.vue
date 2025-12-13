@@ -1,42 +1,37 @@
 <template>
-  <h2>我的信息</h2>
-  <div id="card" class="light-shadow cardHover" v-loading="loading">
-    <div id="avatar">
-      <input type="file" id="file" @change="handleUP" style="display: none;" />
-      <el-avatar :src="myInfo.avatar" :size="160" style="background-color: #fff;"></el-avatar>
-      <label for="file">修改头像</label>
-      <el-button type="success" size="small" v-if="newAvatar" @click="uploadAvatar"
-        style="border: 1px #fff solid; width: 68px; border-radius: 5px; margin: auto; margin-top: 15px;">
-        保存修改
-      </el-button>
-    </div>
-    <div id="main-msg">
-      <div class="left">
-        <p><span class="label">姓名:</span><span class="detail">{{ myInfo.name }}</span></p>
-        <p><span class="label">性别:</span><span class="detail">{{ myInfo.gender === 0
-          ? '未知'
-          : myInfo.gender === 1
-            ? '男'
-            : myInfo.gender === 2
-              ? '女'
-              : '错误'
-        }}</span></p>
-        <p><span class="label">年龄:</span><span class="detail">{{ myInfo.age }}</span></p>
-        <p><span class="label">地区:</span><span class="detail">{{ myInfo.region }}</span></p>
-        <p><span class="label">详细住址:</span><span class="detail">{{ myInfo.address }}</span></p>
+  <div class="profile-page" v-loading="loading">
+    <header class="page-head">
+      <h2>我的信息</h2>
+      <el-button type="primary" @click="openEdit">修改个人资料</el-button>
+    </header>
+
+    <section class="profile-card">
+      <div class="avatar-panel">
+        <input type="file" id="file" @change="handleUP" style="display: none;" />
+        <el-avatar :src="myInfo.avatar" :size="150" class="avatar"></el-avatar>
+        <label for="file" class="upload-btn">修改头像</label>
+        <el-button v-if="newAvatar" type="success" plain size="small" @click="uploadAvatar">保存修改</el-button>
       </div>
-      <div class="right">
-        <p><span class="label">手机号:</span><span class="detail">{{ myInfo.phone }}</span></p>
-        <p><span class="label">邮箱:</span><span class="detail">{{ myInfo.email }}</span></p>
-        <p><span class="label">身份证号:</span><span class="detail">{{ myInfo.idCard }}</span></p>
+
+      <div class="info-panel">
+        <div class="info-col">
+          <div class="field"><span class="label">姓名</span><span class="value">{{ myInfo.name }}</span></div>
+          <div class="field"><span class="label">性别</span><span class="value">{{ myInfo.gender === 0 ? '未知' :
+            myInfo.gender === 1 ? '男' : myInfo.gender === 2 ? '女' : '错误' }}</span></div>
+          <div class="field"><span class="label">年龄</span><span class="value">{{ myInfo.age }}</span></div>
+          <div class="field"><span class="label">地区</span><span class="value">{{ myInfo.region }}</span></div>
+          <div class="field"><span class="label">详细住址</span><span class="value">{{ myInfo.address }}</span></div>
+        </div>
+        <div class="info-col">
+          <div class="field"><span class="label">手机号</span><span class="value">{{ myInfo.phone }}</span></div>
+          <div class="field"><span class="label">邮箱</span><span class="value">{{ myInfo.email }}</span></div>
+          <div class="field"><span class="label">身份证号</span><span class="value">{{ myInfo.idCard }}</span></div>
+        </div>
       </div>
-    </div>
-    <!-- <p><span class="label">症状:</span><span class="detail">{{ myInfo.description }}</span></p> -->
-    <el-button type="info" style="position: relative; right: 80px;;width: 15%; margin: 0 45%; margin-top: 120px;"
-      @click="() => { dialogTableVisible = true }">修改个人资料
-    </el-button>
-    <el-dialog v-model="dialogTableVisible" title="请填写更新后用户信息" width="800">
-      <UserForm @submit="changeInfo"></UserForm>
+    </section>
+
+    <el-dialog v-model="dialogTableVisible" title="请填写新的信息" width="800" @closed="clearEditInitial">
+      <UserForm :initial="editInitial" @submit="changeInfo"></UserForm>
     </el-dialog>
   </div>
 </template>
@@ -68,6 +63,7 @@ type EditableInfo = Pick<MyInfoState, 'name' | 'gender' | 'age' | 'region' | 'ad
 const dialogTableVisible = ref(false);
 const loading = ref(true);
 const newAvatar = ref(false);
+const editInitial = ref<EditableInfo | null>(null);
 const myInfo = reactive<MyInfoState>({
   avatar: '/src/assets/me.png',
   name: '默认患者',
@@ -79,6 +75,23 @@ const myInfo = reactive<MyInfoState>({
   email: '默认邮箱',
   idCard: '默认身份证号',
 })
+
+const openEdit = () => {
+  editInitial.value = {
+    name: myInfo.name,
+    gender: myInfo.gender,
+    age: myInfo.age,
+    region: myInfo.region,
+    address: myInfo.address,
+    phone: myInfo.phone,
+    idCard: myInfo.idCard,
+  };
+  dialogTableVisible.value = true;
+}
+
+const clearEditInitial = () => {
+  editInitial.value = null;
+}
 
 const handleUP = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0];
@@ -115,6 +128,7 @@ const uploadAvatar = async () => {
 
 const changeInfo = (formData: EditableInfo) => {
   Object.assign(myInfo, formData);
+  dialogTableVisible.value = false;
 }
 
 onMounted(async () => {
@@ -125,74 +139,153 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
-h2 {
-  font-size: 40px;
-  border-bottom: 1px solid black;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem 2rem;
+  min-height: 100%;
+  box-sizing: border-box;
 }
 
-#card {
-  height: 95%;
-  width: 96.5%;
-  min-width: 400px;
-  padding: 20px;
-  background-color: vars.$card-bg-depart;
-  border-radius: 10px;
+.profile-page {
+  margin: 0 auto;
+}
 
-  #avatar {
-    display: flex;
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #eef2ff, #fdf2f8);
+  border-radius: 20px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
+
+  .eyebrow {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #7c8db5;
+    font-size: 0.8rem;
+  }
+
+  h2 {
+    margin: 0.35rem 0;
+    font-size: 2rem;
+    color: #1f2933;
+  }
+
+  .subtext {
+    margin: 0;
+    color: #64748b;
+  }
+}
+
+.profile-card {
+  border-radius: 18px;
+  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
+  background-color: #fff;
+  padding: 1.75rem 2rem;
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  box-sizing: border-box;
+}
+
+.avatar-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+  text-align: center;
+  min-width: 210px;
+
+  .avatar {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .upload-btn {
+    cursor: pointer;
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.4rem 0.9rem;
+    background: #409eff;
+    color: #fff;
+    border-radius: 10px;
+    border: 1px solid #fff;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #66b1ff;
+    }
+  }
+}
+
+.info-panel {
+  flex: 1;
+  display: flex;
+  gap: 2.5rem;
+}
+
+.info-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 0;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.label {
+  width: 88px;
+  flex: 0 0 88px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.value {
+  color: #0f172a;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .profile-page {
+    padding: 1rem;
+  }
+
+  .page-head {
     flex-direction: column;
-    justify-content: center;
-    align-content: center;
-    float: left;
-    margin-left: 20px;
-    margin-right: 60px;
-
-    label {
-      cursor: pointer;
-      margin: auto;
-      margin-top: 15px;
-      width: 80px;
-      height: 30px;
-      background-color: #409eff;
-      color: #fff;
-      line-height: 30px;
-      border-radius: 8px;
-      border: #fff 1px solid;
-      text-align: center;
-      font-weight: bolder;
-      font-size: 14px;
-
-      &:hover {
-        background-color: #66b1ff;
-      }
-    }
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 
-  #main-msg {
-    display: flex;
-
-    .right {
-      margin-left: 30%;
-      width: 40%;
-    }
+  .profile-card {
+    flex-direction: column;
+    padding: 1.25rem;
+    gap: 1.25rem;
   }
 
-  p {
-    display: flex;
-    font-size: 20px;
-    margin: 50px 0;
+  .avatar-panel {
+    min-width: unset;
+    width: 100%;
+  }
 
-    .label {
-      max-width: 100px;
-      text-align: left;
-    }
+  .info-panel {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 
-    .detail {
-      font-weight: bold;
-      margin-left: 20px;
-    }
+  .label {
+    width: 76px;
+    flex-basis: 76px;
   }
 }
 </style>
