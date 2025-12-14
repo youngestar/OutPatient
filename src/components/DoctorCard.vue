@@ -14,7 +14,7 @@
       </div>
       <div class="doctor-card__desc">
         <p class="desc-label">简介</p>
-        <el-scrollbar height="220px">
+        <el-scrollbar height="120px">
           <p class="doctor-description">{{ introduction }}</p>
         </el-scrollbar>
       </div>

@@ -1,13 +1,7 @@
 <template>
   <div class="chat-container">
-    <header class="page-head chat-header">
-      <div>
-        <p class="eyebrow">ASSISTANT</p>
-        <h2>AI助手</h2>
-      </div>
-      <el-button v-if="couldSend && !hasRecorded" class="over-button"
-        @click="overAichat(chatHistoryStore.getId(appoimentId))" type="danger" size="large">终止对话</el-button>
-    </header>
+    <el-button v-if="couldSend && !hasRecorded" class="over-button"
+      @click="overAichat(chatHistoryStore.getId(appoimentId))" type="danger" size="large">终止对话</el-button>
     <div class="chat-messages" ref="chatMessages">
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.sender]">
         <div class="message-avatar">
@@ -293,8 +287,11 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .chat-container {
+  position: relative;
   width: 100%;
-  height: 90%;
+  /* 让父容器决定高度，避免 90% 在未定高父级下失效导致无法滚动 */
+  height: 100%;
+  min-height: 0;
   margin: 0 auto;
   background-color: #f5f7fa;
   border-radius: 10px;
@@ -304,20 +301,15 @@ onUnmounted(() => {
   flex-direction: column;
 }
 
-.chat-header {
-  position: relative;
-  margin: 16px;
-  padding: 18px 22px;
-
-  .over-button {
-    position: absolute;
-    right: 1rem;
-    top: 1rem;
-  }
+.over-button {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
 }
 
 .chat-messages {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 15px;
   display: flex;

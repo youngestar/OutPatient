@@ -23,21 +23,22 @@ const hospitalStore = useHospitalStore();
 const loading = ref(true);
 const doctors = hospitalStore.doctors;
 
-const searchDoctor = () => {
-  // if (doctorName.value === '') {
-  //   hospitalStore.getAllDoctors();
-  // } else {
-  //   hospitalStore.getDoctorByName(doctorName.value);
-  // }
+const searchDoctor = async () => {
+  const keyword = doctorName.value.trim();
+  loading.value = true;
+  try {
+    // 当前 store 仅提供 searchForDoctor；若输入为空则保持现有列表。
+    if (keyword) {
+      await hospitalStore.searchForDoctor(keyword);
+    }
+  } finally {
+    loading.value = false;
+  }
 }
 
 onMounted(async () => {
-  // hospitalStore.getAllDoctors().then((res) => {
-  //   console.log(res)
-  // }).catch((err) => {
-  //   console.error(err);
-  // });
-  // loading.value = false;
+  // 重要：如果 loading 一直为 true，v-loading 的遮罩会挡住所有点击（包括“修改/删除”按钮）。
+  loading.value = false;
 })
 </script>
 

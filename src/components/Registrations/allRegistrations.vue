@@ -45,7 +45,6 @@ onMounted(async () => {
         <h2>挂号记录</h2>
       </div>
     </header>
-
     <el-scrollbar v-loading="loading" class="registrations-scroll">
       <div v-if="registrations.length > 0" class="registrations-grid">
         <RegistrationCard v-for="item in registrations" :key="item.appointmentId" class="registration-card"
@@ -59,6 +58,7 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .registrations-scroll {
+  height: calc(100vh - 350px);
   width: 100%;
 }
 

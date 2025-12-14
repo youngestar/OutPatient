@@ -65,7 +65,9 @@ const handleclick = (item: CardPayload) => {
   width: 100%;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-4);
+  /* 可控间距：支持分别控制上下(row)与左右(column) */
+  column-gap: var(--card-gap-x, var(--card-gap, var(--space-4)));
+  row-gap: var(--card-gap-y, var(--card-gap, var(--space-4)));
   align-items: stretch;
 }
 
