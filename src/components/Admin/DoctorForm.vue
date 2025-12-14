@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useHospitalStore } from '@/stores/hospitalData'
 import { useRoute } from 'vue-router'
-import { reactive, ref, computed, type Ref } from 'vue'
+import { reactive, ref, computed, type Ref, watch } from 'vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import defaultAvatarUrl from "@/assets/doctor.png"
 
@@ -19,6 +19,17 @@ const props = defineProps({
   },
   userId: {
     type: String,
+    required: false,
+  },
+  initial: {
+    type: Object as () =>
+      | {
+        name?: string
+        title?: string
+        introduction?: string
+        avatarUrl?: string
+      }
+      | undefined,
     required: false,
   }
 })
@@ -51,36 +62,48 @@ const formData = reactive<FormData>({
 const newAvatar = ref<string>(defaultAvatarUrl)
 
 // 表单验证规则
-const rules = reactive<FormRules<FormData>>({
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 4, max: 16, message: '长度在4到16个字符', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '长度在6到20个字符', trigger: 'blur' }
-  ],
-  email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: ['blur', 'change'] }
-  ],
-  phone: [
-    { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号码', trigger: 'blur' }
-  ],
-  name: [
-    { required: true, message: '请输入姓名', trigger: 'blur' }
-  ],
-  title: [
-    { required: true, message: '请输入职称', trigger: 'blur' }
-  ],
-  introduction: [
-    { required: true, message: '请输入个人简介', trigger: 'blur' },
-    { max: 500, message: '最多输入500个字符', trigger: 'blur' }
-  ],
-  avatar: [
-    { required: true, message: '请上传头像', trigger: 'change' }
-  ]
+const isUpdate = computed(() => props.optionType === 'update')
+const rules = computed<FormRules<FormData>>(() => {
+  const base: FormRules<FormData> = {
+    name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+    title: [{ required: true, message: '请输入职称', trigger: 'blur' }],
+    introduction: [
+      { required: true, message: '请输入个人简介', trigger: 'blur' },
+      { max: 500, message: '最多输入500个字符', trigger: 'blur' },
+    ],
+  }
+
+  if (!isUpdate.value) {
+    // create：账号字段强校验
+    return {
+      ...base,
+      username: [
+        { required: true, message: '请输入用户名', trigger: 'blur' },
+        { min: 2, max: 16, message: '长度在2到16个字符', trigger: 'blur' },
+      ],
+      password: [
+        { required: true, message: '请输入密码', trigger: 'blur' },
+        { min: 6, max: 20, message: '长度在6到20个字符', trigger: 'blur' },
+      ],
+      email: [
+        { required: true, message: '请输入邮箱', trigger: 'blur' },
+        { type: 'email', message: '请输入正确的邮箱格式', trigger: ['blur', 'change'] },
+      ],
+      phone: [
+        { required: true, message: '请输入联系电话', trigger: 'blur' },
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号码', trigger: 'blur' },
+      ],
+      avatar: [{ required: true, message: '请上传头像', trigger: 'change' }],
+    }
+  }
+
+  // update：账号字段不强制（后端若支持“空值不更新/不传不更新”，可只改医生档案字段）
+  return {
+    ...base,
+    email: [{ type: 'email', message: '请输入正确的邮箱格式', trigger: ['blur', 'change'] }],
+    phone: [{ pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号码', trigger: 'blur' }],
+    password: [{ min: 0, max: 20, message: '密码长度最多20个字符', trigger: 'blur' }],
+  }
 })
 
 const formRef = ref<FormInstance>()
@@ -95,16 +118,29 @@ const getQueryString = (value: unknown): string => {
 const clinicId = computed(() => getQueryString(route.query.clinicId))
 const departmentId = computed(() => getQueryString(route.query.departmentId))
 
+const applyInitial = () => {
+  if (!isUpdate.value) return
+  if (props.initial?.name != null) formData.name = props.initial.name
+  if (props.initial?.title != null) formData.title = props.initial.title
+  if (props.initial?.introduction != null) formData.introduction = props.initial.introduction
+  if (props.initial?.avatarUrl) newAvatar.value = props.initial.avatarUrl
+  // update 模式下不强制要求重新选择文件
+  formData.avatar = null
+  formRef.value?.clearValidate()
+}
+
+watch(
+  () => [props.optionType, props.initial, props.doctorId, props.userId] as const,
+  () => applyInitial(),
+  { immediate: true }
+)
+
 // 提交处理
 const handleSubmit = async () => {
   if (!formRef.value) return
   const valid = await formRef.value.validate()
   if (valid) {
     // 这里处理提交逻辑
-    if (!formData.avatar) {
-      ElMessage.error('请先上传头像');
-      return;
-    }
     if (!clinicId.value) {
       ElMessage.error('缺少门诊信息，无法创建医生');
       return;
@@ -114,6 +150,10 @@ const handleSubmit = async () => {
       return;
     }
     if (props.optionType === "create") {
+      if (!formData.avatar) {
+        ElMessage.error('请先上传头像');
+        return;
+      }
       const res = await hospitalStore.createDoctor(
         formData.username,
         formData.password,
@@ -157,6 +197,8 @@ const handleSubmit = async () => {
         })
         return
       }
+
+      // update：如果未选择新头像，则传 null（后端应保留旧头像）
       const res = await hospitalStore.updateDoctor(
         props.doctorId,
         props.userId,
@@ -170,7 +212,7 @@ const handleSubmit = async () => {
         formData.title,
         formData.introduction,
         formData.avatar,
-        URL.createObjectURL(formData.avatar)
+        formData.avatar ? URL.createObjectURL(formData.avatar) : undefined
       )
       if (res) {
         ElMessage({
@@ -209,15 +251,15 @@ const handleUP = (e: Event) => {
       <!-- 左列 -->
       <el-col :span="12">
         <el-form-item label="用户名" prop="username">
-          <el-input v-model="formData.username" />
+          <el-input v-model="formData.username" :placeholder="isUpdate ? '留空表示不修改' : ''" />
         </el-form-item>
 
         <el-form-item label="密码" prop="password">
-          <el-input v-model="formData.password" type="password" show-password />
+          <el-input v-model="formData.password" type="password" show-password :placeholder="isUpdate ? '不修改请留空' : ''" />
         </el-form-item>
 
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model="formData.email" type="email" />
+          <el-input v-model="formData.email" type="email" :placeholder="isUpdate ? '留空表示不修改' : ''" />
         </el-form-item>
 
       </el-col>
@@ -245,7 +287,7 @@ const handleUP = (e: Event) => {
         </el-form-item>
 
         <el-form-item label="联系电话" prop="phone">
-          <el-input v-model="formData.phone" />
+          <el-input v-model="formData.phone" :placeholder="isUpdate ? '留空表示不修改' : ''" />
         </el-form-item>
       </el-col>
     </el-row>

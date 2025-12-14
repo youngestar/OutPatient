@@ -14,7 +14,7 @@
 <script lang="ts" setup>
 import ScheduleCard from './ScheduleCard.vue';
 import CardView from '@/views/CardView.vue'
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useHospitalStore } from '@/stores/hospitalData';
 import { ElMessage } from 'element-plus';
@@ -24,6 +24,7 @@ const hospitalStore = useHospitalStore();
 const route = useRoute();
 const schedules = hospitalStore.schedules;
 const doctorTitle = computed(() => typeof route.query.title === 'string' ? route.query.title : '');
+const doctorId = computed(() => typeof route.query.doctorId === 'string' ? route.query.doctorId : '');
 function getCurrentAndSevenDaysLaterDate(): {
   currentDate: string;
   sevenDaysLater: string;
@@ -44,25 +45,31 @@ function getCurrentAndSevenDaysLaterDate(): {
   };
 }
 
-onMounted(async () => {
-  hospitalStore.getSchedules(route.query.doctorId as string, doctorTitle.value,
-    getCurrentAndSevenDaysLaterDate().currentDate,
-    getCurrentAndSevenDaysLaterDate().sevenDaysLater).then(() => {
-      loading.value = false;
-      ElMessage.success('获取排班成功');
-    }).catch(() => {
-      loading.value = false;
-      ElMessage.error('获取排班失败');
-    })
-});
+const loadSchedules = async () => {
+  if (!doctorId.value) {
+    loading.value = false;
+    ElMessage.error('缺少 doctorId，无法获取排班');
+    return;
+  }
+
+  loading.value = true;
+  const { currentDate, sevenDaysLater } = getCurrentAndSevenDaysLaterDate();
+  const ok = await hospitalStore.getSchedules(doctorId.value, doctorTitle.value, currentDate, sevenDaysLater);
+  loading.value = false;
+  if (ok) {
+    ElMessage.success('获取排班成功');
+  } else {
+    ElMessage.error('获取排班失败');
+  }
+};
+
+watch([doctorId, doctorTitle], () => {
+  void loadSchedules();
+}, { immediate: true });
 
 </script>
 
 <style lang="scss" scoped>
-.schedule-list {
-  min-height: 72vh;
-}
-
 .section-header {
   text-align: center;
   background: var(--color-surface);

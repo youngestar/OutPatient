@@ -1,6 +1,6 @@
 <template>
   <section class="card-view">
-    <component v-for="card in paginatedData" :key="card" :is="props.myCard"
+    <component v-for="(card, index) in paginatedData" :key="getCardKey(card, index)" :is="props.myCard"
       v-bind="typeof card === 'object' ? card : {}" @click="handleclick(card)" />
     <el-pagination class="card-pagination" layout="prev, pager, next" background size="large"
       v-model:current-page="currentPage" :total="props.cardsprops.length" :page-size="pageSize"
@@ -33,6 +33,26 @@ const props = defineProps({
 
 type CardPayload = Record<string, unknown> | string | number | boolean | null | undefined;
 
+const getCardKey = (card: CardPayload, index: number): string => {
+  if (card && typeof card === 'object') {
+    const obj = card as Record<string, unknown>;
+    const candidate =
+      obj.scheduleId ??
+      obj.doctorId ??
+      obj.clinicId ??
+      obj.deptId ??
+      obj.departmentId ??
+      obj.id ??
+      obj.userId ??
+      obj.appointmentId;
+
+    if (typeof candidate === 'string' || typeof candidate === 'number') {
+      return String(candidate);
+    }
+  }
+  return String(index);
+};
+
 const emit = defineEmits(['backpage', 'nextpage', 'handleclick']);
 const handleclick = (item: CardPayload) => {
   emit('handleclick', item);
@@ -46,6 +66,7 @@ const handleclick = (item: CardPayload) => {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
+  align-items: stretch;
 }
 
 .card-pagination {

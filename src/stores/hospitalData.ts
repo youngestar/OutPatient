@@ -74,6 +74,7 @@ export const useHospitalStore = defineStore("hospital", () => {
 
   // 获取列表
   const getDepartments = async () => {
+    departs.splice(0, departs.length);
     const newDepartments = await getDepartmentRegistrations();
     if (!newDepartments) {
       console.error("获取科室列表失败");
@@ -83,6 +84,8 @@ export const useHospitalStore = defineStore("hospital", () => {
   };
 
   const getClinics = async (departmentId: string) => {
+    clinics.splice(0, clinics.length);
+    console.log(clinics);
     const newClinics = await getClinicRegistrations(departmentId);
     if (!newClinics) {
       console.error("获取门诊列表失败");
@@ -92,6 +95,7 @@ export const useHospitalStore = defineStore("hospital", () => {
   };
 
   const getDoctors = async (departmentId: string, clinicId: string) => {
+    doctors.splice(0, doctors.length);
     const newDoctors = await getDoctorRegistrations(departmentId, clinicId);
     if (!newDoctors) {
       console.error("获取医生列表失败");
@@ -105,11 +109,12 @@ export const useHospitalStore = defineStore("hospital", () => {
     title: string,
     startDate: string,
     endDate: string
-  ) => {
+  ): Promise<boolean> => {
+    schedules.splice(0, schedules.length);
     const scheduleList = await getDoctorSchedule(doctorId, title, startDate, endDate);
     if (!scheduleList) {
       console.error("获取医生排班失败");
-      return;
+      return false;
     }
     const toDay = getCurrentDate().currentDate;
     const nowHour = getRoundedUpCurrentHour();
@@ -121,6 +126,7 @@ export const useHospitalStore = defineStore("hospital", () => {
       );
     });
     schedules.splice(0, schedules.length, ...newSchedules);
+    return true;
   };
 
   //搜索操作
@@ -248,8 +254,8 @@ export const useHospitalStore = defineStore("hospital", () => {
     name: string,
     title: string,
     introduction: string,
-    avatar: File,
-    avatarUrl: string
+    avatar?: File | null,
+    avatarUrl?: string
   ) => {
     const msg = await updateDoctorRegistration(
       doctorId,

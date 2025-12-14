@@ -257,8 +257,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .schedule-card {
-  display: flex;
-  flex-direction: column;
+  height: 500px;
   gap: var(--space-4);
 }
 
@@ -344,6 +343,11 @@ onMounted(() => {
 .value.muted {
   font-weight: 400;
   color: var(--color-text-muted);
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
 }
 
 .schedule-card__actions {

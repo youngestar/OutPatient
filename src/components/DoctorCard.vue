@@ -26,10 +26,16 @@
       <el-button type="danger" @click.stop="deleteDoctor(doctorId)">
         删除
       </el-button>
-      <el-dialog v-model="dialogTableVisible" title="请填写医生信息" width="800">
-        <DoctorForm :optionType="optionType" :doctor-id="doctorId" :user-id="userId"></DoctorForm>
-      </el-dialog>
     </div>
+
+    <el-dialog v-model="dialogTableVisible" title="请填写医生信息" width="800">
+      <DoctorForm :optionType="optionType" :doctor-id="doctorId" :user-id="userId" :initial="{
+        name: props.name,
+        title: props.title,
+        introduction: props.introduction,
+        avatarUrl: avatarSrc,
+      }"></DoctorForm>
+    </el-dialog>
   </div>
 </template>
 
@@ -52,6 +58,8 @@ const getQueryString = (value: unknown): string => {
   }
   return typeof value === 'string' ? value : '';
 };
+
+const getRouteString = (value: unknown): string => getQueryString(value);
 const props = defineProps({
   cardType: {
     type: String,
@@ -92,11 +100,25 @@ const clinicId = computed(() => getQueryString(route.query.clinicId));
 const avatarSrc = computed(() => props.avatar || defaultAvatar);
 
 const getSchedule = () => {
+  if (!props.doctorId) {
+    ElMessage.error('缺少 doctorId，无法跳转到排班页');
+    return;
+  }
+
+  const department =
+    getRouteString(route.params.department) ||
+    getRouteString(route.query.departmentName) ||
+    '未知科室';
+  const clinic =
+    getRouteString(route.params.clinic) ||
+    getRouteString(route.query.clinicName) ||
+    '未知门诊';
+
   router.push({
     name: "clinicDoctorSchedule",
     params: {
-      department: route.query.departmentName as string,
-      clinic: route.query.clinicName as string,
+      department,
+      clinic,
       doctor: props.name
     },
     query: {
@@ -106,15 +128,32 @@ const getSchedule = () => {
       introduction: props.introduction,
       avatar: props.avatar,
     }
+  }).catch((err) => {
+    const msg = err instanceof Error ? err.message : String(err);
+    ElMessage.error(`跳转失败：${msg}`);
   })
 }
 
 const getCrudSchedule = () => {
+  if (!props.doctorId) {
+    ElMessage.error('缺少 doctorId，无法跳转到排班页');
+    return;
+  }
+
+  const department =
+    getRouteString(route.params.department) ||
+    getRouteString(route.query.departmentName) ||
+    '未知科室';
+  const clinic =
+    getRouteString(route.params.clinic) ||
+    getRouteString(route.query.clinicName) ||
+    '未知门诊';
+
   router.push({
     name: "crudClinicDoctorSchedule",
     params: {
-      department: route.query.departmentName as string,
-      clinic: route.query.clinicName as string,
+      department,
+      clinic,
       doctor: props.name
     },
     query: {
@@ -125,6 +164,9 @@ const getCrudSchedule = () => {
       introduction: props.introduction,
       avatar: props.avatar,
     }
+  }).catch((err) => {
+    const msg = err instanceof Error ? err.message : String(err);
+    ElMessage.error(`跳转失败：${msg}`);
   })
 }
 

@@ -151,16 +151,17 @@ export const updateDoctorRegistration = async (
   name: string,
   title: string,
   introduction: string,
-  avatarFile: File
+  avatarFile?: File | null
 ) => {
   try {
     const formData = new FormData();
     formData.append("doctorId", doctorId ?? "");
     formData.append("userId", userId ?? "");
-    formData.append("username", username ?? "");
-    formData.append("password", password ?? "");
-    formData.append("email", email ?? "");
-    formData.append("phone", phone ?? "");
+    // 兼容“只改部分字段”的更新：空值不传，避免覆盖成空字符串
+    if (username) formData.append("username", username);
+    if (password) formData.append("password", password);
+    if (email) formData.append("email", email);
+    if (phone) formData.append("phone", phone);
     formData.append("clinicId", clinicId ?? "");
     formData.append("name", name ?? "");
     formData.append("title", title ?? "");
@@ -177,7 +178,6 @@ export const updateDoctorRegistration = async (
       true
     );
 
-    console.log("头像", avatarFile);
     return res;
   } catch (err) {
     console.error(err);
