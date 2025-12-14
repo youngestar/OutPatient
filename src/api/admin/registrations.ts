@@ -126,7 +126,8 @@ export const createDoctorRegistration = async (
       formData.append("avatarFile", avatarFile);
     }
 
-    const res = await DoAxiosWithErro<doctor>(
+    // 后端返回值在不同实现中可能是 doctor 对象，也可能只返回新 doctorId（number/string）。
+    const res = await DoAxiosWithErro<doctor | string | number>(
       "/admin/doctor/Doctor-add",
       "post",
       formData, // 直接传递 FormData 对象

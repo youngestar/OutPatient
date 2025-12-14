@@ -38,13 +38,52 @@ onMounted(async () => {
 </script>
 
 <template>
-  <el-scrollbar v-loading="loading">
-    <RegistrationCard v-for="(item, index) in registrations" :key="index"
-      @click="goToDetail(item.patientName, item.doctorId, item.appointmentId)" v-bind="item">
-    </RegistrationCard>
-    <el-empty v-if="registrations.length === 0" description="还没有挂号记录"
-      style="width: 100%; height: 80vh; background-color: #fff;" />
-  </el-scrollbar>
+  <section class="main-shell utility-gap">
+    <header class="page-head">
+      <div>
+        <p class="eyebrow">REGISTRATIONS</p>
+        <h2>挂号记录</h2>
+      </div>
+    </header>
+
+    <el-scrollbar v-loading="loading" class="registrations-scroll">
+      <div v-if="registrations.length > 0" class="registrations-grid">
+        <RegistrationCard v-for="item in registrations" :key="item.appointmentId" class="registration-card"
+          @click="goToDetail(item.patientName, item.doctorId, item.appointmentId)" v-bind="item">
+        </RegistrationCard>
+      </div>
+      <el-empty v-else description="还没有挂号记录" class="empty-state surface-card" />
+    </el-scrollbar>
+  </section>
 </template>
 
-<style></style>
+<style lang="scss" scoped>
+.registrations-scroll {
+  width: 100%;
+}
+
+.registrations-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: stretch;
+}
+
+.registration-card {
+  flex: 1 1 340px;
+  min-width: 280px;
+  height: 450px;
+}
+
+.empty-state {
+  width: 100%;
+  padding: var(--space-8) 0;
+}
+
+@media (max-width: 768px) {
+  .registration-card {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+}
+</style>

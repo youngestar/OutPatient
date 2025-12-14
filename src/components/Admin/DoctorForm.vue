@@ -8,6 +8,9 @@ import defaultAvatarUrl from "@/assets/doctor.png"
 const defaultAvatar: Ref<File | null> = ref(null)
 const hospitalStore = useHospitalStore()
 const route = useRoute()
+const emit = defineEmits<{
+  (e: 'success'): void;
+}>()
 const props = defineProps({
   optionType: {
     type: String,
@@ -137,9 +140,11 @@ watch(
 
 // 提交处理
 const handleSubmit = async () => {
-  if (!formRef.value) return
-  const valid = await formRef.value.validate()
-  if (valid) {
+  try {
+    if (!formRef.value) return
+    const valid = await formRef.value.validate()
+    if (!valid) return
+
     // 这里处理提交逻辑
     if (!clinicId.value) {
       ElMessage.error('缺少门诊信息，无法创建医生');
@@ -172,6 +177,7 @@ const handleSubmit = async () => {
           message: '添加医生成功',
           type: 'success',
         })
+        emit('success')
       }
       return
     }
@@ -219,9 +225,13 @@ const handleSubmit = async () => {
           message: '更新医生信息成功',
           type: 'success',
         })
+        emit('success')
       }
       return
     }
+  } catch (e) {
+    // DoAxiosWithErro 已经会弹错误提示，这里主要是避免 Vue 报 Unhandled error
+    console.error('DoctorForm handleSubmit error', e)
   }
 }
 

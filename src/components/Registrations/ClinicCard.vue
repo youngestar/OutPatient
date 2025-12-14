@@ -1,6 +1,7 @@
 <template>
   <CardView v-loading="loading" :cardsprops="clinics.map((item) => { return { ...item, cardType: 'patient' } })"
-    :myCard="DepartCard" @handleclick="handleclick" style="text-align: center; height: 100%; min-height: 72vh;">
+    :myCard="DepartCard" @handleclick="handleclick"
+    style="text-align: center; height: 100%; min-height: 72vh; --card-gap: var(--space-2); --card-min-width: 220px;">
   </CardView>
 </template>
 

@@ -1,11 +1,14 @@
 <template>
-  <div class="profile-page" v-loading="loading">
+  <div class="profile-page main-shell utility-gap" v-loading="loading">
     <header class="page-head">
-      <h2>我的信息</h2>
+      <div>
+        <p class="eyebrow">PROFILE</p>
+        <h2>我的信息</h2>
+      </div>
       <el-button type="primary" @click="openEdit">修改个人资料</el-button>
     </header>
 
-    <section class="profile-card">
+    <section class="profile-card surface-card">
       <div class="avatar-panel">
         <input type="file" id="file" @change="handleUP" style="display: none;" />
         <el-avatar :src="myInfo.avatar" :size="150" class="avatar"></el-avatar>
@@ -140,54 +143,13 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 .profile-page {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding: 1.5rem 2rem;
+  width: 100%;
   min-height: 100%;
-  box-sizing: border-box;
-}
-
-.profile-page {
-  margin: 0 auto;
-}
-
-.page-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: linear-gradient(135deg, #eef2ff, #fdf2f8);
-  border-radius: 20px;
-  padding: 1.25rem 1.5rem;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
-
-  .eyebrow {
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #7c8db5;
-    font-size: 0.8rem;
-  }
-
-  h2 {
-    margin: 0.35rem 0;
-    font-size: 2rem;
-    color: #1f2933;
-  }
-
-  .subtext {
-    margin: 0;
-    color: #64748b;
-  }
 }
 
 .profile-card {
-  border-radius: 18px;
-  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
-  background-color: #fff;
-  padding: 1.75rem 2rem;
   display: flex;
-  gap: 2rem;
+  gap: var(--space-6);
   align-items: flex-start;
   box-sizing: border-box;
 }
@@ -195,10 +157,10 @@ onMounted(async () => {
 .avatar-panel {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-3);
   align-items: center;
   text-align: center;
-  min-width: 210px;
+  min-width: 220px;
 
   .avatar {
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
@@ -209,23 +171,25 @@ onMounted(async () => {
     display: inline-block;
     margin-top: 0.5rem;
     padding: 0.4rem 0.9rem;
-    background: #409eff;
+    background: var(--color-primary);
     color: #fff;
     border-radius: 10px;
-    border: 1px solid #fff;
+    border: 1px solid rgba(255, 255, 255, 0.7);
     font-weight: 600;
-    transition: background-color 0.2s ease;
+    transition: transform 0.15s ease, filter 0.15s ease;
 
     &:hover {
-      background-color: #66b1ff;
+      filter: brightness(1.05);
+      transform: translateY(-1px);
     }
   }
 }
 
 .info-panel {
   flex: 1;
-  display: flex;
-  gap: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
 }
 
 .info-col {
@@ -239,38 +203,27 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 2rem 0;
+  padding: var(--space-3) 0;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 .label {
   width: 88px;
   flex: 0 0 88px;
-  color: #64748b;
+  color: var(--color-text-muted);
   font-weight: 600;
 }
 
 .value {
-  color: #0f172a;
+  color: var(--color-text);
   font-weight: 600;
   word-break: break-word;
 }
 
 @media (max-width: 768px) {
-  .profile-page {
-    padding: 1rem;
-  }
-
-  .page-head {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
   .profile-card {
     flex-direction: column;
-    padding: 1.25rem;
-    gap: 1.25rem;
+    gap: var(--space-4);
   }
 
   .avatar-panel {
@@ -279,8 +232,8 @@ onMounted(async () => {
   }
 
   .info-panel {
-    flex-direction: column;
-    gap: 0.5rem;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
   }
 
   .label {

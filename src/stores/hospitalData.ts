@@ -1,5 +1,5 @@
 import { reactive } from "vue";
-import { defineStore } from "pinia";
+import { defineStore, acceptHMRUpdate } from "pinia";
 import type {
   getDepartment,
   getClinic,
@@ -85,7 +85,6 @@ export const useHospitalStore = defineStore("hospital", () => {
 
   const getClinics = async (departmentId: string) => {
     clinics.splice(0, clinics.length);
-    console.log(clinics);
     const newClinics = await getClinicRegistrations(departmentId);
     if (!newClinics) {
       console.error("获取门诊列表失败");
@@ -222,24 +221,30 @@ export const useHospitalStore = defineStore("hospital", () => {
     avatar: File,
     avatarUrl: string
   ) => {
-    const getDoctor = await createDoctorRegistration(
-      username,
-      password,
-      email,
-      phone,
-      clinicId,
-      name,
-      title,
-      introduction,
-      avatar
-    );
-    if (!getDoctor) {
-      console.error("创建医生失败");
-      return;
+    try {
+      const res = await createDoctorRegistration(
+        username,
+        password,
+        email,
+        phone,
+        clinicId,
+        name,
+        title,
+        introduction,
+        avatar
+      );
+      if (!res) {
+        console.error("创建医生失败");
+        return false;
+      }
+
+      // 不依赖创建接口返回体（可能只返回 doctorId），统一刷新列表。
+      await getDoctors(deptId, clinicId);
+      return true;
+    } catch (e) {
+      console.error("创建医生异常", e);
+      return false;
     }
-    getDoctor.avatar = avatarUrl;
-    await getDoctors(deptId, clinicId);
-    return getDoctor;
   };
 
   const updateDoctor = async (
@@ -400,3 +405,7 @@ export const useHospitalStore = defineStore("hospital", () => {
     deleteSchedule,
   };
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useHospitalStore, import.meta.hot));
+}

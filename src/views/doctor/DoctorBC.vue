@@ -2,7 +2,12 @@
   <div class="patient-cb" v-loading="isLoading">
 
     <div v-if="!isDetail" class="records-shell">
-      <h2>我的诊断</h2>
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">DIAGNOSIS</p>
+          <h2>我的诊断</h2>
+        </div>
+      </header>
       <section class="digCont">
         <article class="digItem" v-for="item in digList" :key="item.diagId">
           <div class="item-badge" v-if="unreadCounters[item.diagId]">

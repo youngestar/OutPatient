@@ -1,12 +1,20 @@
 <template>
   <div v-loading="isLoading" style="width: 100%; height: 100%">
     <!-- 预约列表 -->
+    <section class="main-shell utility-gap" style="padding-bottom: 0;">
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">REGISTRATIONS</p>
+          <h2>挂号记录</h2>
+        </div>
+      </header>
+    </section>
     <div class="listContainer" v-if="!isShowChat">
       <section class="appointment-panel">
         <header class="panel-header">
           <div>
             <p class="eyebrow">AI 咨询预约</p>
-            <h2>挂号记录</h2>
+            <h2>记录列表</h2>
           </div>
           <el-button type="primary" plain @click="getAppoimentList" :loading="isLoading">刷新列表</el-button>
         </header>

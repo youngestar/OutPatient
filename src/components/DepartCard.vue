@@ -1,11 +1,20 @@
 <template>
-  <div class="department-card" @click="emit('click')">
-    <h3 class="department-title">{{ props.name }}</h3>
+  <article class="department-card surface-card" :class="cardThemeClass" @click="emit('click')">
+    <header class="department-header">
+      <div class="department-title-block">
+        <p class="eyebrow">{{ isClinicCard ? '门诊' : '科室' }}</p>
+        <h3 class="department-title">{{ props.name }}</h3>
+      </div>
+      <span class="status-pill" :class="pillClass">{{ statusText }}</span>
+    </header>
+
     <div class="department-content">
-      <p v-if="props.state === 0" style="color:#FF3B30; font-weight: bold;">暂时关闭</p>
-      <p v-else-if="props.state === 1" style="font-weight: bold;">
-        正常开放</p>
-      <p v-else>发生故障</p>
+      <p class="helper-text" v-if="isClinicCard">
+        点击查看该门诊医生列表
+      </p>
+      <p class="helper-text" v-else>
+        点击查看该科室门诊列表
+      </p>
     </div>
     <div id="btns" v-if="props.cardType === 'admin'">
       <el-button type="success" @click.stop="() => { timeTableVisible = true; }"
@@ -13,7 +22,7 @@
       <el-button type="primary" @click.stop="updateName">修改</el-button>
       <el-button type="danger" @click.stop="deleteItem">删除</el-button>
     </div>
-  </div>
+  </article>
   <el-dialog v-model="timeTableVisible" title="请填写选择排班时间信息" width="800">
     <TimeForm optionType="autoUpdate" @autoUpdate="autoUpdate"></TimeForm>
   </el-dialog>
@@ -21,7 +30,7 @@
 
 <script lang="ts" setup>
 import TimeForm from './TimeForm.vue';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useHospitalStore } from '@/stores/hospitalData';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useRoute } from 'vue-router';
@@ -48,6 +57,25 @@ const props = defineProps({
     type: String,
     required: true
   }
+})
+
+const isClinicCard = computed(() => {
+  // 在“门诊列表”页（已有 departmentId）时，此卡片代表门诊；否则代表科室
+  const deptId = route.query.departmentId
+  return Array.isArray(deptId) ? Boolean(deptId[0]) : Boolean(deptId)
+})
+
+const cardThemeClass = computed(() => (isClinicCard.value ? 'theme-clinic' : 'theme-department'))
+
+const statusText = computed(() => {
+  if (props.state === 0) return '暂时关闭'
+  if (props.state === 1) return '正常开放'
+  return '发生故障'
+})
+
+const pillClass = computed(() => {
+  // base.css 里只有 is-success / is-warning
+  return props.state === 1 ? 'is-success' : 'is-warning'
 })
 
 const resolveDepartmentId = (): string | undefined => {
@@ -123,23 +151,38 @@ const deleteItem = async () => {
   cursor: pointer;
   width: 300px;
   height: 200px;
-  background: vars.$card-bg-depart;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 16px;
+  padding: var(--space-4);
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
+  gap: var(--space-3);
+}
+
+.department-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.department-title-block {
+  min-width: 0;
+}
+
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
 }
 
 .department-title {
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 12px;
-  color: #303133;
-  text-align: center;
-  border-bottom: 1px solid #e4e7ed;
-  padding-bottom: 8px;
+  margin-top: 4px;
+  color: var(--color-text);
+  line-height: 1.2;
+  word-break: break-word;
 }
 
 .department-content {
@@ -147,7 +190,11 @@ const deleteItem = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #606266;
+}
+
+.helper-text {
+  color: var(--color-text-muted);
+  text-align: center;
 }
 
 #btns {

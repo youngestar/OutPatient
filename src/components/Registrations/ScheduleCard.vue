@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, type Ref, defineProps, onMounted, computed } from 'vue';
+import { ref, type Ref, onMounted, computed } from 'vue';
 import { ElAvatar, ElMessage, ElDialog, ElMessageBox } from 'element-plus';
 import { createRegistrations } from '@/api/patient/registrations';
 import type { UserInfo } from '@/stores/user';
@@ -257,8 +257,11 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .schedule-card {
-  height: 500px;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
+  height: auto;
+  min-height: 420px;
 }
 
 .schedule-card__header {
@@ -309,6 +312,7 @@ onMounted(() => {
   grid-template-columns: auto 1fr;
   gap: var(--space-4);
   align-items: center;
+  flex: 1;
 }
 
 .schedule-card__avatar {
@@ -347,6 +351,7 @@ onMounted(() => {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   overflow: hidden;
 }
 
@@ -354,6 +359,7 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   gap: var(--space-3);
+  margin-top: auto;
 }
 
 .admin-actions {

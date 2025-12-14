@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts" setup>
-import { type Component, type PropType, computed, defineEmits, defineProps, ref } from 'vue';
+import { type Component, type PropType, computed, ref } from 'vue';
 
 // 分页组件相关
 const currentPage = ref(1);

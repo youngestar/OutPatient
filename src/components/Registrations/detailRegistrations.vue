@@ -2,11 +2,9 @@
 import { onMounted, reactive, type Reactive, ref, computed } from 'vue';
 import { doctorGetDetailRegistration } from '@/api/doctor/registrations';
 import { useRoute, useRouter } from 'vue-router';
-import { ElTag, ElButton } from 'element-plus';
 import { type detailRegistration } from '@/api/doctor/registrations';
 import ChatView from '@/views/ChatView.vue';
 import DiagnoseForm from './DiagnoseForm.vue';
-import { ElDialog } from 'element-plus';
 
 const patientData: Reactive<detailRegistration> = reactive({
   deptName: "无",
@@ -31,6 +29,22 @@ const router = useRouter();
 const doctorId = computed(() => (typeof route.query.doctorId === 'string' ? route.query.doctorId : ''))
 const appointmentId = computed(() => (typeof route.query.appointmentId === 'string' ? route.query.appointmentId : ''))
 
+const revisitText = computed(() => (patientData.isRevisit === 0 ? '初诊' : '复诊'))
+const revisitPillClass = computed(() => (patientData.isRevisit === 0 ? '' : 'is-success'))
+
+const statusText = computed(() => {
+  if (patientData.status === 0) return '待就诊'
+  if (patientData.status === 1) return '已就诊'
+  if (patientData.status === 2) return '已取消'
+  return '异常'
+})
+
+const statusPillClass = computed(() => {
+  if (patientData.status === 1) return 'is-success'
+  if (patientData.status === 2) return 'is-warning'
+  return ''
+})
+
 onMounted(async () => {
   if (!doctorId.value || !appointmentId.value) {
     loading.value = false;
@@ -45,116 +59,278 @@ onMounted(async () => {
 </script>
 
 <template>
-  <el-scrollbar id="detail-registrations">
-    <div id="card" v-loading="loading">
-      <h2>患者信息</h2>
-      <el-button style="position: absolute; right: 30px; top: 30px;" type="primary"
-        @click="router.back()">上一级</el-button>
-      <div id="main-msg">
-        <div class="left">
-          <h3 style="font-size: 30px;">详细信息</h3>
-          <p><span class="label">序号:</span><span class="detail">{{ patientData.appointmentId }}</span></p>
-          <p><span class="label">病历号:</span><span class="detail">{{ patientData.scheduleId }}</span></p>
-          <p><span class="label">病人姓名:</span><span class="detail">{{ patientData.patientName }}</span></p>
-          <p><span class="label">是否初诊:</span><el-tag class="detail" type="warning">{{ patientData.isRevisit === 0 ?
-            "是"
-            : "否"
-              }}</el-tag></p>
-          <p><span class="label">就诊状态:</span><el-tag class="detail" type="warning">{{ patientData.status === 0 ? "待就诊"
-            :
-            patientData.status ===
-              1
-              ? "已就诊" : patientData.status === 2 ? "已取消" : "出错了"
-              }}</el-tag></p>
-          <p><span class="label">挂号时间:</span><span class="detail">{{ patientData.appointmentDate }}</span></p>
-          <p><span class="label">科室名:</span><span class="detail">{{ patientData.deptName }}</span></p>
-          <p><span class="label">诊室名:</span><span class="detail">{{ patientData.clinicName }}</span></p>
-          <p><span class="label">就诊医生:</span><span class="detail">{{ patientData.doctorName }}</span></p>
-          <div class="bottom">
-            <div id="finishRegistrationsBtn">
+  <el-scrollbar class="detail-registrations" v-loading="loading">
+    <section class="main-shell utility-gap">
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">REGISTRATION</p>
+          <h2>患者信息</h2>
+          <p class="subtext">患者：{{ patientData.patientName }} · 时间：{{ patientData.appointmentDate }}</p>
+        </div>
+        <el-button type="primary" plain @click="router.back()">返回</el-button>
+      </header>
+
+      <div class="content-grid">
+        <section class="surface-card info-card">
+          <header class="card-head">
+            <div>
+              <p class="eyebrow">DETAIL</p>
+              <h3 class="card-title">详细信息</h3>
+            </div>
+            <div class="pill-row">
+              <span class="status-pill" :class="revisitPillClass">{{ revisitText }}</span>
+              <span class="status-pill" :class="statusPillClass">{{ statusText }}</span>
+            </div>
+          </header>
+
+          <section class="card-body info-body">
+            <section class="kv-grid">
+              <div class="kv">
+                <p class="k">序号</p>
+                <p class="v">{{ patientData.appointmentId }}</p>
+              </div>
+              <div class="kv">
+                <p class="k">病历号</p>
+                <p class="v">{{ patientData.scheduleId }}</p>
+              </div>
+              <div class="kv">
+                <p class="k">科室名</p>
+                <p class="v">{{ patientData.deptName }}</p>
+              </div>
+              <div class="kv">
+                <p class="k">诊室名</p>
+                <p class="v">{{ patientData.clinicName }}</p>
+              </div>
+              <div class="kv">
+                <p class="k">就诊医生</p>
+                <p class="v">{{ patientData.doctorName }}</p>
+              </div>
+              <div class="kv">
+                <p class="k">患者编号</p>
+                <p class="v">{{ patientData.patientId }}</p>
+              </div>
+              <div class="kv kv--full">
+                <p class="k">症状</p>
+                <p class="v v--muted">{{ patientData.description }}</p>
+              </div>
+              <div class="kv kv--full">
+                <p class="k">备注</p>
+                <p class="v v--muted">{{ patientData.statusDesc }}</p>
+              </div>
+            </section>
+          </section>
+
+          <footer class="card-footer">
+            <div>
               <el-button v-if="patientData.status !== 1" type="success"
-                @click="() => { dialogTableVisible = true }">完成就诊</el-button>
+                @click="dialogTableVisible = true">完成就诊</el-button>
               <el-button v-else type="success" disabled>已完成</el-button>
             </div>
             <el-button type="danger" disabled>取消就诊</el-button>
-          </div>
+          </footer>
+
           <el-dialog v-model="dialogTableVisible" title="请填写医生信息" width="800">
             <DiagnoseForm :appointmentId="patientData.appointmentId" :doctorId="patientData.doctorId"
               :patientId="patientData.patientId" @close="dialogTableVisible = false">
             </DiagnoseForm>
           </el-dialog>
-        </div>
-        <div class="right">
-          <h3 style="font-size: 30px;">对话历史</h3>
-          <chat-view style="margin-top: 20px; height: 62.5vh;" :appoimentId="appointmentId"
-            :couldSend="false"></chat-view>
-        </div>
+        </section>
+
+        <section class="surface-card chat-card">
+          <header class="card-head">
+            <div>
+              <p class="eyebrow">CHAT</p>
+              <h3 class="card-title">对话历史</h3>
+            </div>
+          </header>
+          <section class="card-body chat-body">
+            <ChatView class="chat-view" :appoiment-id="appointmentId" :could-send="false" />
+          </section>
+        </section>
       </div>
-    </div>
+    </section>
   </el-scrollbar>
 </template>
 
 <style scoped lang="scss">
-#card {
-  position: relative;
+.content-grid {
+  width: 100%;
+  --cols-height: clamp(520px, 70vh, 760px);
+  height: var(--cols-height);
+}
+
+.content-grid::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+.info-card {
   float: left;
-  height: 100vh;
-  width: 96.5%;
-  min-width: 400px;
-  padding: 20px;
-  background: vars.$card-bg-depart;
-  border-radius: 10px;
-  color: #303133;
+  width: 420px;
+  max-width: 48%;
+  margin-right: var(--space-4);
+  height: 80%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
 
-  h2 {
-    border-bottom: 1px solid black;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-    font-size: 40px;
+.chat-card {
+  overflow: hidden;
+  height: 80%;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-body {
+  min-height: 0;
+}
+
+.info-body {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+.chat-body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.info-card,
+.chat-card {
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-primary);
+}
+
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  margin-bottom: var(--space-3);
+}
+
+.card-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.kv-grid {
+  width: 100%;
+}
+
+.kv-grid::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+.kv {
+  float: left;
+  width: 50%;
+  padding-right: var(--space-4);
+  margin-bottom: var(--space-3);
+  min-width: 0;
+}
+
+.kv:nth-of-type(2n) {
+  padding-right: 0;
+}
+
+.kv--full {
+  clear: both;
+  width: 100%;
+  padding-right: 0;
+}
+
+.k {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.v {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+.v--muted {
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+}
+
+.chat-view {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+}
+
+@media (max-width: 1024px) {
+  .content-grid {
+    height: auto;
   }
 
-  #main-msg {
-    display: flex;
-
-    .left {
-      font-size: large;
-      width: 30%;
-    }
-
-    .right {
-      margin-left: 25%;
-      width: 40%;
-    }
+  .info-card {
+    float: none;
+    width: auto;
+    max-width: none;
+    margin-right: 0;
+    margin-bottom: var(--space-4);
+    height: auto;
+    overflow: visible;
+    display: block;
   }
 
-  .bottom {
-    margin: 150px auto;
-    display: flex;
-    justify-content: space-between;
-
-    .el-button {
-      position: relative;
-      bottom: 50px;
-      width: 90px;
-      height: 30px;
-      font-size: 15px;
-    }
+  .chat-card {
+    overflow: visible;
+    height: auto;
+    display: block;
   }
 
-  p {
-    display: flex;
-    margin: 25px 0;
+  .chat-view {
+    height: clamp(380px, 60vh, 560px);
+  }
+}
 
-    .label {
-      width: 120px;
-      text-align: left;
-    }
+@media (max-width: 768px) {
+  .kv-grid {
+    width: 100%;
+  }
 
-    .detail {
-      font-weight: bold;
-      margin-left: 20px;
-      color: #606266;
-    }
+  .kv {
+    float: none;
+    width: 100%;
+    padding-right: 0;
+  }
+
+  .card-footer {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 </style>

@@ -1,10 +1,13 @@
 <template>
   <div class="chat-container">
-    <div class="chat-header">
-      <h2>AI助手</h2>
+    <header class="page-head chat-header">
+      <div>
+        <p class="eyebrow">ASSISTANT</p>
+        <h2>AI助手</h2>
+      </div>
       <el-button v-if="couldSend && !hasRecorded" class="over-button"
         @click="overAichat(chatHistoryStore.getId(appoimentId))" type="danger" size="large">终止对话</el-button>
-    </div>
+    </header>
     <div class="chat-messages" ref="chatMessages">
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.sender]">
         <div class="message-avatar">
@@ -302,11 +305,9 @@ onUnmounted(() => {
 }
 
 .chat-header {
-  background-color: #4a6cf7;
-  color: white;
-  padding: 15px;
   position: relative;
-  text-align: center;
+  margin: 16px;
+  padding: 18px 22px;
 
   .over-button {
     position: absolute;

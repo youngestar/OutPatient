@@ -1,5 +1,13 @@
 <template>
   <el-scrollbar v-loading="loading">
+    <section class="main-shell utility-gap">
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">DATA</p>
+          <h2>就诊数据统计</h2>
+        </div>
+      </header>
+    </section>
     <FrequencyData ref="chartsFrequency" style="float: left; height: 40vh;"></FrequencyData>
     <AgeData ref="chartsAge" style="float: left; height: 40vh;"></AgeData>
     <GenderData ref="chartsGender" style="float: left; height: 40vh;"></GenderData>

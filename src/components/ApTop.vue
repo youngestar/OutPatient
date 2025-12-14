@@ -1,6 +1,7 @@
 <template>
   <div class="ap-top">
     <div id="patient">
+      <span style="font-size: 22px; font-weight: bold;">{{ pageTitle }}部分</span>
       <el-button type="primary" @click="backpage" v-show="route.params.department">上一级</el-button>
       <div v-if="route.query.departmentId && !route.query.doctorId" id="searchInput"
         style="position: relative; bottom: 2.5px;">
@@ -19,7 +20,7 @@
     </div>
   </div>
   <el-dialog v-model="doctorDialogTableVisible" title="请填写医生信息" width="800">
-    <DoctorForm :optionType="optionType"></DoctorForm>
+    <DoctorForm :optionType="optionType" @success="doctorDialogTableVisible = false"></DoctorForm>
   </el-dialog>
   <el-dialog v-model="scheduleDialogTableVisible" title="请填写排班信息" width="800">
     <ScheduleForm :optionType="optionType" :clinicId="clinicId" :doctorId="doctorId">
@@ -68,6 +69,28 @@ const effectiveCardType = computed(() => {
     return 'doctor'
   }
   return 'patient'
+})
+
+const pageTitle = computed(() => {
+  const routeName = String(route.name || '')
+
+  // 患者端挂号流程
+  if (routeName === 'department') return '科室'
+  if (routeName === 'clinic') return '门诊'
+  if (routeName === 'clinicDoctor') return '医生'
+  if (routeName === 'clinicDoctorSchedule') return '排班'
+
+  // 管理端 CRUD 流程
+  if (routeName === 'crudDepartment') return '科室'
+  if (routeName === 'crudClinic') return '门诊'
+  if (routeName === 'crudClinicDoctor') return '医生'
+  if (routeName === 'crudClinicDoctorSchedule') return '排班'
+
+  // 兜底（根据 query 推断）
+  if (doctorId.value) return '排班'
+  if (clinicId.value) return '医生'
+  if (departmentId.value) return '门诊'
+  return '科室'
 })
 const backpage = () => {
   if (route.params.department) {
