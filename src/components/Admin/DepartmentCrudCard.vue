@@ -1,5 +1,5 @@
 <template>
-  <CardView v-loading="loading" @handleclick="handleclick" style="text-align: center; height: 100%; min-height: 72vh;"
+  <CardView v-loading="loading" @handleclick="handleclick" style="text-align: center; height: 100%; "
     :cardsprops="departs.map((item) => { return { ...item, cardType: 'admin' } })" :myCard="DepartCard">
   </CardView>
 </template>

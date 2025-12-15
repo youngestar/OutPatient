@@ -6,7 +6,7 @@
       <Search />
     </el-icon>
   </el-button>
-  <CardView style="height: 100%; min-height: 100vh;" v-loading="loading"
+  <CardView style="height: 100%; " v-loading="loading"
     :cardsprops="doctors.map((item) => { return { ...item, cardType: 'admin' } })" :myCard="DoctorCard">
   </CardView>
 </template>

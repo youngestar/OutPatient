@@ -32,11 +32,11 @@
         </div>
       </div>
     </section>
-
-    <el-dialog v-model="dialogTableVisible" title="请填写新的信息" width="800" @closed="clearEditInitial">
-      <UserForm :initial="editInitial" @submit="changeInfo"></UserForm>
-    </el-dialog>
   </div>
+
+  <el-dialog v-model="dialogTableVisible" title="请填写新的信息" width="800" @closed="clearEditInitial">
+    <UserForm :initial="editInitial" @submit="changeInfo"></UserForm>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
