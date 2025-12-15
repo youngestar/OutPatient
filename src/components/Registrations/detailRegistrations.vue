@@ -128,14 +128,7 @@ onMounted(async () => {
             </div>
             <el-button type="danger" disabled>取消就诊</el-button>
           </footer>
-
-          <el-dialog v-model="dialogTableVisible" title="请填写医生信息" width="800">
-            <DiagnoseForm :appointmentId="patientData.appointmentId" :doctorId="patientData.doctorId"
-              :patientId="patientData.patientId" @close="dialogTableVisible = false">
-            </DiagnoseForm>
-          </el-dialog>
         </section>
-
         <section class="surface-card chat-card">
           <header class="card-head">
             <div>
@@ -150,6 +143,12 @@ onMounted(async () => {
       </div>
     </section>
   </el-scrollbar>
+
+  <el-dialog v-model="dialogTableVisible" title="请填写医生信息" width="800">
+    <DiagnoseForm :appointmentId="patientData.appointmentId" :doctorId="patientData.doctorId"
+      :patientId="patientData.patientId" @close="dialogTableVisible = false">
+    </DiagnoseForm>
+  </el-dialog>
 </template>
 
 <style scoped lang="scss">
@@ -195,6 +194,7 @@ onMounted(async () => {
 .chat-body {
   flex: 1 1 auto;
   min-height: 0;
+  overflow: hidden;
 }
 
 .info-card,
@@ -285,9 +285,9 @@ onMounted(async () => {
 
 .chat-view {
   width: 100%;
-  flex: 1 1 auto;
+  height: 100%;
   min-height: 0;
-  height: auto;
+  overscroll-behavior: contain;
 }
 
 @media (max-width: 1024px) {

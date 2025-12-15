@@ -56,13 +56,14 @@
           取消排班
         </el-button>
       </div>
-      <el-dialog v-model="scheduleDialogTableVisible" title="请填写排班信息" width="800">
-        <ScheduleForm @submit="adminUpdateSchedule" :optionType="optionType" :clinicId="routeClinicId"
-          :doctorId="routeDoctorId" :scheduleId="props.scheduleId">
-        </ScheduleForm>
-      </el-dialog>
     </footer>
   </article>
+
+  <el-dialog v-model="scheduleDialogTableVisible" title="请填写排班信息" width="800">
+    <ScheduleForm @submit="adminUpdateSchedule" :optionType="optionType" :clinicId="routeClinicId"
+      :doctorId="routeDoctorId" :scheduleId="props.scheduleId">
+    </ScheduleForm>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>

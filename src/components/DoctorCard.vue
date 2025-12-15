@@ -28,17 +28,16 @@
       <el-button type="primary" @click.stop="dialogTableVisible = true">修改</el-button>
       <el-button type="danger" @click.stop="deleteDoctor(doctorId)">删除</el-button>
     </footer>
-
-    <el-dialog v-model="dialogTableVisible" title="请填写医生信息" width="800">
-      <DoctorForm :optionType="optionType" :doctor-id="doctorId" :user-id="userId" @success="dialogTableVisible = false"
-        :initial="{
-          name: props.name,
-          title: props.title,
-          introduction: props.introduction,
-          avatarUrl: avatarSrc,
-        }"></DoctorForm>
-    </el-dialog>
   </article>
+  <el-dialog v-model="dialogTableVisible" title="请填写医生信息" width="800">
+    <DoctorForm :optionType="optionType" :doctor-id="doctorId" :user-id="userId" @success="dialogTableVisible = false"
+      :initial="{
+        name: props.name,
+        title: props.title,
+        introduction: props.introduction,
+        avatarUrl: avatarSrc,
+      }"></DoctorForm>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>

@@ -1,7 +1,9 @@
 <template>
-  <CardView style="height: 100%; min-height: 100vh;" v-loading="loading"
-    :cardsprops="doctors.map(doctor => ({ ...doctor, cardType: 'doctor' }))" :myCard="DoctorCard">
-  </CardView>
+  <div>
+    <CardView style="height: 100%; " :cardsprops="doctors.map(doctor => ({ ...doctor, cardType: 'doctor' }))"
+      :myCard="DoctorCard">
+    </CardView>
+  </div>
 </template>
 
 <script lang="ts" setup>

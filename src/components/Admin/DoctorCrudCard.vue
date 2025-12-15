@@ -1,5 +1,5 @@
 <template>
-  <CardView style="height: 100%; min-height: 100vh;" v-loading="loading"
+  <CardView style="height: 100%; " v-loading="loading"
     :cardsprops="doctors.map(doctor => ({ ...doctor, cardType: 'admin' }))" :myCard="DoctorCard">
   </CardView>
 </template>
