@@ -42,7 +42,7 @@ const handleSend = async () => {
   try {
     await DoAxios(`/auth/email`, 'get', {
       email: ruleForm.email
-    }, false);
+    }, false, false, 30000);
     ElMessage({
       message: '发送成功',
       type: 'success'

@@ -63,24 +63,28 @@ function getTokenFromSources(): string | null {
     }
 
     // 2. axios 默认 header 中的 satoken 或 Authorization
-    const headerSatoken = (myApi.defaults.headers?.common as any)?.satoken;
+    const commonHeaders = (myApi.defaults.headers?.common ?? {}) as unknown as Record<
+      string,
+      unknown
+    >;
+    const headerSatoken = commonHeaders["satoken"];
     if (headerSatoken) {
-      return headerSatoken;
+      return String(headerSatoken);
     }
-    const headerAuth = (myApi.defaults.headers?.common as any)?.Authorization;
-    if (headerAuth && typeof headerAuth === 'string') {
+    const headerAuth = commonHeaders["Authorization"];
+    if (headerAuth && typeof headerAuth === "string") {
       // Authorization 可能为 'Bearer xxx'
-      return headerAuth.startsWith('Bearer ') ? headerAuth.substring(7) : headerAuth;
+      return headerAuth.startsWith("Bearer ") ? headerAuth.substring(7) : headerAuth;
     }
 
     // 3. localStorage 回退
-    const ls = localStorage.getItem('userToken');
+    const ls = localStorage.getItem("userToken");
     if (ls) {
       return ls;
     }
 
     // 4. cookie 回退（查找 satoken 或 token）
-    if (typeof document !== 'undefined' && document.cookie) {
+    if (typeof document !== "undefined" && document.cookie) {
       const matchSatoken = document.cookie.match(/(?:^|;\s*)satoken=([^;]+)/);
       if (matchSatoken && matchSatoken[1]) {
         return decodeURIComponent(matchSatoken[1]);
@@ -88,7 +92,7 @@ function getTokenFromSources(): string | null {
       const matchAuth = document.cookie.match(/(?:^|;\s*)Authorization=([^;]+)/);
       if (matchAuth && matchAuth[1]) {
         const val = decodeURIComponent(matchAuth[1]);
-        return val.startsWith('Bearer ') ? val.substring(7) : val;
+        return val.startsWith("Bearer ") ? val.substring(7) : val;
       }
       const matchToken = document.cookie.match(/(?:^|;\s*)token=([^;]+)/);
       if (matchToken && matchToken[1]) {
@@ -97,7 +101,7 @@ function getTokenFromSources(): string | null {
     }
   } catch (e) {
     // 忽略读取错误，继续返回 null
-    console.warn('getTokenFromSources error', e);
+    console.warn("getTokenFromSources error", e);
   }
   return null;
 }
@@ -109,12 +113,17 @@ export const DoAxios = async <TResponse = unknown>(
   method: Method,
   requestInfo: RequestPayload | null | undefined = {},
   withToken: boolean = false,
-  hasBody: boolean = false
+  hasBody: boolean = false,
+  timeoutMs?: number
 ): Promise<TResponse> => {
   const requestConfig: AxiosRequestConfig = {
     url: path,
     method,
   };
+
+  if (typeof timeoutMs === "number") {
+    requestConfig.timeout = timeoutMs;
+  }
   const payload: RequestPayload = (requestInfo ?? {}) as RequestPayload;
 
   // 如果需要 Token，就添加 token 头
@@ -173,10 +182,11 @@ export const DoAxiosWithErro = async <TResponse = unknown>(
   method: Method,
   requestInfo: RequestPayload | null | undefined = {},
   withToken: boolean = false,
-  hasBody: boolean = false
+  hasBody: boolean = false,
+  timeoutMs?: number
 ): Promise<TResponse> => {
   try {
-    return await DoAxios<TResponse>(path, method, requestInfo, withToken, hasBody);
+    return await DoAxios<TResponse>(path, method, requestInfo, withToken, hasBody, timeoutMs);
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : String(e);
     ElMessage.error(message);
