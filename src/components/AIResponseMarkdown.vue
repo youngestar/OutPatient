@@ -23,7 +23,7 @@ const md = new MarkdownIt({
         return hljs.highlight(str, { language: lang }).value
       }
       return hljs.highlightAuto(str).value
-    } catch (e) {
+    } catch {
       return '' // fallback to no highlight
     }
   }
@@ -71,35 +71,35 @@ const safeHtml = computed(() => {
 /* Container base */
 .ai-markdown {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 13.5px; /* slightly smaller */
+  line-height: 1.38; /* tighter */
   color: #24303f;
   white-space: pre-wrap;
   word-break: break-word;
-  padding-left: 13px;
+  padding-left: 10px; /* less inner padding */
   padding-right: 6px;
 }
 
-/* Paragraphs and spacing */
+/* Paragraphs and spacing - tightened */
 .ai-markdown p {
-  margin: 0 0 0.75em 0;
+  margin: 0 0 0.42em 0; /* slightly tighter */
 }
 
-/* Headings */
+/* Headings - tightened */
 .ai-markdown h1,
 .ai-markdown h2,
 .ai-markdown h3,
 .ai-markdown h4,
 .ai-markdown h5,
 .ai-markdown h6 {
-  margin: 0.6em 0 0.4em 0;
+  margin: 0.32em 0 0.18em 0;
   font-weight: 600;
   color: #102a43;
 }
-.ai-markdown h1 { font-size: 1.25rem; }
-.ai-markdown h2 { font-size: 1.1rem; }
-.ai-markdown h3 { font-size: 1rem; }
-.ai-markdown h4 { font-size: 0.95rem; }
+.ai-markdown h1 { font-size: 1.16rem; }
+.ai-markdown h2 { font-size: 1.03rem; }
+.ai-markdown h3 { font-size: 0.96rem; }
+.ai-markdown h4 { font-size: 0.9rem; }
 
 /* Links */
 .ai-markdown a {
@@ -110,15 +110,15 @@ const safeHtml = computed(() => {
   text-decoration: none;
 }
 
-/* Lists: increase left spacing and style markers */
+/* Lists: tighter spacing */
 .ai-markdown ul,
 .ai-markdown ol {
-  margin: 0 0 0.9em 1.6rem; /* give more breathing room from the left edge */
-  padding-left: 0; /* marker spacing handled by margin & marker */
+  margin: 0 0 0.48em 1.3rem;
+  padding-left: 0;
   list-style-position: outside;
 }
 .ai-markdown li {
-  margin: 0.28em 0;
+  margin: 0.08em 0; /* much tighter */
   padding-left: 0.2rem;
 }
 
@@ -130,16 +130,16 @@ const safeHtml = computed(() => {
 .ai-markdown ol > li {
   counter-increment: md-counter;
   position: relative;
-  padding-left: 2.2rem; /* space for the custom marker */
+  padding-left: 2.1rem; /* a bit less space */
 }
 .ai-markdown ol > li::before {
   content: counter(md-counter);
   position: absolute;
   left: 0;
-  top: 0.15rem; /* slightly adjusted vertical align */
-  width: 1.4rem; /* slightly smaller marker */
-  height: 1.4rem;
-  line-height: 1.4rem;
+  top: 0.12rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  line-height: 1.3rem;
   text-align: center;
   background: linear-gradient(180deg, #eef2ff, #e6f0ff);
   color: #1f2937;
@@ -147,53 +147,53 @@ const safeHtml = computed(() => {
   font-weight: 700;
   box-shadow: 0 1px 2px rgba(12,18,31,0.06);
   border: 1px solid rgba(15,23,42,0.04);
-  font-size: 0.82rem; /* slightly smaller font */
+  font-size: 0.78rem;
 }
 
 /* Inline code */
 .ai-markdown code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Droid Sans Mono", "Courier New", monospace;
   background: rgba(27,31,35,0.05);
-  padding: 0.15em 0.35em;
+  padding: 0.1em 0.24em;
   border-radius: 4px;
-  font-size: 0.93em;
+  font-size: 0.9em;
 }
 
-/* Code blocks */
+/* Code blocks - tighter */
 .ai-markdown pre {
   border-radius: 8px;
   overflow: auto;
-  margin: 0 0 0.8em 0;
+  margin: 0 0 0.48em 0;
 }
 .ai-markdown pre code {
   display: block;
-  padding: 12px;
+  padding: 8px; /* smaller padding */
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Droid Sans Mono", "Courier New", monospace;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12.5px;
+  line-height: 1.35;
 }
 
-/* Blockquotes */
+/* Blockquotes - tighter */
 .ai-markdown blockquote {
   border-left: 4px solid rgba(43,110,246,0.12);
-  background: rgba(43,110,246,0.04);
-  padding: 8px 12px;
-  margin: 0 0 0.75em 0;
+  background: rgba(43,110,246,0.03);
+  padding: 6px 8px;
+  margin: 0 0 0.42em 0;
   border-radius: 6px;
   color: #344e6a;
 }
 
-/* Tables */
+/* Tables - reduced spacing */
 .ai-markdown table {
   width: 100%;
   border-collapse: collapse;
-  margin: 0 0 0.9em 0;
+  margin: 0 0 0.48em 0;
   overflow: auto;
 }
 .ai-markdown th,
 .ai-markdown td {
   border: 1px solid rgba(15,23,42,0.06);
-  padding: 8px 10px;
+  padding: 5px 6px;
   text-align: left;
 }
 .ai-markdown th {
@@ -206,7 +206,7 @@ const safeHtml = computed(() => {
   max-width: 100%;
   height: auto;
   display: block;
-  margin: 0.5em 0;
+  margin: 0.3em 0;
   border-radius: 6px;
 }
 
@@ -215,6 +215,6 @@ const safeHtml = computed(() => {
   border: none;
   height: 1px;
   background: rgba(15,23,42,0.06);
-  margin: 0.75em 0;
+  margin: 0.4em 0;
 }
 </style>
