@@ -10,8 +10,13 @@
         <div class="message-content">
           <div class="message-sender">{{ message.sender === 'user' ? '你' : 'AI助手' }}</div>
           <div class="message-text">
-            {{ message.text }}
-            <div class="loading" v-if="message.sender === 'ai' && isLoading && index === messages.length - 1"></div>
+            <template v-if="message.sender === 'ai'">
+              <AIResponseMarkdown :text="message.text" />
+              <div class="loading" v-if="isLoading && index === messages.length - 1"></div>
+            </template>
+            <template v-else>
+              {{ message.text }}
+            </template>
           </div>
         </div>
       </div>
@@ -31,6 +36,7 @@ import { useUserStore } from '@/stores/user';
 import { useChatHistoryStore } from '@/stores/ChatHistory';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import AIResponseMarkdown from '@/components/AIResponseMarkdown.vue'
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 type ChatHistoryEntry = {
@@ -376,6 +382,11 @@ onUnmounted(() => {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   max-width: 80%;
   word-wrap: break-word;
+}
+
+/* Add more left padding for AI messages so list markers have room */
+.message.ai .message-content {
+  padding-left: 22px;
 }
 
 .message.user .message-content {
