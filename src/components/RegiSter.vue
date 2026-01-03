@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { DoAxios, DoAxiosWithErro } from '@/api';
-import { reactive, ref, defineEmits } from 'vue'
+import { reactive, ref, defineEmits, computed } from 'vue'
 import { ElMessage, type FormInstance } from 'element-plus';
 //   import { FormInstance, FormRules } from 'element-plus' // 不需要类型导入
 
@@ -223,6 +223,29 @@ const rules = reactive({
   age: [{ validator: checkAge, trigger: 'change' }]
 })
 
+const isNextDisabled = computed(() => {
+  return !ruleForm.username ||
+         ruleForm.gender === '' ||
+         !ruleForm.pass ||
+         !ruleForm.checkPass ||
+         !ruleForm.phone ||
+         ruleForm.pass !== ruleForm.checkPass;
+});
+
+const handleNextStep = async () => {
+  const formEl = ruleFormRef.value;
+  if (!formEl) return;
+
+  const fields = ['username', 'gender', 'pass', 'checkPass', 'phone'];
+
+  try {
+    await formEl.validateField(fields);
+    isdetailed.value = false;
+  } catch {
+    // Validation failed
+  }
+}
+
 const submitForm = () => {
   const formEl = ruleFormRef.value;
   if (!formEl) {
@@ -328,7 +351,7 @@ const sendMessage = async () => {
             <el-input v-model="ruleForm.phone" placeholder="常用手机号" />
           </el-form-item>
           <el-form-item class="full-width">
-            <el-button class="cta" type="primary" @click="isdetailed = !isdetailed">下一步</el-button>
+            <el-button class="cta" type="primary" @click="handleNextStep" :disabled="isNextDisabled">下一步</el-button>
           </el-form-item>
         </div>
         <div v-else key="profile" class="grid-wrapper">
