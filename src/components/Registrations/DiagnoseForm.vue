@@ -46,7 +46,7 @@ const rules = reactive<FormRules<MedicalForm>>({
     { max: 200, message: '检查项目不宜超过200字', trigger: 'blur' }
   ],
   advice: [
-    { max: 150, message: '建议内容不宜超过150字', trigger: 'blur' }
+    { max: 300, message: '建议内容不宜超过300字', trigger: 'blur' }
   ]
 })
 

@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { useUserStore } from '@/stores/user';
 import { useComunicationStore } from '@/stores/comunication';
-import { reactive, defineEmits, ref } from 'vue'
+import { reactive, defineEmits, ref, computed, onBeforeUnmount, watch } from 'vue'
+import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 
 const Login = ref(null);
@@ -10,19 +11,76 @@ const router = useRouter();
 const userstor = useUserStore();
 const comunication = useComunicationStore();
 
-// do not use same name with ref
 const form = reactive({
   name: '',
   password: '',
 })
 const emit = defineEmits(['turnLoR'])
+const now = ref(Date.now())
+let countdownTimer: ReturnType<typeof setInterval> | null = null
+
+const updateNow = () => {
+  now.value = Date.now()
+}
+
+const startCountdown = () => {
+  if (countdownTimer) return;
+  countdownTimer = setInterval(() => {
+    updateNow();
+    if (!userstor.isLoginLocked && countdownTimer) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+  }, 1000)
+}
+
+const stopCountdown = () => {
+  if (!countdownTimer) return;
+  clearInterval(countdownTimer)
+  countdownTimer = null
+}
+
+watch(
+  () => userstor.loginLockedUntil,
+  (lockedUntil) => {
+    updateNow();
+    if (lockedUntil > Date.now()) {
+      startCountdown();
+      return;
+    }
+    stopCountdown();
+  },
+  { immediate: true }
+)
+
+onBeforeUnmount(() => {
+  stopCountdown()
+})
+
+const isLoginDisabled = computed(() => {
+  return logining.value || userstor.loginLockedUntil > now.value;
+})
+
+const lockHint = computed(() => {
+  const remainingMs = Math.max(0, userstor.loginLockedUntil - now.value);
+  if (remainingMs <= 0) return '';
+  const remainingSeconds = Math.ceil(remainingMs / 1000);
+  const minutes = Math.floor(remainingSeconds / 60);
+  const seconds = remainingSeconds % 60;
+  return `账号或密码错误次数过多，当前已禁止登录，请 ${minutes}分${seconds}秒 后重试`;
+})
 
 const handelturn = () => {
   emit('turnLoR', 'register')
 }
 
 const handleLogin = async () => {
-  if (logining.value) return;
+  if (isLoginDisabled.value) {
+    if (userstor.loginLockedUntil > now.value) {
+      ElMessage.warning(lockHint.value || '当前登录已被暂时禁止，请稍后再试');
+    }
+    return;
+  }
   try {
     const userInfo = {
       account: form.name as string,
@@ -41,6 +99,12 @@ const handleLogin = async () => {
     if (userstor.isLoggedIn && userstor.userInfo?.role === 2) {
       router.push({ path: '/admin' });
       return
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '登录失败，请稍后重试';
+    if (userstor.loginLockedUntil > now.value) {
+      ElMessage.error(`${message}，已触发登录限制`);
+      return;
     }
   } finally {
     logining.value = false;
@@ -67,9 +131,12 @@ const handleLogin = async () => {
       <el-form-item label="密码">
         <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password />
       </el-form-item>
+      <p v-if="userstor.failedLoginCount" class="login-status">
+        当前累计失败 {{ userstor.failedLoginCount }} 次<span v-if="lockHint">，{{ lockHint }}</span>
+      </p>
       <div class="actions">
-        <el-button :disabled="logining" @click="handleLogin" type="primary" class="wide">
-          {{ logining ? '登录中...' : '登录' }}
+        <el-button :disabled="isLoginDisabled" @click="handleLogin" type="primary" class="wide">
+          {{ lockHint ? '已禁止登录' : logining ? '登录中...' : '登录' }}
         </el-button>
       </div>
     </el-form>
@@ -79,7 +146,6 @@ const handleLogin = async () => {
     </footer>
   </section>
 </template>
-
 
 <style lang="scss" scoped>
 .auth-panel {
@@ -116,6 +182,16 @@ const handleLogin = async () => {
   :deep(.el-input__wrapper) {
     border-radius: 12px;
   }
+}
+
+.login-status {
+  margin: -0.15rem 0 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.12);
+  color: #b45309;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .actions {

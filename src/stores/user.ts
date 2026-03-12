@@ -1,6 +1,19 @@
 import { defineStore } from "pinia";
 import { DoAxiosWithErro, DoAxios } from "@/api";
-import myApi from "@/api"; // 新增：引入默认 Axios 实例，以便同步 header
+import myApi from "@/api";
+
+const LOGIN_FAIL_COUNT_KEY = "loginFailCount";
+const LOGIN_LOCK_UNTIL_KEY = "loginLockUntil";
+
+function readStoredNumber(key: string): number {
+  const raw = Number(localStorage.getItem(key) || 0);
+  return Number.isFinite(raw) ? raw : 0;
+}
+
+function calcLockMinutes(failedCount: number): number {
+  if (failedCount < 5) return 0;
+  return (failedCount / 5) ** 2;
+}
 
 // 定义用户信息类型（根据实际接口返回结构调整）
 export interface UserInfo {
@@ -29,21 +42,56 @@ export const useUserStore = defineStore("user", {
     userInfo: JSON.parse(localStorage.getItem("userInfo") || "null") as UserInfo | null,
     userToken: localStorage.getItem("userToken") || "",
     isLoggedIn: !!localStorage.getItem("userToken"),
+    failedLoginCount: readStoredNumber(LOGIN_FAIL_COUNT_KEY),
+    loginLockedUntil: readStoredNumber(LOGIN_LOCK_UNTIL_KEY),
   }),
 
   getters: {
     isAuthenticated: (state): boolean => !!state.userToken,
     userName: (state): string => state.userInfo?.username || "Guest",
+    isLoginLocked: (state): boolean => state.loginLockedUntil > Date.now(),
+    remainingLockMs: (state): number => Math.max(0, state.loginLockedUntil - Date.now()),
   },
 
   actions: {
+    syncLoginGuard() {
+      localStorage.setItem(LOGIN_FAIL_COUNT_KEY, String(this.failedLoginCount));
+      localStorage.setItem(LOGIN_LOCK_UNTIL_KEY, String(this.loginLockedUntil));
+    },
+
+    resetLoginFailures() {
+      this.failedLoginCount = 0;
+      this.loginLockedUntil = 0;
+      this.syncLoginGuard();
+    },
+
+    recordLoginFailure() {
+      this.failedLoginCount += 1;
+      const lockMinutes = calcLockMinutes(this.failedLoginCount);
+      this.loginLockedUntil = lockMinutes > 0 ? Date.now() + lockMinutes * 60_000 : 0;
+      this.syncLoginGuard();
+      return {
+        failedCount: this.failedLoginCount,
+        lockMinutes,
+        lockedUntil: this.loginLockedUntil,
+      };
+    },
+
     async login(userData: { account: string; password: string }) {
+      if (this.loginLockedUntil > Date.now()) {
+        throw new Error("当前登录已被暂时禁止，请稍后再试");
+      }
+      if (this.loginLockedUntil && this.loginLockedUntil <= Date.now()) {
+        this.loginLockedUntil = 0;
+        this.syncLoginGuard();
+      }
       try {
         const info = await DoAxiosWithErro<UserInfo>("/auth/login", "post", userData);
         // 登录成功，保存用户信息
         this.userToken = info.token;
         this.userInfo = info;
         this.isLoggedIn = true;
+        this.resetLoginFailures();
 
         // 持久化
         localStorage.setItem("userToken", this.userToken);
@@ -56,7 +104,9 @@ export const useUserStore = defineStore("user", {
         }
         // === 以上为新增代码 ===
       } catch (err) {
+        this.recordLoginFailure();
         console.error(err);
+        throw err;
       }
     },
 
